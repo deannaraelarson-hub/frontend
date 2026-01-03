@@ -1,29 +1,20 @@
-import { WagmiConfig, createConfig } from "wagmi";
-import { mainnet, bsc, polygon } from "wagmi/chains";
-import { ConnectKitProvider, getDefaultConfig } from "connectkit";
+import { WagmiConfig } from "wagmi";
+import { ConnectKitProvider } from "connectkit";
+import { wagmiConfig } from "./wagmi";
 import ConnectButton from "./ui/ConnectButton";
-
-const config = createConfig(
-  getDefaultConfig({
-    appName: "Unified Wallet App",
-    walletConnectProjectId: "962425907914a3e80a7d8e7288b23f62",
-    chains: [mainnet, bsc, polygon],
-    ssr: false,
-    autoConnect: false, // CRITICAL: prevents MetaMask auto-open
-  })
-);
+import WalletInfo from "./ui/WalletInfo";
 
 export default function App() {
   return (
-    <WagmiConfig config={config}>
+    <WagmiConfig config={wagmiConfig}>
       <ConnectKitProvider
-        mode="light"
         options={{
+          walletConnectName: "WalletConnect",
           enforceSupportedChains: false,
-          hideNoWalletCTA: false,
         }}
       >
         <ConnectButton />
+        <WalletInfo />
       </ConnectKitProvider>
     </WagmiConfig>
   );
