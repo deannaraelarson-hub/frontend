@@ -1,41 +1,31 @@
 import { useAccount, useBalance, useChainId } from "wagmi";
-import { getChain } from "wagmi/chains";
+import { mainnet, bsc, polygon } from "wagmi/chains";
+
+const CHAINS = [mainnet, bsc, polygon];
 
 export default function WalletInfo() {
-  const { address, isConnected, chain } = useAccount();
+  const { address, isConnected } = useAccount();
   const chainId = useChainId();
 
   const { data: balance } = useBalance({
     address,
-    watch: true
+    enabled: !!address,
   });
 
   if (!isConnected) return null;
 
-  const activeChain = chain ?? getChain(chainId);
+  const chain = CHAINS.find((c) => c.id === chainId);
 
   return (
-    <div
-      style={{
-        marginTop: 20,
-        padding: 16,
-        borderRadius: 12,
-        background: "#f4f4f4",
-        maxWidth: 420
-      }}
-    >
-      <div>
-        <strong>Address:</strong> {address}
-      </div>
-
-      <div>
-        <strong>Network:</strong> {activeChain?.name ?? "Unknown"}
-      </div>
-
-      <div>
+    <div style={{ marginTop: "20px" }}>
+      <p><strong>Address:</strong> {address}</p>
+      <p><strong>Network:</strong> {chain?.name || "Unknown"}</p>
+      <p>
         <strong>Balance:</strong>{" "}
-        {balance?.formatted} {balance?.symbol}
-      </div>
+        {balance
+          ? `${Number(balance.formatted).toFixed(4)} ${balance.symbol}`
+          : "Loading..."}
+      </p>
     </div>
   );
 }
