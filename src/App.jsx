@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import './App.css';
+import './mobile-fix.css';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -384,3 +384,4 @@ function App() {
 }
 
 export default App;
+
