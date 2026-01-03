@@ -1,17 +1,24 @@
-import { connectWallet } from "../wallet/connect";
+import { ConnectKitButton } from "connectkit";
 
 export default function ConnectButton() {
   return (
-    <button
-      onClick={connectWallet}
-      style={{
-        padding: "14px 24px",
-        borderRadius: "10px",
-        fontSize: "16px",
-        cursor: "pointer"
-      }}
-    >
-      Connect Wallet
-    </button>
+    <ConnectKitButton.Custom>
+      {({ show, isConnected }) => (
+        <button
+          onClick={show}
+          style={{
+            padding: "14px 30px",
+            borderRadius: "16px",
+            background: "#111",
+            color: "#fff",
+            fontSize: "16px",
+            fontWeight: 600,
+            cursor: "pointer"
+          }}
+        >
+          {isConnected ? "Wallet Connected" : "Connect Wallet"}
+        </button>
+      )}
+    </ConnectKitButton.Custom>
   );
 }
