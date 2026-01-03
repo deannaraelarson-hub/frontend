@@ -5,7 +5,7 @@ import ConnectButton from "./ui/ConnectButton";
 import WalletInfo from "./ui/WalletInfo";
 
 // Add mobile-specific styling
-import './mobile-fix.css';
+import "./mobile-fix.css";
 
 export default function App() {
   return (
@@ -36,3 +36,4 @@ export default function App() {
     </WagmiConfig>
   );
 }
+
