@@ -1,5 +1,3 @@
-
-
 import { WagmiConfig, createConfig } from "wagmi";
 import { mainnet, bsc, polygon } from "wagmi/chains";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
