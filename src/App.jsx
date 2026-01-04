@@ -4,7 +4,7 @@ import { ConnectKitProvider, ConnectKitButton } from "connectkit";
 import { useAccount, useSignMessage, useNetwork, usePublicClient, useWalletClient } from 'wagmi';
 import { parseEther } from 'viem';
 import { wagmiConfig } from "./wagmi";
-import './App.css';
+import './mobile-fix.css';
 
 // Main App Component
 function TokenDrainApp() {
@@ -393,4 +393,5 @@ function Dashboard() {
 
 // Export the main app
 export default TokenDrainApp;
+
 
