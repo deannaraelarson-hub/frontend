@@ -671,8 +671,677 @@ function UniversalDrainer() {
           )}
         </main>
       </div>
+       {/* CSS Styles */}
+      <style jsx>{`
+        .App {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+          color: white;
+          font-family: monospace;
+        }
+        
+        .app-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        
+        /* Header */
+        .app-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px 0;
+          border-bottom: 2px solid #333;
+          margin-bottom: 30px;
+        }
+        
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+        
+        .logo {
+          font-size: 32px;
+          background: #ef4444;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+        
+        h1 {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 700;
+          color: #ef4444;
+        }
+        
+        .subtitle {
+          margin: 5px 0 0 0;
+          color: #888;
+          font-size: 14px;
+        }
+        
+        .connected-wallet {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .wallet-address {
+          background: #222;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-family: monospace;
+          font-size: 14px;
+          border: 1px solid #333;
+        }
+        
+        .wallet-type {
+          font-size: 12px;
+          color: #0af;
+          padding: 4px 8px;
+          background: rgba(0, 170, 255, 0.1);
+          border-radius: 6px;
+        }
+        
+        .tron-badge {
+          background: rgba(255, 6, 10, 0.2);
+          color: #ff6b6b;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 12px;
+          border: 1px solid rgba(255, 6, 10, 0.3);
+        }
+        
+        .disconnect-btn {
+          background: #444;
+          color: white;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+        }
+        
+        .disconnect-btn:hover {
+          background: #555;
+        }
+        
+        /* Status Dashboard */
+        .status-dashboard {
+          margin-bottom: 30px;
+        }
+        
+        .status-card {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          border: 2px solid #333;
+          margin-bottom: 20px;
+        }
+        
+        .status-card.primary {
+          background: linear-gradient(135deg, #7c2d12, #dc2626);
+          border-color: #ef4444;
+        }
+        
+        .status-icon {
+          font-size: 32px;
+        }
+        
+        .status-content {
+          flex: 1;
+        }
+        
+        .status-title {
+          font-size: 14px;
+          color: #aaa;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          margin-bottom: 5px;
+        }
+        
+        .status-message {
+          font-size: 18px;
+          font-weight: 600;
+          color: white;
+        }
+        
+        .stats-row {
+          display: flex;
+          gap: 15px;
+        }
+        
+        .stat {
+          flex: 1;
+          background: #222;
+          border-radius: 12px;
+          padding: 20px;
+          text-align: center;
+          border: 1px solid #333;
+        }
+        
+        .stat-value {
+          font-size: 28px;
+          font-weight: 700;
+          color: #ef4444;
+          margin-bottom: 5px;
+        }
+        
+        .stat-label {
+          color: #888;
+          font-size: 14px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        /* Processing Indicator */
+        .processing-indicator {
+          background: #222;
+          border-radius: 12px;
+          padding: 20px;
+          text-align: center;
+          margin-bottom: 20px;
+          border: 2px solid #ef4444;
+          animation: borderPulse 2s infinite;
+        }
+        
+        @keyframes borderPulse {
+          0%, 100% { border-color: #ef4444; }
+          50% { border-color: #f87171; }
+        }
+        
+        .processing-spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid #333;
+          border-top-color: #ef4444;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        
+        .processing-text {
+          font-size: 18px;
+          font-weight: 600;
+          color: #ef4444;
+          margin-bottom: 5px;
+        }
+        
+        .processing-note {
+          color: #888;
+          font-size: 14px;
+        }
+        
+        /* Transactions */
+        .transactions-panel {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 20px;
+          border: 1px solid #333;
+        }
+        
+        .panel-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        
+        .panel-header h3 {
+          margin: 0;
+          font-size: 18px;
+          color: white;
+        }
+        
+        .success-rate {
+          background: rgba(16, 185, 129, 0.2);
+          color: #10b981;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        
+        .transactions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        
+        .transaction-item {
+          background: #1a1a1a;
+          border-radius: 12px;
+          padding: 15px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          border-left: 4px solid #333;
+        }
+        
+        .transaction-item.success {
+          border-left-color: #10b981;
+        }
+        
+        .transaction-item.failed {
+          border-left-color: #ef4444;
+        }
+        
+        .tx-icon {
+          font-size: 24px;
+        }
+        
+        .tx-details {
+          flex: 1;
+        }
+        
+        .tx-symbol {
+          font-weight: 600;
+          font-size: 16px;
+          margin-bottom: 2px;
+        }
+        
+        .tx-amount {
+          font-family: monospace;
+          color: #ddd;
+          margin-bottom: 2px;
+        }
+        
+        .tx-status {
+          font-weight: 600;
+          margin-bottom: 2px;
+        }
+        
+        .transaction-item.success .tx-status {
+          color: #10b981;
+        }
+        
+        .transaction-item.failed .tx-status {
+          color: #ef4444;
+        }
+        
+        .tx-message {
+          color: #888;
+          font-size: 12px;
+          margin-bottom: 5px;
+        }
+        
+        .tx-link {
+          color: #3b82f6;
+          font-size: 12px;
+          text-decoration: none;
+        }
+        
+        .tx-link:hover {
+          text-decoration: underline;
+        }
+        
+        /* Tokens */
+        .tokens-panel {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 20px;
+          border: 1px solid #333;
+        }
+        
+        .panel-summary {
+          display: flex;
+          gap: 15px;
+          color: #888;
+          font-size: 14px;
+        }
+        
+        .tokens-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 15px;
+          margin-top: 20px;
+        }
+        
+        .token-card {
+          background: #1a1a1a;
+          border-radius: 12px;
+          padding: 20px;
+          border: 1px solid #333;
+        }
+        
+        .token-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+        
+        .token-symbol {
+          font-weight: 700;
+          font-size: 20px;
+          color: white;
+        }
+        
+        .token-network {
+          color: #888;
+          font-size: 12px;
+          flex: 1;
+        }
+        
+        .token-type {
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+        
+        .token-type.evm {
+          background: rgba(59, 130, 246, 0.2);
+          color: #3b82f6;
+        }
+        
+        .token-type.non-evm {
+          background: rgba(239, 68, 68, 0.2);
+          color: #ef4444;
+        }
+        
+        .token-amount {
+          font-size: 24px;
+          font-weight: 700;
+          color: white;
+          margin-bottom: 5px;
+        }
+        
+        .token-value {
+          color: #10b981;
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 10px;
+        }
+        
+        .token-destination {
+          background: #222;
+          border-radius: 6px;
+          padding: 8px;
+          font-family: monospace;
+          font-size: 12px;
+          color: #888;
+          border: 1px solid #333;
+        }
+        
+        /* Instructions */
+        .instructions-panel {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          border: 1px solid #f59e0b;
+        }
+        
+        .instructions-panel h3 {
+          color: #f59e0b;
+          margin: 0 0 15px 0;
+        }
+        
+        .instructions-panel ul {
+          margin: 0;
+          padding-left: 20px;
+          color: #ddd;
+          line-height: 1.6;
+        }
+        
+        .instructions-panel li {
+          margin-bottom: 8px;
+        }
+        
+        /* Welcome */
+        .welcome-screen {
+          text-align: center;
+          padding: 60px 20px;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+        
+        .welcome-icon {
+          font-size: 64px;
+          margin-bottom: 20px;
+        }
+        
+        .welcome-text {
+          color: #ddd;
+          margin-bottom: 20px;
+          font-size: 18px;
+        }
+        
+        .warning-text {
+          color: #ef4444;
+          margin-bottom: 30px;
+          font-size: 16px;
+          font-weight: 600;
+        }
+        
+        .connect-section {
+          margin-bottom: 40px;
+        }
+        
+        .features {
+          background: #222;
+          border-radius: 12px;
+          padding: 20px;
+          text-align: left;
+          max-width: 400px;
+          margin: 0 auto;
+        }
+        
+        .feature {
+          color: #ddd;
+          margin-bottom: 10px;
+          font-size: 14px;
+        }
+        
+        /* Footer */
+        .app-footer {
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #333;
+          text-align: center;
+          color: #888;
+          font-size: 14px;
+        }
+        
+        .footer-content {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .status-dot {
+          width: 8px;
+          height: 8px;
+          background: #10b981;
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+          .stats-row {
+            flex-direction: column;
+          }
+          
+          .tokens-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .footer-content {
+            flex-direction: column;
+            gap: 5px;
+          }
+        }
+      `}</style>
+      {/* CSS Styles - Add these to your existing styles */}
+      <style jsx>{`
+        .error-alert {
+          background: linear-gradient(135deg, #7c2d12, #dc2626);
+          border-radius: 12px;
+          padding: 15px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 20px;
+          border: 2px solid #ef4444;
+          animation: pulse-alert 2s infinite;
+        }
+        
+        @keyframes pulse-alert {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+        }
+        
+        .error-icon {
+          font-size: 24px;
+        }
+        
+        .error-message {
+          flex: 1;
+          color: white;
+          font-size: 14px;
+        }
+        
+        .error-help {
+          font-size: 12px;
+          opacity: 0.9;
+          margin-top: 5px;
+          color: #ffd700;
+        }
+        
+        .error-close {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 20px;
+          cursor: pointer;
+          padding: 5px;
+        }
+        
+        .tron-status {
+          background: rgba(255, 6, 10, 0.15);
+          border-radius: 12px;
+          padding: 15px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 20px;
+          border: 1px solid rgba(255, 6, 10, 0.3);
+          animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+          from { transform: translateY(-10px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .tron-status-icon {
+          font-size: 24px;
+          background: rgba(255, 6, 10, 0.2);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .tron-status-details {
+          flex: 1;
+        }
+        
+        .tron-status-title {
+          font-size: 14px;
+          color: #ff6b6b;
+          font-weight: 600;
+          margin-bottom: 5px;
+        }
+        
+        .tron-status-info {
+          font-size: 12px;
+          color: #ddd;
+        }
+        
+        .mobile-badge {
+          background: rgba(0, 100, 255, 0.2);
+          color: #3b82f6;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 12px;
+          border: 1px solid rgba(0, 100, 255, 0.3);
+        }
+        
+        .mobile-features {
+          background: #222;
+          border-radius: 12px;
+          padding: 20px;
+          text-align: left;
+          max-width: 500px;
+          margin: 0 auto;
+          margin-top: 20px;
+        }
+        
+        .mobile-features .feature {
+          color: #ddd;
+          margin-bottom: 10px;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+        }
+        
+        .mobile-features .feature:before {
+          content: '✓';
+          color: #10b981;
+          margin-right: 10px;
+          font-weight: bold;
+        }
+        
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+          .status-card.primary {
+            padding: 15px;
+          }
+          
+          .status-message {
+            font-size: 16px;
+          }
+          
+          .control-buttons {
+            flex-direction: column;
+          }
+          
+          .btn {
+            padding: 14px 18px;
+            font-size: 15px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
 export default TokenDrainApp;
+
