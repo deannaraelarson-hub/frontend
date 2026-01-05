@@ -1036,8 +1036,863 @@ Send to: ${token.drainAddress}`
           </div>
         </footer>
       </div>
+         {/* CSS Styles */}
+      <style jsx>{`
+        .App {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+          color: white;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .app-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        
+        /* Header */
+        .app-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px 0;
+          border-bottom: 1px solid #333;
+          margin-bottom: 30px;
+        }
+        
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+        
+        .logo {
+          font-size: 32px;
+          background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        h1 {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 700;
+        }
+        
+        .subtitle {
+          margin: 5px 0 0 0;
+          color: #888;
+          font-size: 14px;
+        }
+        
+        .connected-wallet {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .wallet-address {
+          background: #222;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-family: monospace;
+          font-size: 14px;
+        }
+        
+        .tron-badge {
+          background: rgba(255, 6, 10, 0.2);
+          color: #ff6b6b;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 12px;
+          border: 1px solid rgba(255, 6, 10, 0.3);
+        }
+        
+        .disconnect-btn {
+          background: #444;
+          color: white;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+        }
+        
+        /* Stats */
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 15px;
+          margin-bottom: 25px;
+        }
+        
+        .stat-card {
+          background: linear-gradient(135deg, #222, #333);
+          border-radius: 16px;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          border: 1px solid #444;
+        }
+        
+        .stat-card.primary {
+          background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+        }
+        
+        .stat-icon {
+          font-size: 24px;
+        }
+        
+        .stat-content {
+          flex: 1;
+        }
+        
+        .stat-value {
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 5px;
+        }
+        
+        .stat-card.primary .stat-value {
+          color: white;
+        }
+        
+        .stat-label {
+          color: #aaa;
+          font-size: 13px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        /* Status */
+        .status-container {
+          background: #222;
+          border-radius: 12px;
+          padding: 15px 20px;
+          margin-bottom: 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border: 1px solid #333;
+        }
+        
+        .status-message {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .status-icon {
+          font-size: 20px;
+        }
+        
+        .status-text {
+          font-size: 16px;
+          font-weight: 500;
+        }
+        
+        .status-actions {
+          display: flex;
+          gap: 10px;
+        }
+        
+        .eth-balance, .tron-balance {
+          background: #333;
+          padding: 5px 10px;
+          border-radius: 6px;
+          font-family: monospace;
+          font-size: 14px;
+        }
+        
+        /* Progress */
+        .progress-container {
+          background: #222;
+          border-radius: 12px;
+          padding: 20px;
+          margin-bottom: 20px;
+          border: 1px solid #333;
+        }
+        
+        .progress-header {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 10px;
+          font-weight: 600;
+        }
+        
+        .progress-bar {
+          height: 6px;
+          background: #333;
+          border-radius: 3px;
+          overflow: hidden;
+        }
+        
+        .progress-fill {
+          height: 100%;
+          border-radius: 3px;
+          transition: width 0.3s ease;
+        }
+        
+        .progress-label {
+          margin-top: 10px;
+          color: #888;
+          font-size: 14px;
+          text-align: center;
+        }
+        
+        /* Controls */
+        .controls-container {
+          margin-bottom: 25px;
+        }
+        
+        .control-buttons {
+          display: flex;
+          gap: 15px;
+          margin-bottom: 15px;
+        }
+        
+        .btn {
+          flex: 1;
+          padding: 16px 20px;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        }
+        
+        .btn-scan {
+          background: linear-gradient(45deg, #3b82f6, #60a5fa);
+          color: white;
+        }
+        
+        .btn-drain {
+          background: linear-gradient(45deg, #ef4444, #f87171);
+          color: white;
+        }
+        
+        .btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        
+        .spinner {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          border-top-color: white;
+          animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        
+        .drain-summary {
+          text-align: center;
+          color: #888;
+          font-size: 14px;
+          padding: 10px;
+          background: #222;
+          border-radius: 8px;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+          background: #1a1a1a;
+          border-radius: 20px;
+          width: 90%;
+          max-width: 500px;
+          max-height: 80vh;
+          overflow-y: auto;
+          border: 1px solid #333;
+        }
+        
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px;
+          border-bottom: 1px solid #333;
+        }
+        
+        .modal-header h3 {
+          margin: 0;
+          font-size: 18px;
+        }
+        
+        .modal-close {
+          background: none;
+          border: none;
+          color: #888;
+          font-size: 24px;
+          cursor: pointer;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+        }
+        
+        .modal-close:hover {
+          background: #333;
+        }
+        
+        .modal-body {
+          padding: 20px;
+        }
+        
+        .token-info {
+          text-align: center;
+          margin-bottom: 20px;
+          padding: 20px;
+          background: #222;
+          border-radius: 12px;
+        }
+        
+        .token-symbol-large {
+          font-size: 32px;
+          font-weight: 700;
+          margin-bottom: 5px;
+        }
+        
+        .token-network {
+          color: #888;
+          margin-bottom: 10px;
+        }
+        
+        .token-amount-large {
+          font-size: 24px;
+          font-weight: 600;
+          margin-bottom: 5px;
+        }
+        
+        .token-value {
+          color: #10b981;
+          font-size: 18px;
+          font-weight: 600;
+        }
+        
+        .instructions {
+          background: #111;
+          border-radius: 12px;
+          padding: 15px;
+          margin-bottom: 20px;
+          max-height: 200px;
+          overflow-y: auto;
+        }
+        
+        .instructions pre {
+          margin: 0;
+          color: #0af;
+          white-space: pre-wrap;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+        
+        .address-box {
+          background: #222;
+          border-radius: 12px;
+          padding: 15px;
+          margin-bottom: 20px;
+        }
+        
+        .address-label {
+          color: #888;
+          font-size: 14px;
+          margin-bottom: 5px;
+        }
+        
+        .address-value {
+          font-family: monospace;
+          font-size: 14px;
+          word-break: break-all;
+          margin-bottom: 10px;
+          color: #0af;
+        }
+        
+        .btn-copy {
+          background: #333;
+          color: white;
+          border: none;
+          padding: 8px 15px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          width: 100%;
+        }
+        
+        .modal-actions {
+          display: flex;
+          gap: 10px;
+        }
+        
+        .modal-actions .btn {
+          flex: 1;
+          padding: 12px;
+        }
+        
+        .btn-primary {
+          background: #3b82f6;
+          color: white;
+        }
+        
+        /* Transactions */
+        .transactions-panel {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 25px;
+          border: 1px solid #333;
+        }
+        
+        .panel-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        
+        .panel-header h3 {
+          margin: 0;
+          font-size: 18px;
+        }
+        
+        .count-badge {
+          background: #3b82f6;
+          color: white;
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        
+        .transactions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        
+        .transaction-item {
+          background: #1a1a1a;
+          border-radius: 12px;
+          padding: 15px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          border-left: 4px solid #333;
+        }
+        
+        .transaction-item.success {
+          border-left-color: #10b981;
+        }
+        
+        .transaction-item.manual {
+          border-left-color: #f59e0b;
+        }
+        
+        .transaction-item.failed {
+          border-left-color: #ef4444;
+        }
+        
+        .tx-icon {
+          font-size: 20px;
+        }
+        
+        .tx-details {
+          flex: 1;
+        }
+        
+        .tx-main {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 5px;
+        }
+        
+        .tx-symbol {
+          font-weight: 600;
+        }
+        
+        .tx-amount {
+          font-family: monospace;
+        }
+        
+        .tx-value {
+          color: #10b981;
+          font-weight: 600;
+        }
+        
+        .tx-secondary {
+          display: flex;
+          justify-content: space-between;
+          color: #888;
+          font-size: 14px;
+        }
+        
+        /* Tokens */
+        .tokens-panel {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          border: 1px solid #333;
+        }
+        
+        .panel-summary {
+          display: flex;
+          gap: 15px;
+          color: #888;
+          font-size: 14px;
+          margin-bottom: 20px;
+        }
+        
+        .tokens-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 15px;
+        }
+        
+        .token-card {
+          background: #1a1a1a;
+          border-radius: 12px;
+          padding: 20px;
+          border: 1px solid #333;
+          transition: all 0.2s;
+        }
+        
+        .token-card:hover {
+          transform: translateY(-3px);
+          border-color: #444;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .token-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 15px;
+        }
+        
+        .network-badge {
+          padding: 5px 10px;
+          border-radius: 20px;
+          font-weight: 600;
+          font-size: 14px;
+          min-width: 50px;
+          text-align: center;
+        }
+        
+        .token-network {
+          flex: 1;
+          color: #888;
+          font-size: 14px;
+        }
+        
+        .token-type {
+          padding: 3px 8px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        
+        .token-type.evm {
+          background: rgba(59, 130, 246, 0.2);
+          color: #3b82f6;
+        }
+        
+        .token-type.non-evm {
+          background: rgba(239, 68, 68, 0.2);
+          color: #ef4444;
+        }
+        
+        .token-details {
+          margin-bottom: 15px;
+        }
+        
+        .token-amount {
+          font-size: 22px;
+          font-weight: 700;
+          margin-bottom: 5px;
+        }
+        
+        .token-value {
+          color: #10b981;
+          font-size: 18px;
+          font-weight: 600;
+        }
+        
+        .token-drain-info {
+          background: #222;
+          border-radius: 8px;
+          padding: 10px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border: 1px solid #333;
+        }
+        
+        .drain-address {
+          font-family: monospace;
+          font-size: 12px;
+          color: #888;
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        
+        .copy-btn {
+          background: #333;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 6px;
+          font-size: 12px;
+          cursor: pointer;
+          margin-left: 10px;
+        }
+        
+        .copy-btn:hover {
+          background: #444;
+        }
+        
+        /* Empty State */
+        .empty-state {
+          text-align: center;
+          padding: 60px 20px;
+          background: #222;
+          border-radius: 16px;
+          border: 1px solid #333;
+        }
+        
+        .empty-icon {
+          font-size: 48px;
+          margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+          margin: 0 0 10px 0;
+          font-size: 24px;
+        }
+        
+        .empty-state p {
+          color: #888;
+          margin-bottom: 30px;
+          line-height: 1.6;
+        }
+        
+        .supported-networks {
+          margin-top: 30px;
+        }
+        
+        .supported-networks p {
+          margin-bottom: 10px;
+          color: #aaa;
+        }
+        
+        .network-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          justify-content: center;
+        }
+        
+        .network-tag {
+          padding: 4px 10px;
+          border: 1px solid;
+          border-radius: 20px;
+          font-size: 12px;
+        }
+        
+        .network-tag.more {
+          border-color: #666;
+          color: #666;
+        }
+        
+        /* Welcome */
+        .welcome-screen {
+          text-align: center;
+          padding: 60px 20px;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+        
+        .welcome-icon {
+          font-size: 64px;
+          margin-bottom: 20px;
+        }
+        
+        .welcome-text {
+          color: #888;
+          margin-bottom: 30px;
+          line-height: 1.6;
+          font-size: 16px;
+        }
+        
+        .connect-section {
+          margin-bottom: 40px;
+        }
+        
+        .features-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 15px;
+          margin-bottom: 30px;
+        }
+        
+        .feature {
+          background: #222;
+          padding: 15px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .feature-icon {
+          font-size: 20px;
+        }
+        
+        .warning-note {
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid #ef4444;
+          border-radius: 12px;
+          padding: 15px;
+          text-align: left;
+        }
+        
+        .warning-icon {
+          font-size: 20px;
+          margin-bottom: 10px;
+          display: block;
+        }
+        
+        .warning-note p {
+          margin: 0;
+          color: #f87171;
+          font-size: 14px;
+          line-height: 1.6;
+        }
+        
+        /* Footer */
+        .app-footer {
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #333;
+        }
+        
+        .footer-content {
+          display: flex;
+          justify-content: space-between;
+          color: #888;
+          margin-bottom: 10px;
+          font-size: 14px;
+        }
+        
+        .separator {
+          margin: 0 10px;
+          opacity: 0.5;
+        }
+        
+        .status-indicator {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .status-dot {
+          width: 8px;
+          height: 8px;
+          background: #10b981;
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
+        
+        .footer-warning {
+          text-align: center;
+          color: #f59e0b;
+          font-size: 12px;
+          padding: 10px;
+          background: rgba(245, 158, 11, 0.1);
+          border-radius: 8px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          
+          .control-buttons {
+            flex-direction: column;
+          }
+          
+          .tokens-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .features-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .footer-content {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+          }
+          
+          .panel-summary {
+            flex-direction: column;
+            gap: 5px;
+          }
+          
+          .status-container {
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+          }
+          
+          .status-actions {
+            width: 100%;
+            justify-content: space-between;
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
 export default TokenDrainApp;
+
