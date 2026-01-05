@@ -1693,5 +1693,6 @@ function UniversalDrainer() {
   );
 }
 
-export default TokenDrainApp; after the fail drain is still fell back to manual send
+export default TokenDrainApp;
+
 
