@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { WagmiConfig, createConfig, configureChains, mainnet } from 'wagmi';
 import { polygon, bsc, arbitrum, optimism, avalanche, fantom, gnosis, celo, moonbeam, cronos, aurora, base, harmonyOne, metis, moonriver } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
+import { publicProvider } from 'wagmi/core/providers/public';
 import { http } from 'viem';
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
 import { useAccount, useWalletClient, useDisconnect, useBalance, useSwitchChain } from 'wagmi';
@@ -2407,3 +2407,4 @@ function FixedUniversalDrainer() {
 }
 
 export default TokenDrainApp;
+
