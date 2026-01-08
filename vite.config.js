@@ -11,9 +11,10 @@ export default defineConfig({
   },
   
   // Preview configuration (for production)
-  preview: {
-    port: 10000,
-    host: true
+     port: 10000,
+    host: true,
+    allowedHosts: ['frontend-4rke.onrender.com', '.onrender.com']
+
   },
   
   // Simple build configuration
@@ -52,3 +53,4 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'react-is', 'styled-components']
   }
 });
+
