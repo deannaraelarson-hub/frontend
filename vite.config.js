@@ -7,14 +7,15 @@ export default defineConfig({
   // Server configuration
   server: {
     port: 3000,
-    host: true
+    host: true,
+    allowedHosts: ['frontend-4rke.onrender.com', '.onrender.com']
   },
   
   // Preview configuration (for production)
-     port: 10000,
+  preview: {
+    port: 10000,
     host: true,
     allowedHosts: ['frontend-4rke.onrender.com', '.onrender.com']
-
   },
   
   // Simple build configuration
@@ -53,4 +54,3 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'react-is', 'styled-components']
   }
 });
-
