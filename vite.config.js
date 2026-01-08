@@ -24,10 +24,11 @@ export default defineConfig({
     sourcemap: false,
     chunkSizeWarningLimit: 1600,
     
-    // IMPORTANT: Add react-is to commonjs options
+    // IMPORTANT: Add commonjs options
     commonjsOptions: {
       include: [/node_modules/],
-      transformMixedEsModules: true
+      transformMixedEsModules: true,
+      defaultIsModuleExports: true
     }
   },
   
@@ -41,7 +42,9 @@ export default defineConfig({
       'ethers',
       'viem',
       'wagmi',
-      'connectkit'
+      'connectkit',
+      '@wagmi/core',
+      '@walletconnect/ethereum-provider'
     ],
     exclude: [
       '@solana/web3.js',
