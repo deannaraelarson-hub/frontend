@@ -16,6 +16,8 @@
     "@tonconnect/ui-react": "^2.3.1",
     "@wagmi/core": "^2.22.1",
     "@walletconnect/ethereum-provider": "^2.23.1",
+    "@web3modal/ethereum": "^2.7.1",
+    "@web3modal/react": "^2.7.1",
     "axios": "^1.13.2",
     "connectkit": "^1.9.1",
     "ethers": "^6.16.0",
@@ -24,8 +26,8 @@
     "react-is": "^18.3.1",
     "styled-components": "^6.1.13",
     "tronweb": "^6.1.1",
-    "viem": "^2.43.5",
-    "wagmi": "^3.2.0"
+    "viem": "^2.44.4",
+    "wagmi": "^3.3.4"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",
