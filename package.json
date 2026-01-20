@@ -1,41 +1,41 @@
 {
-  "name": "wallet-frontend",
-  "private": true,
+  "name": "frontend",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "vite preview --port 10000 --host"
-  },
   "dependencies": {
-    "@solana/web3.js": "^1.98.4",
-    "@tanstack/react-query": "^5.90.16",
-    "@tonconnect/ui": "^2.0.11",
-    "@tonconnect/ui-react": "^2.3.1",
-    "@wagmi/core": "^2.22.1",
-    "@walletconnect/ethereum-provider": "^2.23.1",
-    "@web3modal/ethereum": "^2.7.1",
-    "@web3modal/react": "^2.7.1",
-    "axios": "^1.13.2",
-    "connectkit": "^1.9.1",
-    "ethers": "^6.16.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-is": "^18.3.1",
-    "styled-components": "^6.1.13",
-    "tronweb": "^6.1.1",
-    "viem": "^2.44.4",
-    "wagmi": "^3.3.4"
+    "@tanstack/react-query": "^5.18.0",
+    "@wagmi/core": "^2.6.1",
+    "@wagmi/connectors": "^2.3.0",
+    "@web3modal/ethereum": "^4.4.0",
+    "@web3modal/react": "^4.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
+    "viem": "^2.7.8",
+    "wagmi": "^2.6.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.2",
-    "vite": "^5.4.0"
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.0.4",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "overrides": {
+    "react-error-boundary": "^4.0.11",
+    "react-remove-scroll": "^2.5.7"
   }
 }
