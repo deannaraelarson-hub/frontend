@@ -9,18 +9,6 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          wagmi: ['wagmi', 'viem'],
-          web3modal: ['@web3modal/react', '@web3modal/ethereum']
-        }
-      }
-    }
-  },
-  define: {
-    'process.env': {}
+    sourcemap: false
   }
 })
