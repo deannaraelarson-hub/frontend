@@ -1,59 +1,26 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  
-  // Server configuration
   server: {
     port: 3000,
-    host: true,
-    allowedHosts: ['frontend-4rke.onrender.com', '.onrender.com']
+    host: true
   },
-  
-  // Preview configuration (for production)
-  preview: {
-    port: 10000,
-    host: true,
-    allowedHosts: ['frontend-4rke.onrender.com', '.onrender.com']
-  },
-  
-  // Simple build configuration
   build: {
-    outDir: "dist",
+    outDir: 'dist',
     sourcemap: false,
-    chunkSizeWarningLimit: 1600,
-    
-    // IMPORTANT: Add commonjs options
-    commonjsOptions: {
-      include: [/node_modules/],
-      transformMixedEsModules: true,
-      defaultIsModuleExports: true
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          wagmi: ['wagmi', 'viem'],
+          web3modal: ['@web3modal/react', '@web3modal/ethereum']
+        }
+      }
     }
   },
-  
-  // Optimize dependencies
-  optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react-is',
-      'styled-components',
-      'ethers',
-      'viem',
-      'wagmi',
-      'connectkit',
-      '@wagmi/core',
-      '@walletconnect/ethereum-provider'
-    ],
-    exclude: [
-      '@solana/web3.js',
-      'tronweb'
-    ]
-  },
-  
-  // Resolve configuration
-  resolve: {
-    dedupe: ['react', 'react-dom', 'react-is', 'styled-components']
+  define: {
+    'process.env': {}
   }
-});
+})
