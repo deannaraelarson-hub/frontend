@@ -4,38 +4,27 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@tanstack/react-query": "^5.18.0",
-    "@wagmi/core": "^2.6.1",
-    "@wagmi/connectors": "^2.3.0",
-    "@web3modal/ethereum": "^4.4.0",
-    "@web3modal/react": "^4.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
     "viem": "^2.7.8",
-    "wagmi": "^2.6.1"
+    "wagmi": "^2.6.1",
+    "@walletconnect/universal-provider": "^2.11.2",
+    "@web3modal/ethereum": "^4.4.0",
+    "@web3modal/react": "^4.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.0.4",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32",
-    "tailwindcss": "^3.3.6",
-    "typescript": "^5.2.2",
     "vite": "^5.0.8"
   },
   "scripts": {
-    "start": "vite",
+    "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite preview --port 3000"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  },
-  "overrides": {
-    "react-error-boundary": "^4.0.11",
-    "react-remove-scroll": "^2.5.7"
+    "node": ">=18.0.0"
   }
 }
