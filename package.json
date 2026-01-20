@@ -6,25 +6,19 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "viem": "^2.7.8",
     "wagmi": "^2.6.1",
-    "@walletconnect/universal-provider": "^2.11.2",
-    "@web3modal/ethereum": "^4.4.0",
-    "@web3modal/react": "^4.4.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^4.0.4",
-    "vite": "^5.0.8"
+    "viem": "^2.7.8",
+    "@web3modal/react": "^4.4.0",
+    "@web3modal/ethereum": "^4.4.0"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "vite preview --port 3000"
+    "start": "vite preview --host 0.0.0.0 --port 10000"
   },
-  "engines": {
-    "node": ">=18.0.0"
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.4",
+    "vite": "^5.0.8"
   }
 }
