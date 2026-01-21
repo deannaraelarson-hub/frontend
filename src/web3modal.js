@@ -11,16 +11,19 @@ createWeb3Modal({
   ethersConfig: {
     metadata: {
       name: 'Token Transfer',
-      description: 'Secure token transfer dApp',
+      description: 'Secure Web3 dApp',
       url: window.location.origin,
       icons: []
     }
   },
 
-  // Force wallet picker (no auto MetaMask)
+  // ✅ Mobile works perfectly
   enableInjected: false,
 
+  // ❌ Kill the public explorer list
   explorerExcludedWalletIds: 'ALL',
+
+  // ✅ ONLY smart-contract capable wallets
   explorerRecommendedWalletIds: [
     'metamask',
     'trust',
