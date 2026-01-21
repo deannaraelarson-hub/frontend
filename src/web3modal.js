@@ -7,15 +7,16 @@ createWeb3Modal({
   ethersConfig: {
     metadata: {
       name: 'Token Transfer',
-      description: 'Multi-chain token transfer',
+      description: 'Secure token transfer dApp',
       url: 'https://yourdomain.com',
       icons: ['https://yourdomain.com/icon.png']
     }
   },
+
   chains: [mainnet, polygon, bsc, arbitrum],
   projectId,
 
-  // 🔒 Only EOA wallets (NO exchanges)
+  // 🔒 Only real wallets (NO exchanges)
   explorerExcludedWalletIds: 'ALL',
   explorerRecommendedWalletIds: [
     'metamask',
