@@ -1,6 +1,6 @@
 import { useWeb3Modal, useWeb3ModalAccount } from '@web3modal/ethers/react'
 import { BrowserProvider, Contract } from 'ethers'
-import './web3modal'
+
 
 export default function App() {
   const { open } = useWeb3Modal()
@@ -53,3 +53,4 @@ export default function App() {
     </div>
   )
 }
+
