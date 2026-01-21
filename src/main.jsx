@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-// MUST be before App
+// MUST run before hooks
 import './web3modal'
 
 import App from './App.jsx'
