@@ -4,31 +4,32 @@ import { mainnet, polygon, bsc, arbitrum } from 'viem/chains'
 const projectId = '962425907914a3e80a7d8e7288b23f62'
 
 createWeb3Modal({
+  projectId,
+
+  chains: [mainnet, polygon, bsc, arbitrum],
+
   ethersConfig: {
     metadata: {
       name: 'Token Transfer',
       description: 'Secure token transfer dApp',
-      url: 'https://yourdomain.com',
-      icons: ['https://yourdomain.com/icon.png']
+      url: window.location.origin,
+      icons: []
     }
   },
 
-  chains: [mainnet, polygon, bsc, arbitrum],
-  projectId,
+  // 🔥 THIS is why popup was skipped
+  enableInjected: false,
 
-  // 🔒 Only real wallets (NO exchanges)
+  // ✅ Only WalletConnect dApp wallets
   explorerExcludedWalletIds: 'ALL',
   explorerRecommendedWalletIds: [
     'metamask',
     'trust',
     'coinbase',
     'rainbow',
-    'zerion',
     'okxwallet',
-    'bitkeep',
     'tokenpocket',
-    'phantom',
-    'mathwallet',
+    'bitget',
     'safe'
   ]
 })
