@@ -1,31 +1,217 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState('');
   const [status, setStatus] = useState('Ready to connect');
+  const [provider, setProvider] = useState(null);
 
-  const connectWallet = async () => {
+  // Check if wallet is already connected
+  useEffect(() => {
+    checkWalletConnection();
+  }, []);
+
+  const checkWalletConnection = async () => {
     if (window.ethereum) {
       try {
         const accounts = await window.ethereum.request({ 
-          method: 'eth_requestAccounts' 
+          method: 'eth_accounts' 
         });
+        if (accounts.length > 0) {
+          setAddress(accounts[0]);
+          setIsConnected(true);
+          setStatus('✅ Wallet connected');
+        }
+      } catch (error) {
+        console.log('No wallet connected');
+      }
+    }
+  };
+
+  // Improved wallet connection with multiple provider support
+  const connectWallet = async () => {
+    setStatus('Connecting...');
+    
+    // Try different wallet providers
+    const providers = [
+      window.ethereum, // MetaMask, Trust Wallet, etc.
+      window.web3?.currentProvider,
+      window.binanceChain, // Binance Chain Wallet
+      window.bitkeep?.ethereum, // BitKeep
+      window.okexchain, // OKX Wallet
+      window.phantom?.ethereum, // Phantom for EVM
+    ].filter(Boolean); // Remove falsy values
+
+    if (providers.length === 0) {
+      setStatus('❌ No Web3 wallet detected');
+      // Auto-inject wallet provider links based on browser
+      suggestWalletInstallation();
+      return;
+    }
+
+    // Use the first available provider
+    const selectedProvider = providers[0];
+    setProvider(selectedProvider);
+
+    try {
+      // Request accounts
+      const accounts = await selectedProvider.request({ 
+        method: 'eth_requestAccounts' 
+      });
+      
+      if (accounts && accounts.length > 0) {
         setAddress(accounts[0]);
         setIsConnected(true);
         setStatus('✅ Wallet connected');
-      } catch (error) {
+        
+        // Listen for account changes
+        selectedProvider.on('accountsChanged', handleAccountsChanged);
+        selectedProvider.on('chainChanged', handleChainChanged);
+        selectedProvider.on('disconnect', handleDisconnect);
+        
+        // Auto-switch to a preferred network (optional)
+        await switchToPreferredNetwork(selectedProvider);
+      }
+    } catch (error) {
+      console.error('Connection error:', error);
+      
+      if (error.code === 4001) {
+        setStatus('❌ Connection rejected by user');
+      } else if (error.code === -32002) {
+        setStatus('⚠️ Please check your wallet extension');
+      } else {
         setStatus('❌ Connection failed');
       }
+    }
+  };
+
+  const handleAccountsChanged = (accounts) => {
+    if (accounts.length === 0) {
+      disconnectWallet();
     } else {
-      setStatus('❌ No Ethereum wallet found');
+      setAddress(accounts[0]);
+    }
+  };
+
+  const handleChainChanged = () => {
+    window.location.reload();
+  };
+
+  const handleDisconnect = () => {
+    disconnectWallet();
+  };
+
+  const switchToPreferredNetwork = async (provider) => {
+    const preferredChainId = '0x1'; // Ethereum Mainnet (change as needed)
+    
+    try {
+      await provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: preferredChainId }],
+      });
+    } catch (switchError) {
+      // This error code indicates that the chain has not been added to MetaMask
+      if (switchError.code === 4902) {
+        try {
+          await provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: '0x1',
+                chainName: 'Ethereum Mainnet',
+                nativeCurrency: {
+                  name: 'ETH',
+                  symbol: 'ETH',
+                  decimals: 18
+                },
+                rpcUrls: ['https://eth.llamarpc.com'],
+                blockExplorerUrls: ['https://etherscan.io']
+              }
+            ],
+          });
+        } catch (addError) {
+          console.error('Failed to add network:', addError);
+        }
+      }
+      console.error('Failed to switch network:', switchError);
+    }
+  };
+
+  const suggestWalletInstallation = () => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Suggest mobile wallets
+      setStatus('📱 Install MetaMask Mobile or Trust Wallet');
+    } else {
+      // Suggest browser extensions
+      setStatus('🌐 Install MetaMask Extension');
     }
   };
 
   const disconnectWallet = () => {
+    if (provider) {
+      // Remove listeners
+      provider.removeListener('accountsChanged', handleAccountsChanged);
+      provider.removeListener('chainChanged', handleChainChanged);
+      provider.removeListener('disconnect', handleDisconnect);
+      setProvider(null);
+    }
+    
     setAddress('');
     setIsConnected(false);
     setStatus('Ready to connect');
+  };
+
+  // Smart contract interaction function
+  const executeSmartContract = async (contractAddress, abi, functionName, params) => {
+    if (!provider) {
+      setStatus('❌ No wallet connected');
+      return null;
+    }
+
+    try {
+      const web3 = new Web3(provider);
+      const contract = new web3.eth.Contract(abi, contractAddress);
+      
+      // Get user account
+      const accounts = await provider.request({ method: 'eth_accounts' });
+      const fromAddress = accounts[0];
+      
+      // Estimate gas
+      const gasEstimate = await contract.methods[functionName](...params)
+        .estimateGas({ from: fromAddress });
+      
+      // Build transaction
+      const txData = contract.methods[functionName](...params).encodeABI();
+      
+      // Get gas price
+      const gasPrice = await web3.eth.getGasPrice();
+      
+      // Build transaction object
+      const txObject = {
+        from: fromAddress,
+        to: contractAddress,
+        gas: web3.utils.toHex(gasEstimate),
+        gasPrice: web3.utils.toHex(gasPrice),
+        data: txData,
+        value: '0x0' // For payable functions, adjust accordingly
+      };
+      
+      // Send transaction
+      const txHash = await provider.request({
+        method: 'eth_sendTransaction',
+        params: [txObject],
+      });
+      
+      setStatus(`✅ Transaction sent: ${txHash.substring(0, 10)}...`);
+      return txHash;
+      
+    } catch (error) {
+      console.error('Contract execution error:', error);
+      setStatus(`❌ Contract execution failed: ${error.message}`);
+      return null;
+    }
   };
 
   return (
@@ -126,6 +312,7 @@ function App() {
         </header>
 
         <main>
+          {/* REMOVED THE DUPLICATE CONNECT WALLET BUTTON FROM HERE */}
           {isConnected ? (
             <div>
               <div style={{
@@ -217,6 +404,7 @@ function App() {
                 across multiple EVM networks using secure smart contracts.
               </p>
               
+              {/* Only one Connect Wallet button now - the main one */}
               <button
                 onClick={connectWallet}
                 style={{
