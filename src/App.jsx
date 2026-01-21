@@ -1,6 +1,7 @@
-import { useWeb3Modal, useWeb3ModalAccount } from '@web3modal/react'
+import { useWeb3Modal, useWeb3ModalAccount } from '@web3modal/ethers-react'
 import { ethers } from 'ethers'
 import './web3modal'
+
 
 function App() {
   const { open } = useWeb3Modal()
@@ -94,3 +95,4 @@ function App() {
 }
 
 export default App
+
