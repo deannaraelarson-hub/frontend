@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import { initWeb3Modal } from './web3modal'
-initWeb3Modal() // 🔥 GUARANTEED execution
+// MUST be before App
+import './web3modal'
 
 import App from './App.jsx'
 
