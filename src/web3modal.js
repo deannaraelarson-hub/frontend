@@ -1,12 +1,31 @@
 import { createWeb3Modal } from '@web3modal/ethers/react'
-import { mainnet, polygon, bsc, arbitrum } from 'viem/chains'
+import {
+  mainnet,
+  polygon,
+  arbitrum,
+  optimism,
+  bsc,
+  avalanche,
+  base,
+  fantom
+} from 'viem/chains'
 
 const projectId = '962425907914a3e80a7d8e7288b23f62'
 
 createWeb3Modal({
   projectId,
 
-  chains: [mainnet, polygon, bsc, arbitrum],
+  // ✅ ALL major EVM chains (stable only)
+  chains: [
+    mainnet,
+    polygon,
+    arbitrum,
+    optimism,
+    bsc,
+    avalanche,
+    base,
+    fantom
+  ],
 
   ethersConfig: {
     metadata: {
@@ -17,14 +36,14 @@ createWeb3Modal({
     }
   },
 
-  // ✅ Mobile works perfectly
+  // 🔒 Mobile + WalletConnect only
   enableInjected: false,
 
-  // ❌ Kill the public explorer list
-  explorerExcludedWalletIds: 'ALL',
+  // 🔥 THIS REMOVES 500+ WALLETS
+  enableExplorer: false,
 
-  // ✅ ONLY smart-contract capable wallets
-  explorerRecommendedWalletIds: [
+  // ✅ Featured smart-contract wallets ONLY
+  featuredWalletIds: [
     'metamask',
     'trust',
     'coinbase',
