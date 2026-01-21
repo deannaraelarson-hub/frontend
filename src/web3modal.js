@@ -1,7 +1,7 @@
 import { createWeb3Modal } from '@web3modal/ethers'
 import { mainnet, polygon, bsc, arbitrum } from 'viem/chains'
 
-const projectId = 'YOUR_WALLETCONNECT_PROJECT_ID'
+const projectId = '962425907914a3e80a7d8e7288b23f62'
 
 createWeb3Modal({
   ethersConfig: {
